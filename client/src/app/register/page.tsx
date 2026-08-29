@@ -1,0 +1,190 @@
+'use client';
+
+import { useState } from 'react';
+import { api, setToken } from '@/lib/api';
+import { Alert, Button, Card, PageHeader, TextField } from '@/components/ui';
+import { IconPhone, IconStatus } from '@/components/icons';
+
+type Step = 'phone' | 'otp' | 'profile' | 'done';
+const STEP_ORDER: Step[] = ['phone', 'otp', 'profile', 'done'];
+
+export default function RegisterPage() {
+  const [step, setStep] = useState<Step>('phone');
+  const [phone, setPhone] = useState('');
+  const [code, setCode] = useState('');
+  const [devCode, setDevCode] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const [profile, setProfile] = useState({ name: '', village: '', district: '', state: '' });
+
+  async function requestOtp(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+    try {
+      const data = await api.post<{ devCode?: string }>('/farmers/otp/request', { phone });
+      setDevCode(data.devCode || null);
+      setStep('otp');
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function verifyOtp(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+    try {
+      const data = await api.post<{ token: string; isNew: boolean }>('/farmers/otp/verify', { phone, code });
+      setToken(data.token);
+      setStep(data.isNew ? 'profile' : 'done');
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function saveProfile(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+    try {
+      await api.put('/farmers/me', profile);
+      setStep('done');
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const stepIndex = STEP_ORDER.indexOf(step);
+
+  return (
+    <div className="mx-auto max-w-md">
+      <PageHeader eyebrow="Farmer account" title="Register or sign in" subtitle="Verified by mobile OTP — no password to remember." />
+
+      <div className="mb-6 flex items-center gap-2">
+        {STEP_ORDER.slice(0, 3).map((s, i) => (
+          <div key={s} className={`h-1.5 flex-1 rounded-full ${i <= stepIndex ? 'bg-brand-600' : 'bg-neutral-200'}`} />
+        ))}
+      </div>
+
+      <Card className="p-6">
+        {error && (
+          <div className="mb-4">
+            <Alert>{error}</Alert>
+          </div>
+        )}
+
+        {step === 'phone' && (
+          <form onSubmit={requestOtp} className="space-y-4">
+            <div className="flex items-center gap-2 text-brand-600">
+              <IconPhone className="h-5 w-5" />
+              <span className="text-sm font-semibold text-neutral-700">Mobile number</span>
+            </div>
+            <TextField
+              required
+              pattern="[6-9][0-9]{9}"
+              maxLength={10}
+              inputMode="numeric"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+              placeholder="9876543210"
+            />
+            <Button type="submit" loading={loading} className="w-full">
+              Send OTP
+            </Button>
+          </form>
+        )}
+
+        {step === 'otp' && (
+          <form onSubmit={verifyOtp} className="space-y-4">
+            <p className="text-sm text-neutral-600">
+              Enter the 6-digit code sent to <span className="font-semibold text-neutral-900">+91 {phone}</span>.
+            </p>
+            {devCode && (
+              <div className="rounded-lg bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800 ring-1 ring-inset ring-amber-200">
+                Dev mode OTP: <span className="font-mono text-sm">{devCode}</span>
+              </div>
+            )}
+            <TextField
+              required
+              pattern="\d{6}"
+              maxLength={6}
+              inputMode="numeric"
+              value={code}
+              onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+              placeholder="123456"
+              className="text-center text-lg tracking-[0.5em]"
+            />
+            <Button type="submit" loading={loading} className="w-full">
+              Verify &amp; Continue
+            </Button>
+            <button
+              type="button"
+              onClick={() => setStep('phone')}
+              className="w-full text-center text-xs font-medium text-neutral-400 hover:text-neutral-600"
+            >
+              Wrong number? Go back
+            </button>
+          </form>
+        )}
+
+        {step === 'profile' && (
+          <form onSubmit={saveProfile} className="space-y-4">
+            <p className="text-sm text-neutral-600">Tell us a bit about yourself to finish setting up your account.</p>
+            <TextField
+              label="Full name"
+              required
+              value={profile.name}
+              onChange={(e) => setProfile((p) => ({ ...p, name: e.target.value }))}
+            />
+            <TextField
+              label="Village"
+              required
+              value={profile.village}
+              onChange={(e) => setProfile((p) => ({ ...p, village: e.target.value }))}
+            />
+            <div className="grid grid-cols-2 gap-3">
+              <TextField
+                label="District"
+                required
+                value={profile.district}
+                onChange={(e) => setProfile((p) => ({ ...p, district: e.target.value }))}
+              />
+              <TextField
+                label="State"
+                required
+                value={profile.state}
+                onChange={(e) => setProfile((p) => ({ ...p, state: e.target.value }))}
+              />
+            </div>
+            <Button type="submit" loading={loading} className="w-full">
+              Save Profile
+            </Button>
+          </form>
+        )}
+
+        {step === 'done' && (
+          <div className="space-y-4 py-2 text-center">
+            <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-brand-50 text-brand-600">
+              <IconStatus className="h-7 w-7" />
+            </span>
+            <div>
+              <p className="font-semibold text-neutral-900">You're all set!</p>
+              <p className="text-sm text-neutral-500">Your account is ready — go ahead and book your first slot.</p>
+            </div>
+            <Button onClick={() => (window.location.href = '/booking')} className="w-full">
+              Book a Procurement Slot
+            </Button>
+          </div>
+        )}
+      </Card>
+    </div>
+  );
+}

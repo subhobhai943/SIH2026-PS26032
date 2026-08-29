@@ -1,0 +1,29 @@
+{
+  "name": "sih26032-server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Backend for the Farmer Procurement Queue Management Platform (SIH 2026 PS26032)",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js",
+    "seed": "node src/utils/seed.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.4.0",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.6.0",
+    "morgan": "^1.10.0",
+    "socket.io": "^4.7.5",
+    "zod": "^3.23.8"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

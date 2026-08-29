@@ -1,0 +1,304 @@
+import { z } from 'zod';
+import Staff from '../models/Staff.js';
+import Center from '../models/Center.js';
+import Slot from '../models/Slot.js';
+import Queue, { QUEUE_STATUSES } from '../models/Queue.js';
+import Procurement, { PROCUREMENT_STAGES } from '../models/Procurement.js';
+import { signToken, resolveCenterScope } from '../middleware/auth.js';
+import { ApiError, asyncHandler } from '../utils/ApiError.js';
+import { parse } from '../utils/validate.js';
+import { minutesOfDay, toHHMM, todayISO } from '../utils/datetime.js';
+import { broadcastQueue, notifyFarmer } from '../services/socketService.js';
+import { sendTemplate } from '../services/smsService.js';
+import { farmersToAlert, getQueueState } from '../services/queueService.js';
+
+// ---------------------------------------------------------------- auth
+
+const loginSchema = z.object({ email: z.string().email(), password: z.string().min(6) });
+
+/** POST /api/admin/login */
+export const login = asyncHandler(async (req, res) => {
+  const { email, password } = parse(loginSchema, req.body);
+
+  const staff = await Staff.findOne({ email }).select('+passwordHash');
+  if (!staff || !staff.isActive) throw ApiError.unauthorized('Invalid credentials');
+
+  const ok = await staff.verifyPassword(password);
+  if (!ok) throw ApiError.unauthorized('Invalid credentials');
+
+  res.json({
+    ok: true,
+    data: {
+      token: signToken({ sub: String(staff._id), kind: 'staff', role: staff.role }),
+      staff: { id: String(staff._id), name: staff.name, email: staff.email, role: staff.role, center: staff.center },
+    },
+  });
+});
+
+/** GET /api/admin/me */
+export const me = asyncHandler(async (req, res) => {
+  res.json({
+    ok: true,
+    data: {
+      id: String(req.staff._id),
+      name: req.staff.name,
+      email: req.staff.email,
+      role: req.staff.role,
+      center: req.staff.center,
+    },
+  });
+});
+
+// ---------------------------------------------------------------- centres
+
+const centerSchema = z.object({
+  name: z.string().min(2),
+  code: z.string().min(2).max(20),
+  address: z.string().optional(),
+  district: z.string().min(2),
+  state: z.string().min(2),
+  crops: z.array(z.string()).optional(),
+  dailyCapacity: z.number().min(1).optional(),
+  avgServiceMinutes: z.number().min(1).optional(),
+  openTime: z.string().regex(/^\d{2}:\d{2}$/).optional(),
+  closeTime: z.string().regex(/^\d{2}:\d{2}$/).optional(),
+  contactPhone: z.string().optional(),
+});
+
+/** POST /api/admin/centers — admin only. */
+export const createCenter = asyncHandler(async (req, res) => {
+  const payload = parse(centerSchema, req.body);
+  const center = await Center.create(payload);
+  res.status(201).json({ ok: true, data: center });
+});
+
+/** PUT /api/admin/centers/:id — admin only. */
+export const updateCenter = asyncHandler(async (req, res) => {
+  const payload = parse(centerSchema.partial(), req.body);
+  const center = await Center.findByIdAndUpdate(req.params.id, payload, { new: true, runValidators: true });
+  if (!center) throw ApiError.notFound('Procurement centre not found');
+  res.json({ ok: true, data: center });
+});
+
+// ---------------------------------------------------------------- slot generation
+
+const generateSlotsSchema = z.object({
+  centerId: z.string().min(1),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  slotLengthMinutes: z.number().min(5).max(120).optional(),
+  perSlotCapacity: z.number().min(1).max(200).optional(),
+  crop: z.string().optional(),
+});
+
+/**
+ * POST /api/admin/slots/generate — carves a centre's open hours into equal
+ * slots for a date. Existing slots for that date are left untouched (idempotent
+ * on re-run for already-created windows thanks to the unique index).
+ */
+export const generateSlots = asyncHandler(async (req, res) => {
+  const body = parse(generateSlotsSchema, req.body);
+  const centerId = resolveCenterScope(req.staff, body.centerId);
+
+  const center = await Center.findById(centerId);
+  if (!center) throw ApiError.notFound('Procurement centre not found');
+
+  const slotLength = body.slotLengthMinutes || 30;
+  const perSlotCapacity =
+    body.perSlotCapacity || Math.max(1, Math.round((slotLength / (center.avgServiceMinutes || 12))));
+
+  const start = minutesOfDay(center.openTime);
+  const end = minutesOfDay(center.closeTime);
+
+  const docs = [];
+  for (let t = start; t + slotLength <= end; t += slotLength) {
+    docs.push({
+      center: center._id,
+      date: body.date,
+      startTime: toHHMM(t),
+      endTime: toHHMM(t + slotLength),
+      capacity: perSlotCapacity,
+      crop: body.crop || 'any',
+    });
+  }
+
+  let created = 0;
+  for (const doc of docs) {
+    try {
+      await Slot.create(doc);
+      created += 1;
+    } catch (err) {
+      if (err.code !== 11000) throw err; // slot already exists for this window — skip
+    }
+  }
+
+  res.status(201).json({ ok: true, data: { requested: docs.length, created, skipped: docs.length - created } });
+});
+
+/** GET /api/admin/slots?centerId=&date= — full slot list including closed ones, for editing. */
+export const listAllSlots = asyncHandler(async (req, res) => {
+  const centerId = resolveCenterScope(req.staff, req.query.centerId);
+  const date = String(req.query.date || todayISO());
+  const slots = await Slot.find({ center: centerId, date }).sort({ startTime: 1 });
+  res.json({ ok: true, data: slots });
+});
+
+/** PATCH /api/admin/slots/:id — close/cancel a slot or adjust capacity. */
+export const updateSlot = asyncHandler(async (req, res) => {
+  const payload = parse(
+    z.object({ capacity: z.number().min(0).optional(), status: z.enum(['open', 'closed', 'cancelled']).optional() }),
+    req.body
+  );
+  const slot = await Slot.findByIdAndUpdate(req.params.id, payload, { new: true, runValidators: true });
+  if (!slot) throw ApiError.notFound('Slot not found');
+  res.json({ ok: true, data: slot });
+});
+
+// ---------------------------------------------------------------- queue operations
+
+/** GET /api/admin/queue?centerId=&date= — the operator's working view of the queue. */
+export const adminQueueBoard = asyncHandler(async (req, res) => {
+  const centerId = resolveCenterScope(req.staff, req.query.centerId);
+  const date = String(req.query.date || todayISO());
+  const state = await getQueueState(centerId, date);
+  if (!state) throw ApiError.notFound('Procurement centre not found');
+  res.json({ ok: true, data: state });
+});
+
+/** POST /api/admin/queue/:id/check-in — farmer has physically arrived. */
+export const checkIn = asyncHandler(async (req, res) => {
+  const entry = await Queue.findById(req.params.id);
+  if (!entry) throw ApiError.notFound('Queue entry not found');
+  resolveCenterScope(req.staff, entry.center);
+  if (entry.status !== 'booked') throw ApiError.conflict(`Cannot check in an entry that is '${entry.status}'`);
+
+  entry.status = 'checked_in';
+  entry.checkedInAt = new Date();
+  await entry.save();
+  await broadcastQueue(String(entry.center), entry.date);
+
+  res.json({ ok: true, data: entry });
+});
+
+/**
+ * POST /api/admin/queue/:id/call-next — marks the given entry as being served
+ * (completing whoever the centre was previously serving), and warns the next
+ * few farmers in line by SMS that their turn is close.
+ */
+export const callNext = asyncHandler(async (req, res) => {
+  const entry = await Queue.findById(req.params.id).populate('farmer', 'phone').populate('center', 'name');
+  if (!entry) throw ApiError.notFound('Queue entry not found');
+  resolveCenterScope(req.staff, entry.center._id);
+  if (!['booked', 'checked_in'].includes(entry.status)) {
+    throw ApiError.conflict(`Cannot call an entry that is '${entry.status}'`);
+  }
+
+  await Queue.updateMany(
+    { center: entry.center._id, date: entry.date, status: 'serving' },
+    { status: 'completed', completedAt: new Date() }
+  );
+
+  entry.status = 'serving';
+  entry.servingStartedAt = new Date();
+  await entry.save();
+
+  await Procurement.findOneAndUpdate(
+    { queueEntry: entry._id },
+    {
+      $setOnInsert: {
+        queueEntry: entry._id,
+        farmer: entry.farmer._id,
+        center: entry.center._id,
+        date: entry.date,
+        crop: entry.crop,
+        stage: 'arrived',
+        timeline: [{ stage: 'arrived', by: req.staff._id }],
+      },
+    },
+    { upsert: true, new: true }
+  );
+
+  await sendTemplate(entry.farmer.phone, 'yourTurn', { token: entry.token, centerName: entry.center.name });
+  const state = await broadcastQueue(String(entry.center._id), entry.date);
+  notifyFarmer(String(entry.farmer._id), 'queue:your-turn', { token: entry.token });
+
+  for (const upcoming of farmersToAlert(state)) {
+    await sendTemplate(upcoming.farmer.phone, 'nearingTurn', {
+      token: upcoming.token,
+      ahead: upcoming.ahead,
+      centerName: entry.center.name,
+    });
+  }
+
+  res.json({ ok: true, data: entry });
+});
+
+const markSchema = z.object({ status: z.enum(QUEUE_STATUSES) });
+
+/** PATCH /api/admin/queue/:id/status — manual override (no-show, cancel, etc.). */
+export const setQueueStatus = asyncHandler(async (req, res) => {
+  const { status } = parse(markSchema, req.body);
+  const entry = await Queue.findById(req.params.id);
+  if (!entry) throw ApiError.notFound('Queue entry not found');
+  resolveCenterScope(req.staff, entry.center);
+
+  const wasWaiting = Queue.WAITING_STATUSES.includes(entry.status);
+  entry.status = status;
+  if (status === 'completed') entry.completedAt = new Date();
+  if (status === 'cancelled') entry.cancelledAt = new Date();
+  await entry.save();
+
+  // Freeing a waiting seat needs to be reflected back on the slot's capacity.
+  if (wasWaiting && ['cancelled', 'no_show'].includes(status)) {
+    await Slot.updateOne({ _id: entry.slot }, { $inc: { booked: -1 } });
+  }
+
+  await broadcastQueue(String(entry.center), entry.date);
+  res.json({ ok: true, data: entry });
+});
+
+// ---------------------------------------------------------------- procurement
+
+const procurementSchema = z.object({
+  stage: z.enum(PROCUREMENT_STAGES),
+  quantityQtl: z.number().min(0).optional(),
+  qualityGrade: z.enum(['A', 'B', 'C', 'FAQ', '']).optional(),
+  ratePerQtl: z.number().min(0).optional(),
+  remark: z.string().max(200).optional(),
+  paymentRef: z.string().max(60).optional(),
+});
+
+/** PATCH /api/admin/procurement/:queueEntryId — advance a farmer through the stage pipeline. */
+export const updateProcurementStage = asyncHandler(async (req, res) => {
+  const body = parse(procurementSchema, req.body);
+  const entry = await Queue.findById(req.params.queueEntryId).populate('farmer', 'phone').populate('center', 'name');
+  if (!entry) throw ApiError.notFound('Queue entry not found');
+  resolveCenterScope(req.staff, entry.center._id);
+
+  const procurement = await Procurement.findOneAndUpdate(
+    { queueEntry: entry._id },
+    {
+      $setOnInsert: { farmer: entry.farmer._id, center: entry.center._id, date: entry.date, crop: entry.crop },
+    },
+    { upsert: true, new: true }
+  );
+
+  procurement.stage = body.stage;
+  if (body.quantityQtl !== undefined) procurement.quantityQtl = body.quantityQtl;
+  if (body.qualityGrade !== undefined) procurement.qualityGrade = body.qualityGrade;
+  if (body.ratePerQtl !== undefined) procurement.ratePerQtl = body.ratePerQtl;
+  if (body.paymentRef !== undefined) procurement.paymentRef = body.paymentRef;
+  if (body.stage === 'paid') procurement.paidAt = new Date();
+  procurement.timeline.push({ stage: body.stage, by: req.staff._id, remark: body.remark || '' });
+  await procurement.save();
+
+  if (body.stage === 'paid') {
+    await sendTemplate(entry.farmer.phone, 'paymentDone', {
+      amount: procurement.amount,
+      paymentRef: procurement.paymentRef,
+    });
+  } else {
+    await sendTemplate(entry.farmer.phone, 'procurementUpdate', { token: entry.token, stage: body.stage });
+  }
+
+  res.json({ ok: true, data: procurement });
+});
