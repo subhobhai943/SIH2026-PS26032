@@ -12,7 +12,6 @@ export default function RegisterPage() {
   const [step, setStep] = useState<Step>('phone');
   const [phone, setPhone] = useState('');
   const [code, setCode] = useState('');
-  const [devCode, setDevCode] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -23,8 +22,7 @@ export default function RegisterPage() {
     setError(null);
     setLoading(true);
     try {
-      const data = await api.post<{ devCode?: string }>('/farmers/otp/request', { phone });
-      setDevCode(data.devCode || null);
+      await api.post('/farmers/otp/request', { phone });
       setStep('otp');
     } catch (err: any) {
       setError(err.message);
@@ -107,11 +105,6 @@ export default function RegisterPage() {
             <p className="text-sm text-neutral-600">
               Enter the 6-digit code sent to <span className="font-semibold text-neutral-900">+91 {phone}</span>.
             </p>
-            {devCode && (
-              <div className="rounded-lg bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800 ring-1 ring-inset ring-amber-200">
-                Dev mode OTP: <span className="font-mono text-sm">{devCode}</span>
-              </div>
-            )}
             <TextField
               required
               pattern="\d{6}"
