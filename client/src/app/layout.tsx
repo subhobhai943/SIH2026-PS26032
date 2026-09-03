@@ -1,9 +1,13 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import { SiteHeader } from '@/components/SiteHeader';
 import './../styles/globals.css';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+
+export const viewport: Viewport = {
+  themeColor: '#15803d',
+};
 
 export const metadata: Metadata = {
   title: 'Farmer Procurement Queue',
@@ -13,7 +17,6 @@ export const metadata: Metadata = {
     apple: '/apple-icon.svg',
   },
   manifest: '/manifest.json',
-  themeColor: '#15803d',
   openGraph: {
     title: 'Farmer Procurement Queue',
     description: 'Smart slot booking and live queue management for government procurement centres',

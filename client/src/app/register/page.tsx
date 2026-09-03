@@ -4,6 +4,19 @@ import { useState } from 'react';
 import { api, setToken } from '@/lib/api';
 import { Alert, Button, Card, PageHeader, TextField } from '@/components/ui';
 import { IconPhone, IconStatus } from '@/components/icons';
+import {
+  isFirebaseConfigured,
+  getFirebaseAuth,
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
+  type ConfirmationResult,
+} from '@/lib/firebase';
+
+declare global {
+  interface Window {
+    recaptchaVerifier?: RecaptchaVerifier;
+  }
+}
 
 type Step = 'phone' | 'otp' | 'profile' | 'done';
 const STEP_ORDER: Step[] = ['phone', 'otp', 'profile', 'done'];
@@ -12,6 +25,7 @@ export default function RegisterPage() {
   const [step, setStep] = useState<Step>('phone');
   const [phone, setPhone] = useState('');
   const [code, setCode] = useState('');
+  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -22,10 +36,38 @@ export default function RegisterPage() {
     setError(null);
     setLoading(true);
     try {
-      await api.post('/farmers/otp/request', { phone });
-      setStep('otp');
+      if (isFirebaseConfigured) {
+        const auth = getFirebaseAuth();
+        if (!auth) throw new Error('Firebase Auth initialization failed');
+
+        if (typeof window !== 'undefined') {
+          if (!window.recaptchaVerifier) {
+            window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+              size: 'invisible',
+            });
+          }
+          const confirmation = await signInWithPhoneNumber(
+            auth,
+            `+91${phone}`,
+            window.recaptchaVerifier
+          );
+          setConfirmationResult(confirmation);
+          setStep('otp');
+        }
+      } else {
+        await api.post('/farmers/otp/request', { phone });
+        setStep('otp');
+      }
     } catch (err: any) {
-      setError(err.message);
+      if (typeof window !== 'undefined' && window.recaptchaVerifier) {
+        try {
+          window.recaptchaVerifier.clear();
+        } catch {
+          // ignore
+        }
+        window.recaptchaVerifier = undefined;
+      }
+      setError(err.message || 'Failed to send OTP. Please check your number.');
     } finally {
       setLoading(false);
     }
@@ -36,11 +78,19 @@ export default function RegisterPage() {
     setError(null);
     setLoading(true);
     try {
-      const data = await api.post<{ token: string; isNew: boolean }>('/farmers/otp/verify', { phone, code });
-      setToken(data.token);
-      setStep(data.isNew ? 'profile' : 'done');
+      if (confirmationResult) {
+        const userCredential = await confirmationResult.confirm(code);
+        const idToken = await userCredential.user.getIdToken();
+        const data = await api.post<{ token: string; isNew: boolean }>('/farmers/firebase/verify', { idToken });
+        setToken(data.token);
+        setStep(data.isNew ? 'profile' : 'done');
+      } else {
+        const data = await api.post<{ token: string; isNew: boolean }>('/farmers/otp/verify', { phone, code });
+        setToken(data.token);
+        setStep(data.isNew ? 'profile' : 'done');
+      }
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'Incorrect or expired OTP');
     } finally {
       setLoading(false);
     }
@@ -94,6 +144,7 @@ export default function RegisterPage() {
               onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
               placeholder="9876543210"
             />
+            <div id="recaptcha-container" />
             <Button type="submit" loading={loading} className="w-full">
               Send OTP
             </Button>

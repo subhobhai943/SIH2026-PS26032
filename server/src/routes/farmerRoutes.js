@@ -10,6 +10,7 @@ const otpLimiter = rateLimit({ windowMs: 10 * 60 * 1000, max: 5, standardHeaders
 
 router.post('/otp/request', otpLimiter, farmerController.requestOtp);
 router.post('/otp/verify', otpLimiter, farmerController.verifyOtp);
+router.post('/firebase/verify', otpLimiter, farmerController.verifyFirebase);
 
 router.get('/me', requireFarmer, farmerController.getProfile);
 router.put('/me', requireFarmer, farmerController.updateProfile);

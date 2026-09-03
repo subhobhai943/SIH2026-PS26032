@@ -8,6 +8,7 @@ import { signToken } from '../middleware/auth.js';
 import { ApiError, asyncHandler } from '../utils/ApiError.js';
 import { parse } from '../utils/validate.js';
 import { sendTemplate } from '../services/smsService.js';
+import { verifyFirebaseToken } from '../config/firebase.js';
 
 const MAX_OTP_ATTEMPTS = 5;
 
@@ -74,6 +75,32 @@ export const verifyOtp = asyncHandler(async (req, res) => {
 
   otp.consumedAt = new Date();
   await otp.save();
+
+  let farmer = await Farmer.findOne({ phone });
+  let isNew = false;
+  if (!farmer) {
+    farmer = await Farmer.create({ phone });
+    isNew = true;
+  }
+
+  res.json({
+    ok: true,
+    data: {
+      token: signToken({ sub: String(farmer._id), kind: 'farmer', phone }),
+      isNew,
+      farmer: farmer.toJSON(),
+    },
+  });
+});
+
+const firebaseVerifySchema = z.object({
+  idToken: z.string().min(10, 'Firebase ID token is required'),
+});
+
+/** POST /api/farmers/firebase/verify — logs in or registers farmer using verified Firebase ID token */
+export const verifyFirebase = asyncHandler(async (req, res) => {
+  const { idToken } = parse(firebaseVerifySchema, req.body);
+  const { phone } = await verifyFirebaseToken(idToken);
 
   let farmer = await Farmer.findOne({ phone });
   let isNew = false;

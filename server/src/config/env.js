@@ -32,6 +32,11 @@ export const env = {
     apiKey: process.env.FAST2SMS_API_KEY || '',
   },
 
+  firebase: {
+    projectId: process.env.FIREBASE_PROJECT_ID || '',
+    serviceAccountKey: process.env.FIREBASE_SERVICE_ACCOUNT_KEY || '',
+  },
+
   defaultServiceMinutes: Number(process.env.DEFAULT_SERVICE_MINUTES || 12),
 };
 
