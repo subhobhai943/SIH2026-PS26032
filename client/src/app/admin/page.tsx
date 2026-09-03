@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Alert, Button, Card, EmptyState, PageHeader, StatTile, StatusBadge, TextField } from '@/components/ui';
 import { IconAdmin, IconMapPin, IconQueue } from '@/components/icons';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://51.20.193.239:5000/api';
 const ADMIN_TOKEN_KEY = 'sih26032_admin_token';
 
 type Center = { _id: string; name: string; district: string };

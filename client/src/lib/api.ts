@@ -1,4 +1,4 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://51.20.193.239:5000/api';
 const TOKEN_KEY = 'sih26032_farmer_token';
 
 export function getToken(): string | null {
