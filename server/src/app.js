@@ -13,6 +13,8 @@ import adminRoutes from './routes/adminRoutes.js';
 export function createApp() {
   const app = express();
 
+  // Trust reverse proxies (Vercel, Nginx) so rate-limiter sees real client IPs
+  app.set('trust proxy', 1);
   app.use(helmet());
   app.use(cors({ origin: env.clientOrigin, credentials: true }));
   app.use(express.json({ limit: '1mb' }));
