@@ -8,6 +8,17 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 export const metadata: Metadata = {
   title: 'Farmer Procurement Queue',
   description: 'Slot booking and live queue management for government procurement centres — SIH 2026 PS26032',
+  icons: {
+    icon: '/icon.svg',
+    apple: '/apple-icon.svg',
+  },
+  manifest: '/manifest.json',
+  themeColor: '#15803d',
+  openGraph: {
+    title: 'Farmer Procurement Queue',
+    description: 'Smart slot booking and live queue management for government procurement centres',
+    type: 'website',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

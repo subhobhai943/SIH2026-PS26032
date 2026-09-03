@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="6" fill="#15803d"/>
+  <g fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" transform="translate(16,16)">
+    <!-- stem -->
+    <line x1="0" y1="9" x2="0" y2="-8"/>
+    <!-- grain pairs -->
+    <path d="M0,-8 C-3,-8 -4,-6 -4,-5 C-4,-4 -3,-3 0,-4"/>
+    <path d="M0,-8 C3,-8 4,-6 4,-5 C4,-4 3,-3 0,-4"/>
+    <path d="M0,-4 C-4,-4.5 -5,-2.5 -5,-1.5 C-5,-.5 -4,.5 0,0"/>
+    <path d="M0,-4 C4,-4.5 5,-2.5 5,-1.5 C5,-.5 4,.5 0,0"/>
+    <path d="M0,0 C-4,-.5 -5,1.5 -5,2.5 C-5,3.5 -4,4.5 0,4"/>
+    <path d="M0,0 C4,-.5 5,1.5 5,2.5 C5,3.5 4,4.5 0,4"/>
+    <!-- top tip -->
+    <path d="M0,-8 C-1,-11 0,-12 0,-12 C0,-12 1,-11 0,-8"/>
+  </g>
+</svg>

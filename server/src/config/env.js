@@ -28,6 +28,10 @@ export const env = {
     dltTeId: process.env.MSG91_DLT_TE_ID || '',
   },
 
+  fast2sms: {
+    apiKey: process.env.FAST2SMS_API_KEY || '',
+  },
+
   defaultServiceMinutes: Number(process.env.DEFAULT_SERVICE_MINUTES || 12),
 };
 
