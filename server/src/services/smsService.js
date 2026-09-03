@@ -48,39 +48,31 @@ async function sendViaMsg91(phone, message) {
 
 const FAST2SMS_ENDPOINT = 'https://www.fast2sms.com/dev/bulkV2';
 
-async function sendViaFast2sms(phone, message, otp) {
+async function sendViaFast2sms(phone, message) {
   if (!env.fast2sms.apiKey) throw new Error('FAST2SMS_API_KEY is not configured');
 
-  // Fast2SMS OTP route: sends a predefined OTP template with the code.
-  // For general messages, use the 'q' (quick) route.
-  const isOtp = otp != null;
+  // Use the 'q' (quick/transactional) route — works without DLT or website verification.
+  const res = await fetch(FAST2SMS_ENDPOINT, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      authorization: env.fast2sms.apiKey,
+    },
+    body: JSON.stringify({
+      route: 'q',
+      message,
+      flash: 0,
+      numbers: phone,
+    }),
+  });
 
-  const params = new URLSearchParams(
-    isOtp
-      ? {
-          authorization: env.fast2sms.apiKey,
-          route: 'otp',
-          variables_values: String(otp),
-          flash: '0',
-          numbers: phone,
-        }
-      : {
-          authorization: env.fast2sms.apiKey,
-          route: 'q',
-          message,
-          flash: '0',
-          numbers: phone,
-        }
-  );
-
-  const res = await fetch(`${FAST2SMS_ENDPOINT}?${params}`, { method: 'GET' });
   const body = await res.json();
 
   if (!res.ok || body.return === false) {
     throw new Error(`Fast2SMS responded ${res.status}: ${JSON.stringify(body)}`);
   }
 
-  console.log(`[sms] Fast2SMS sent to +91${phone} (${isOtp ? 'otp' : 'quick'} route)`);
+  console.log(`[sms] Fast2SMS sent to +91${phone}`);
   return { provider: 'fast2sms', response: body };
 }
 
@@ -92,13 +84,10 @@ function sendViaConsole(phone, message) {
 /**
  * Sends an SMS. Delivery failures are logged and swallowed: a farmer must never
  * lose their slot because the SMS gateway was down.
- * @param {string} phone - 10-digit Indian mobile number
- * @param {string} message - Message text
- * @param {{ otp?: string }} [extra] - Optional extra data (e.g. OTP code for Fast2SMS dedicated route)
  */
-export async function sendSMS(phone, message, extra = {}) {
+export async function sendSMS(phone, message) {
   try {
-    if (env.smsProvider === 'fast2sms') return await sendViaFast2sms(phone, message, extra.otp);
+    if (env.smsProvider === 'fast2sms') return await sendViaFast2sms(phone, message);
     if (env.smsProvider === 'msg91') return await sendViaMsg91(phone, message);
     return sendViaConsole(phone, message);
   } catch (err) {
@@ -110,6 +99,5 @@ export async function sendSMS(phone, message, extra = {}) {
 export function sendTemplate(phone, templateName, data) {
   const build = templates[templateName];
   if (!build) throw new Error(`Unknown SMS template '${templateName}'`);
-  // Pass OTP code through so providers with dedicated OTP routes (Fast2SMS) can use it
-  return sendSMS(phone, build(data), { otp: data.code });
+  return sendSMS(phone, build(data));
 }
