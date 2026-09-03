@@ -8,7 +8,7 @@ const NAV_LINKS = [
   { href: '/booking', label: 'Book a Slot' },
   { href: '/queue', label: 'Live Queue' },
   { href: '/status', label: 'My Status' },
-  { href: '/admin', label: 'Admin' },
+  // Admin link intentionally omitted — access via /admin directly
 ];
 
 export function SiteHeader() {
