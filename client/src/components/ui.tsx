@@ -62,14 +62,14 @@ export function Button({
   loading?: boolean;
 }) {
   const variants: Record<string, string> = {
-    primary: 'bg-brand-600 text-white hover:bg-brand-700 disabled:bg-brand-300',
-    secondary: 'bg-white text-neutral-700 ring-1 ring-inset ring-neutral-300 hover:bg-neutral-50 disabled:opacity-50',
-    ghost: 'text-neutral-600 hover:bg-neutral-100 disabled:opacity-50',
-    danger: 'bg-white text-red-600 ring-1 ring-inset ring-red-200 hover:bg-red-50 disabled:opacity-50',
+    primary: 'bg-brand-600 text-white shadow-sm hover:bg-brand-700 disabled:bg-brand-300 font-bold',
+    secondary: 'bg-white text-neutral-800 ring-1 ring-inset ring-neutral-300 shadow-xs hover:bg-neutral-50 disabled:opacity-50 font-semibold',
+    ghost: 'text-neutral-700 hover:bg-neutral-100 disabled:opacity-50 font-semibold',
+    danger: 'bg-red-600 text-white shadow-sm hover:bg-red-700 disabled:opacity-50 font-bold',
   };
   const sizes: Record<string, string> = {
-    sm: 'px-3 py-1.5 text-xs',
-    md: 'px-4 py-2.5 text-sm',
+    sm: 'px-3.5 py-2 text-xs',
+    md: 'px-5 py-2.5 text-sm',
   };
   return (
     <button

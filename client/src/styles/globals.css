@@ -38,7 +38,7 @@ main, section, .overflow-guard {
 
 /* Better touch targets on mobile */
 @media (max-width: 640px) {
-  button, a, input, select, textarea {
+  button, input, select, textarea {
     min-height: 44px;
   }
   

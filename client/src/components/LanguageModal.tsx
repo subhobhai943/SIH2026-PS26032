@@ -19,15 +19,18 @@ export function LanguageModal() {
         const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
         animateModalEnter(backdropRef.current, modalRef.current, isMobile);
         if (!prefersReducedMotion()) {
-          gsap.from('.lang-card', {
-            y: 16,
-            opacity: 0,
-            stagger: 0.03,
-            duration: 0.35,
-            ease: 'power2.out',
-            delay: 0.08,
-            clearProps: 'transform,opacity',
-          });
+          gsap.fromTo(
+            '.lang-card',
+            { y: 12, opacity: 0.7 },
+            {
+              y: 0,
+              opacity: 1,
+              stagger: 0.02,
+              duration: 0.3,
+              ease: 'power2.out',
+              clearProps: 'all',
+            }
+          );
         }
       } catch (err) {
         console.warn('LanguageModal enter animation failed:', err);

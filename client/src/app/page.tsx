@@ -11,14 +11,14 @@ export default function HomePage() {
 
   const containerRef = useGsapContext(() => {
     try {
-      gsap.from('.hero-badge', { y: -16, opacity: 0, duration: 0.6, ease: 'back.out(1.8)' });
-      gsap.from('.hero-title', { y: 24, opacity: 0, duration: 0.7, delay: 0.1, ease: 'power3.out' });
-      gsap.from('.hero-desc', { y: 18, opacity: 0, duration: 0.7, delay: 0.2, ease: 'power3.out' });
-      gsap.from('.hero-btn', { scale: 0.92, opacity: 0, duration: 0.5, delay: 0.3, stagger: 0.08, ease: 'back.out(1.5)' });
-      gsap.from('.procurement-banner', { y: 28, opacity: 0, duration: 0.7, delay: 0.45, ease: 'power3.out' });
-      gsap.from('.step-card', { y: 24, opacity: 0, duration: 0.6, delay: 0.55, stagger: 0.09, ease: 'power2.out' });
-      gsap.from('.review-card', { y: 24, opacity: 0, duration: 0.6, delay: 0.65, stagger: 0.09, ease: 'power2.out' });
-      gsap.from('.highlight-item', { y: 20, opacity: 0, duration: 0.5, delay: 0.75, stagger: 0.08, ease: 'power2.out' });
+      gsap.fromTo('.hero-badge', { y: -12, opacity: 0.7 }, { y: 0, opacity: 1, duration: 0.4, ease: 'power2.out', clearProps: 'all' });
+      gsap.fromTo('.hero-title', { y: 16, opacity: 0.7 }, { y: 0, opacity: 1, duration: 0.5, ease: 'power2.out', clearProps: 'all' });
+      gsap.fromTo('.hero-desc', { y: 12, opacity: 0.7 }, { y: 0, opacity: 1, duration: 0.5, ease: 'power2.out', clearProps: 'all' });
+      gsap.fromTo('.hero-btn', { y: 10, opacity: 0.7 }, { y: 0, opacity: 1, duration: 0.35, stagger: 0.05, ease: 'power2.out', clearProps: 'all' });
+      gsap.fromTo('.procurement-banner', { y: 16, opacity: 0.7 }, { y: 0, opacity: 1, duration: 0.4, ease: 'power2.out', clearProps: 'all' });
+      gsap.fromTo('.step-card', { y: 14, opacity: 0.7 }, { y: 0, opacity: 1, duration: 0.35, stagger: 0.05, ease: 'power2.out', clearProps: 'all' });
+      gsap.fromTo('.review-card', { y: 14, opacity: 0.7 }, { y: 0, opacity: 1, duration: 0.35, stagger: 0.05, ease: 'power2.out', clearProps: 'all' });
+      gsap.fromTo('.highlight-item', { y: 12, opacity: 0.7 }, { y: 0, opacity: 1, duration: 0.35, stagger: 0.05, ease: 'power2.out', clearProps: 'all' });
     } catch (err) {
       console.warn('HomePage GSAP animations skipped:', err);
     }
@@ -58,32 +58,40 @@ export default function HomePage() {
           <p className="hero-desc mx-auto mt-3 sm:mt-4 max-w-xl text-sm sm:text-lg text-brand-50">
             {t('home_heroDesc')}
           </p>
-          <div className="mt-6 sm:mt-8 grid grid-cols-2 sm:flex sm:flex-row sm:justify-center gap-2.5 sm:gap-3 sm:flex-wrap">
+          <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row sm:justify-center gap-3 sm:gap-3.5 flex-wrap items-center">
+            {/* Primary Action: Get Started / Book Slot */}
             <a
               href="/register"
-              className="hero-btn col-span-2 inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 sm:px-7 py-3 sm:py-3.5 text-sm sm:text-base font-extrabold text-neutral-900 shadow-xl transition-all duration-200 hover:bg-neutral-100 hover:-translate-y-0.5 active:scale-[0.98] border border-white"
+              className="hero-btn w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-xl bg-white px-6 sm:px-8 py-3.5 sm:py-4 text-base font-extrabold text-neutral-900 shadow-xl transition-all duration-200 hover:bg-neutral-100 hover:shadow-2xl hover:-translate-y-0.5 active:scale-[0.98] border-2 border-white ring-2 ring-white/30"
             >
               <span className="text-neutral-900 font-extrabold">{t('home_getStarted')}</span>
-              <IconArrowRight className="h-4 w-4 text-neutral-900 stroke-[2.5]" />
+              <IconArrowRight className="h-5 w-5 text-neutral-900 stroke-[2.5]" />
             </a>
+
+            {/* Secondary Action: Live Queue */}
             <a
               href="/queue"
-              className="hero-btn inline-flex items-center justify-center gap-1.5 rounded-xl bg-white/10 px-3 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-white ring-1 ring-inset ring-white/40 transition hover:bg-white/20 hover:-translate-y-0.5 active:scale-[0.99]"
+              className="hero-btn w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-neutral-950 px-5 sm:px-6 py-3.5 text-sm sm:text-base font-bold text-white shadow-lg transition-all duration-200 hover:bg-neutral-900 hover:-translate-y-0.5 active:scale-[0.98] border border-neutral-700"
             >
-              {t('home_viewLiveQueue')}
+              <IconQueue className="h-4 w-4 text-emerald-400" />
+              <span>{t('home_viewLiveQueue')}</span>
             </a>
+
+            {/* Secondary Action: Track Produce & Logistics */}
             <a
               href="/tracking"
-              className="hero-btn inline-flex items-center justify-center gap-1.5 rounded-xl bg-white/10 px-3 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-white ring-1 ring-inset ring-white/40 transition hover:bg-white/20 hover:-translate-y-0.5 active:scale-[0.99]"
+              className="hero-btn w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-900 px-5 sm:px-6 py-3.5 text-sm sm:text-base font-bold text-white shadow-lg transition-all duration-200 hover:bg-emerald-950 hover:-translate-y-0.5 active:scale-[0.98] border border-emerald-600"
             >
-              <IconTruck className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              {t('nav_trackOrder')}
+              <IconTruck className="h-4 w-4 text-emerald-300" />
+              <span>{t('nav_trackOrder')}</span>
             </a>
+
+            {/* Tertiary Action: Verified Buyer Reviews */}
             <a
               href="/reviews"
-              className="hero-btn col-span-2 inline-flex items-center justify-center gap-1.5 rounded-xl bg-amber-400/20 px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-amber-200 ring-1 ring-inset ring-amber-400/50 transition hover:bg-amber-400/30 hover:-translate-y-0.5 active:scale-[0.99]"
+              className="hero-btn w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-amber-400 px-5 sm:px-6 py-3.5 text-sm sm:text-base font-extrabold text-neutral-950 shadow-lg transition-all duration-200 hover:bg-amber-300 hover:-translate-y-0.5 active:scale-[0.98] border border-amber-300"
             >
-              <IconStar className="h-3.5 w-3.5 sm:h-4 sm:w-4 fill-amber-300" filled />
+              <IconStar className="h-4 w-4 fill-neutral-950" filled />
               <span>Buyer Reviews</span>
             </a>
           </div>

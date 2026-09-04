@@ -48,19 +48,6 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       if (saved && SUPPORTED_LANGUAGES.some((l) => l.code === saved)) {
         setLanguageState(saved);
       }
-
-      // If this is the farmer's first visit, display the language selection modal ONLY ONCE
-      if (!alreadyPrompted) {
-        setShowModal(true);
-        // Persist immediately so route changes or refreshes never re-prompt
-        try {
-          window.localStorage.setItem(PROMPTED_KEY, 'true');
-          window.sessionStorage.setItem(PROMPTED_KEY, 'true');
-          document.cookie = `${PROMPTED_KEY}=true; path=/; max-age=31536000; SameSite=Lax`;
-        } catch {
-          // ignore
-        }
-      }
     } catch {
       // localStorage may fail in restricted/private modes
     }

@@ -69,15 +69,19 @@ export function animateFadeInUp(
   if (typeof window === 'undefined' || prefersReducedMotion() || !targets) return;
 
   try {
-    return gsap.from(targets, {
-      y: 28,
-      opacity: 0,
-      duration: 0.65,
-      ease: 'power3.out',
-      stagger: 0.08,
-      clearProps: 'transform,opacity',
-      ...vars,
-    });
+    return gsap.fromTo(
+      targets,
+      { y: 20, opacity: 0.7 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.45,
+        ease: 'power3.out',
+        stagger: 0.06,
+        clearProps: 'all',
+        ...vars,
+      }
+    );
   } catch (err) {
     console.warn('GSAP animateFadeInUp skipped:', err);
   }
@@ -93,14 +97,18 @@ export function animatePop(
   if (typeof window === 'undefined' || prefersReducedMotion() || !targets) return;
 
   try {
-    return gsap.from(targets, {
-      scale: 0.88,
-      opacity: 0,
-      duration: 0.5,
-      ease: 'back.out(1.5)',
-      clearProps: 'transform,opacity',
-      ...vars,
-    });
+    return gsap.fromTo(
+      targets,
+      { scale: 0.94, opacity: 0.7 },
+      {
+        scale: 1,
+        opacity: 1,
+        duration: 0.35,
+        ease: 'back.out(1.4)',
+        clearProps: 'all',
+        ...vars,
+      }
+    );
   } catch (err) {
     console.warn('GSAP animatePop skipped:', err);
   }

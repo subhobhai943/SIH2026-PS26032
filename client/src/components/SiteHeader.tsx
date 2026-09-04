@@ -41,13 +41,18 @@ export function SiteHeader() {
           { opacity: 0, y: -8 },
           { opacity: 1, y: 0, duration: 0.25, ease: 'power2.out' }
         );
-        gsap.from('.mobile-nav-link', {
-          x: -10,
-          opacity: 0,
-          stagger: 0.035,
-          duration: 0.22,
-          ease: 'power2.out',
-        });
+        gsap.fromTo(
+          '.mobile-nav-link',
+          { x: -8, opacity: 0.7 },
+          {
+            x: 0,
+            opacity: 1,
+            stagger: 0.03,
+            duration: 0.22,
+            ease: 'power2.out',
+            clearProps: 'all',
+          }
+        );
       } catch (err) {
         console.warn('SiteHeader menu animation skipped:', err);
       }

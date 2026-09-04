@@ -133,23 +133,31 @@ export default function ReviewsPage() {
     if (!loading && !prefersReducedMotion()) {
       try {
         if (activeTab === 'reviews') {
-          gsap.from('.review-card-item', {
-            y: 16,
-            opacity: 0,
-            stagger: 0.04,
-            duration: 0.35,
-            ease: 'power2.out',
-            clearProps: 'transform,opacity',
-          });
+          gsap.fromTo(
+            '.review-card-item',
+            { y: 12, opacity: 0.7 },
+            {
+              y: 0,
+              opacity: 1,
+              stagger: 0.03,
+              duration: 0.3,
+              ease: 'power2.out',
+              clearProps: 'all',
+            }
+          );
         } else {
-          gsap.from('.farmer-card-item', {
-            scale: 0.94,
-            opacity: 0,
-            stagger: 0.04,
-            duration: 0.35,
-            ease: 'back.out(1.4)',
-            clearProps: 'transform,opacity',
-          });
+          gsap.fromTo(
+            '.farmer-card-item',
+            { scale: 0.96, opacity: 0.7 },
+            {
+              scale: 1,
+              opacity: 1,
+              stagger: 0.03,
+              duration: 0.3,
+              ease: 'back.out(1.2)',
+              clearProps: 'all',
+            }
+          );
         }
       } catch (err) {
         console.warn('Review cards animation skipped:', err);

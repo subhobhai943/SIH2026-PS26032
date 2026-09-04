@@ -45,14 +45,18 @@ export default function BookingPage() {
   useEffect(() => {
     if (slots.length > 0 && !prefersReducedMotion()) {
       try {
-        gsap.from('.slot-button', {
-          scale: 0.9,
-          opacity: 0,
-          stagger: 0.035,
-          duration: 0.35,
-          ease: 'back.out(1.4)',
-          clearProps: 'transform,opacity',
-        });
+        gsap.fromTo(
+          '.slot-button',
+          { scale: 0.95, opacity: 0.7 },
+          {
+            scale: 1,
+            opacity: 1,
+            stagger: 0.025,
+            duration: 0.3,
+            ease: 'back.out(1.2)',
+            clearProps: 'all',
+          }
+        );
       } catch (err) {
         console.warn('Booking slot animation skipped:', err);
       }

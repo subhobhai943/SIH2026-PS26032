@@ -48,14 +48,18 @@ export default function QueuePage() {
             { scale: 1, opacity: 1, duration: 0.45, ease: 'back.out(1.8)' }
           );
         }
-        gsap.from('.queue-row', {
-          opacity: 0,
-          x: -10,
-          stagger: 0.035,
-          duration: 0.3,
-          ease: 'power2.out',
-          clearProps: 'transform,opacity',
-        });
+        gsap.fromTo(
+          '.queue-row',
+          { opacity: 0.7, x: -8 },
+          {
+            opacity: 1,
+            x: 0,
+            stagger: 0.025,
+            duration: 0.25,
+            ease: 'power2.out',
+            clearProps: 'all',
+          }
+        );
       } catch (err) {
         console.warn('Queue animation skipped:', err);
       }

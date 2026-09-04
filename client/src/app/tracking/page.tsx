@@ -105,14 +105,18 @@ function TrackingContent() {
           { opacity: 0, y: 16 },
           { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out', clearProps: 'transform,opacity' }
         );
-        gsap.from('.checkpoint-item', {
-          opacity: 0,
-          x: -8,
-          stagger: 0.04,
-          duration: 0.3,
-          ease: 'power2.out',
-          clearProps: 'transform,opacity',
-        });
+        gsap.fromTo(
+          '.checkpoint-item',
+          { opacity: 0.7, x: -6 },
+          {
+            opacity: 1,
+            x: 0,
+            stagger: 0.03,
+            duration: 0.25,
+            ease: 'power2.out',
+            clearProps: 'all',
+          }
+        );
       } catch (err) {
         console.warn('Tracking animation skipped:', err);
       }
