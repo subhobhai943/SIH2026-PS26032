@@ -40,15 +40,15 @@ export function SiteHeader() {
   return (
     <div className="sticky top-0 z-40 bg-white shadow-sm">
       {/* Official Government of India Top Banner */}
-      <div className="bg-neutral-900 text-neutral-300 text-[11px] font-medium border-b border-neutral-800">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-1 sm:px-6">
-          <div className="flex items-center gap-2">
-            <span className="inline-block h-2 w-2 rounded-full bg-emerald-500"></span>
-            <span className="font-semibold text-neutral-100">भारत सरकार | Government of India</span>
+      <div className="bg-neutral-900 text-neutral-300 text-[10px] sm:text-[11px] font-medium border-b border-neutral-800">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-3 py-1 sm:px-6">
+          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+            <span className="inline-block h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-emerald-500 shrink-0"></span>
+            <span className="font-semibold text-neutral-100 truncate">भारत सरकार | Gov. of India</span>
             <span className="hidden md:inline text-neutral-500">·</span>
             <span className="hidden md:inline text-neutral-300">Ministry of Consumer Affairs, Food & Public Distribution</span>
           </div>
-          <div className="flex items-center gap-3 text-[10px]">
+          <div className="hidden sm:flex items-center gap-3 text-[10px] shrink-0">
             <span className="rounded bg-neutral-800 px-2 py-0.5 font-mono text-neutral-300">
               SIH2026 · PS26032
             </span>
@@ -58,21 +58,21 @@ export function SiteHeader() {
 
       {/* Main Navigation */}
       <header className="border-b border-neutral-200/80 bg-white/95 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2.5 sm:px-6">
-          <a href="/" className="flex items-center gap-2.5 text-neutral-900">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-700 text-white shadow-sm">
-              <IconWheat className="h-5 w-5" />
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-3 py-2 sm:px-6 sm:py-2.5">
+          <a href="/" className="flex items-center gap-2 sm:gap-2.5 text-neutral-900 min-w-0">
+            <span className="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-xl bg-brand-700 text-white shadow-sm">
+              <IconWheat className="h-4 w-4 sm:h-5 sm:w-5" />
             </span>
-            <span className="text-sm font-bold leading-tight sm:text-base">
-              {t('nav_appName')}
-              <span className="block text-[10px] font-medium text-neutral-500">
-                Department of Food & Public Distribution
+            <span className="text-xs sm:text-base font-bold leading-tight min-w-0">
+              <span className="block truncate">{t('nav_appName')}</span>
+              <span className="block text-[9px] sm:text-[10px] font-medium text-neutral-500 truncate">
+                Dept. of Food & Public Distribution
               </span>
             </span>
           </a>
 
         {/* Desktop Nav */}
-        <div className="hidden items-center gap-3 sm:flex">
+        <div className="hidden items-center gap-3 md:flex">
           <nav className="flex items-center gap-1">
             {navLinks.map((link) => (
               <a
@@ -177,15 +177,15 @@ export function SiteHeader() {
         </div>
 
         {/* Mobile controls */}
-        <div className="flex items-center gap-2 sm:hidden">
+        <div className="flex items-center gap-1.5 md:hidden">
           <button
             type="button"
             onClick={openLanguageSelector}
-            className="flex items-center gap-1 rounded-lg border border-neutral-200 bg-neutral-50 px-2 py-1.5 text-xs font-semibold text-neutral-700"
+            className="flex items-center gap-1 rounded-lg border border-neutral-200 bg-neutral-50 px-2 py-1.5 text-[11px] font-semibold text-neutral-700"
             aria-label="Language"
           >
             <span>{currentLang.flag}</span>
-            <span>{currentLang.name}</span>
+            <span className="max-w-[60px] truncate">{currentLang.name}</span>
           </button>
 
           <button
@@ -198,15 +198,15 @@ export function SiteHeader() {
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile menu — full-width slide-down */}
       {open && (
-        <nav className="border-t border-neutral-200 bg-white px-4 py-2 sm:hidden">
+        <nav className="border-t border-neutral-200 bg-white px-3 py-2 md:hidden safe-bottom">
           {navLinks.map((link) => (
             <a
               key={link.href}
               href={link.href}
               onClick={() => setOpen(false)}
-              className={`block rounded-lg px-3 py-2.5 text-sm font-medium ${
+              className={`block rounded-lg px-3 py-3 text-sm font-medium ${
                 pathname === link.href
                   ? 'bg-brand-50 text-brand-700'
                   : 'text-neutral-600 hover:bg-neutral-100'
@@ -215,13 +215,13 @@ export function SiteHeader() {
               {link.label}
             </a>
           ))}
-          <div className="my-2 border-t border-neutral-100 pt-2 space-y-2">
+          <div className="my-2 border-t border-neutral-100 pt-2 space-y-1.5">
             <button
               onClick={() => {
                 setOpen(false);
                 openLanguageSelector();
               }}
-              className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs font-semibold text-neutral-700 hover:bg-neutral-100"
+              className="flex w-full items-center justify-between rounded-lg px-3 py-3 text-xs font-semibold text-neutral-700 hover:bg-neutral-100"
             >
               <span className="flex items-center gap-2">
                 <IconGlobe className="h-4 w-4 text-brand-600" />
@@ -238,14 +238,14 @@ export function SiteHeader() {
                   setIsLoggedIn(false);
                   window.location.href = '/';
                 }}
-                className="w-full text-left rounded-lg px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50"
+                className="w-full text-left rounded-lg px-3 py-3 text-xs font-semibold text-red-600 hover:bg-red-50"
               >
                 Sign Out
               </button>
             ) : (
               <a
                 href="/register"
-                className="block w-full text-center rounded-xl bg-brand-700 px-3 py-2 text-xs font-bold text-white"
+                className="block w-full text-center rounded-xl bg-brand-700 px-3 py-3 text-xs font-bold text-white"
               >
                 {t('nav_loginRegister')}
               </a>

@@ -133,7 +133,7 @@ export default function BookingPage() {
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           {/* 1. Centre Selection */}
-          <Card className="p-5">
+          <Card className="p-4 sm:p-5">
             <h2 className="mb-3 text-sm font-semibold text-neutral-800 flex items-center gap-2">
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-50 text-brand-700 text-xs font-bold">1</span>
               {t('book_selectCenter')}
@@ -172,7 +172,7 @@ export default function BookingPage() {
 
           {/* 2. Date & Time Slot Selection */}
           {centerId && (
-            <Card className="p-5">
+            <Card className="p-4 sm:p-5">
               <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                 <h2 className="text-sm font-semibold text-neutral-800 flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-50 text-brand-700 text-xs font-bold">2</span>
@@ -237,7 +237,7 @@ export default function BookingPage() {
           )}
 
           {/* 3. Crop Quality Photograph Verification */}
-          <Card className="p-5">
+          <Card className="p-4 sm:p-5">
             <div className="flex items-start justify-between gap-3 mb-3">
               <div>
                 <h2 className="text-sm font-semibold text-neutral-800 flex items-center gap-2">
@@ -321,7 +321,7 @@ export default function BookingPage() {
         </div>
 
         {/* Right Sidebar: Crop & Value Calculator */}
-        <Card className="h-fit space-y-4 p-5 lg:sticky lg:top-20">
+        <Card className="h-fit space-y-4 p-4 sm:p-5 lg:sticky lg:top-20">
           <h2 className="text-sm font-semibold text-neutral-800 flex items-center gap-2">
             <IconWheat className="h-5 w-5 text-brand-600" />
             {t('book_produceDetails')}

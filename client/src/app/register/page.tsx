@@ -196,8 +196,26 @@ export default function RegisterPage() {
       />
 
       {/* Accessible Stepper Bar */}
-      <div className="mb-6 rounded-2xl bg-white p-3.5 border border-neutral-200 shadow-sm">
-        <div className="flex items-center justify-between gap-1">
+      <div className="mb-4 sm:mb-6 rounded-2xl bg-white p-3 sm:p-3.5 border border-neutral-200 shadow-sm">
+        {/* Mobile Stepper Header: Step X of 4 */}
+        <div className="flex sm:hidden items-center justify-between mb-2">
+          <span className="text-xs font-bold text-brand-700">
+            Step {currentStepNum} of 4: {stepLabels[step] || 'Done'}
+          </span>
+          <span className="text-[11px] font-medium text-neutral-400">
+            {Math.round((currentStepNum / 4) * 100)}%
+          </span>
+        </div>
+        {/* Progress bar on mobile */}
+        <div className="h-1.5 w-full bg-neutral-100 rounded-full overflow-hidden sm:hidden">
+          <div
+            className="h-full bg-brand-600 transition-all duration-300 rounded-full"
+            style={{ width: `${Math.min(100, (currentStepNum / 4) * 100)}%` }}
+          />
+        </div>
+
+        {/* Desktop Stepper */}
+        <div className="hidden sm:flex items-center justify-between gap-1">
           {STEP_ORDER.slice(0, 4).map((s, idx) => {
             const stepNum = idx + 1;
             const isPassed = stepNum < currentStepNum;
@@ -230,7 +248,7 @@ export default function RegisterPage() {
         </div>
       </div>
 
-      <Card className="p-6">
+      <Card className="p-4 sm:p-6">
         {error && (
           <div className="mb-4">
             <Alert>{error}</Alert>
@@ -359,12 +377,12 @@ export default function RegisterPage() {
                     <IconUser className="h-12 w-12" />
                   </div>
                   <div>
-                    <div className="flex flex-wrap items-center justify-center gap-2.5">
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 w-full">
                       <Button
                         type="button"
                         onClick={() => cameraInputRef.current?.click()}
                         loading={uploadingPhoto}
-                        className="py-2.5 px-4 text-sm"
+                        className="w-full sm:w-auto py-2.5 px-4 text-sm"
                       >
                         <IconCamera className="h-4.5 w-4.5" />
                         {t('reg_takePhoto')}
@@ -374,7 +392,7 @@ export default function RegisterPage() {
                         variant="secondary"
                         onClick={() => fileInputRef.current?.click()}
                         loading={uploadingPhoto}
-                        className="py-2.5 px-4 text-sm"
+                        className="w-full sm:w-auto py-2.5 px-4 text-sm"
                       >
                         <IconUpload className="h-4.5 w-4.5" />
                         Choose from Gallery

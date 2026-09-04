@@ -97,7 +97,7 @@ export default function QueuePage() {
 
       {board && (
         <div className="space-y-5">
-          <Card className="flex flex-col items-center gap-4 bg-gradient-to-br from-brand-600 to-brand-700 p-8 text-center text-white sm:flex-row sm:justify-between sm:text-left shadow-lg">
+          <Card className="flex flex-col items-center gap-4 bg-gradient-to-br from-brand-600 to-brand-700 p-5 sm:p-8 text-center text-white sm:flex-row sm:justify-between sm:text-left shadow-lg">
             <div className="flex items-center gap-2 text-sm text-brand-50">
               <IconMapPin className="h-4 w-4" /> {board.center.name} · {board.date}
             </div>
@@ -114,7 +114,7 @@ export default function QueuePage() {
             </div>
           </Card>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
             <StatTile label={t('queue_waiting')} value={String(board.counts.waiting)} />
             <StatTile label={t('queue_completed')} value={String(board.counts.completed)} />
             <StatTile label={t('queue_total')} value={String(board.counts.total)} />

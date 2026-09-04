@@ -206,7 +206,7 @@ export default function StatusPage() {
         {selected && (
           <div className="space-y-6 lg:col-span-8">
             {/* 1. Procurement Lifecycle Stepper */}
-            <Card className="p-6 shadow-md no-print">
+            <Card className="p-4 sm:p-6 shadow-md no-print">
               <div className="flex flex-wrap items-center justify-between gap-2 mb-5">
                 <h2 className="font-semibold text-neutral-900">
                   {t('status_timeline')} — Token #{selected.booking.token}
@@ -265,7 +265,7 @@ export default function StatusPage() {
             <div id="dbt-printable-receipt">
               <Card className="overflow-hidden border-2 border-emerald-600/60 shadow-xl bg-white">
                 {/* Government Header Banner */}
-                <div className="bg-gradient-to-r from-emerald-900 via-emerald-800 to-brand-900 px-6 py-4 text-white">
+                <div className="bg-gradient-to-r from-emerald-900 via-emerald-800 to-brand-900 px-4 py-3 sm:px-6 sm:py-4 text-white">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
                       <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/10 ring-2 ring-amber-400">
@@ -303,7 +303,7 @@ export default function StatusPage() {
                   </div>
                 </div>
 
-                <div className="p-6 space-y-6">
+                <div className="p-3.5 sm:p-6 space-y-4 sm:space-y-6">
                   {/* Status Banner */}
                   <div
                     className={`rounded-2xl p-4 border flex flex-wrap items-center justify-between gap-3 ${

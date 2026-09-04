@@ -273,45 +273,45 @@ export default function ReviewsPage() {
           </div>
 
           {/* Stat Cards */}
-          <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div className="rounded-2xl bg-white/10 p-3.5 backdrop-blur border border-white/10">
-              <p className="text-xs text-brand-200 font-medium">Avg Produce Rating</p>
+          <div className="mt-6 sm:mt-8 grid grid-cols-2 gap-2 sm:gap-3 sm:grid-cols-4">
+            <div className="rounded-2xl bg-white/10 p-3 sm:p-3.5 backdrop-blur border border-white/10">
+              <p className="text-[11px] sm:text-xs text-brand-200 font-medium">Avg Produce Rating</p>
               <div className="mt-1 flex items-baseline gap-1.5">
-                <span className="text-2xl font-black text-white">4.9</span>
-                <span className="text-xs text-amber-300">★★★★★</span>
+                <span className="text-xl sm:text-2xl font-black text-white">4.9</span>
+                <span className="text-[10px] sm:text-xs text-amber-300">★★★★★</span>
               </div>
-              <p className="text-[11px] text-brand-200/80 mt-0.5">Across verified mandi lots</p>
+              <p className="text-[10px] sm:text-[11px] text-brand-200/80 mt-0.5 truncate">Across mandi lots</p>
             </div>
 
-            <div className="rounded-2xl bg-white/10 p-3.5 backdrop-blur border border-white/10">
-              <p className="text-xs text-brand-200 font-medium">Weighbridge Accuracy</p>
+            <div className="rounded-2xl bg-white/10 p-3 sm:p-3.5 backdrop-blur border border-white/10">
+              <p className="text-[11px] sm:text-xs text-brand-200 font-medium">Weighbridge Accuracy</p>
               <div className="mt-1 flex items-baseline gap-1">
-                <span className="text-2xl font-black text-emerald-400">99.8%</span>
+                <span className="text-xl sm:text-2xl font-black text-emerald-400">99.8%</span>
               </div>
-              <p className="text-[11px] text-brand-200/80 mt-0.5">Zero tare discrepancy</p>
+              <p className="text-[10px] sm:text-[11px] text-brand-200/80 mt-0.5 truncate">Zero tare discrepancy</p>
             </div>
 
-            <div className="rounded-2xl bg-white/10 p-3.5 backdrop-blur border border-white/10">
-              <p className="text-xs text-brand-200 font-medium">Moisture Adherence</p>
+            <div className="rounded-2xl bg-white/10 p-3 sm:p-3.5 backdrop-blur border border-white/10">
+              <p className="text-[11px] sm:text-xs text-brand-200 font-medium">Moisture Adherence</p>
               <div className="mt-1 flex items-baseline gap-1">
-                <span className="text-2xl font-black text-amber-300">&lt; 12%</span>
+                <span className="text-xl sm:text-2xl font-black text-amber-300">&lt; 12%</span>
               </div>
-              <p className="text-[11px] text-brand-200/80 mt-0.5">Optimal storage grade</p>
+              <p className="text-[10px] sm:text-[11px] text-brand-200/80 mt-0.5 truncate">Optimal storage grade</p>
             </div>
 
-            <div className="rounded-2xl bg-white/10 p-3.5 backdrop-blur border border-white/10">
-              <p className="text-xs text-brand-200 font-medium">Institutional Buyers</p>
+            <div className="rounded-2xl bg-white/10 p-3 sm:p-3.5 backdrop-blur border border-white/10">
+              <p className="text-[11px] sm:text-xs text-brand-200 font-medium">Institutional Buyers</p>
               <div className="mt-1 flex items-baseline gap-1">
-                <span className="text-2xl font-black text-white">FCI · ITC · Cargill</span>
+                <span className="text-xs sm:text-xl font-black text-white truncate block">FCI · ITC · Cargill</span>
               </div>
-              <p className="text-[11px] text-brand-200/80 mt-0.5">Verified bulk off-takers</p>
+              <p className="text-[10px] sm:text-[11px] text-brand-200/80 mt-0.5 truncate">Verified bulk buyers</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Main Container */}
-      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <div className="mx-auto max-w-6xl px-1 sm:px-6 py-4 sm:py-8">
         {/* Navigation Tabs */}
         <div className="flex items-center justify-between border-b border-neutral-200 pb-4 mb-6">
           <div className="flex gap-2">
@@ -620,8 +620,8 @@ export default function ReviewsPage() {
 
       {/* Write Review Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
-          <div className="relative w-full max-w-xl rounded-3xl bg-white p-6 shadow-2xl border border-neutral-100 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+          <div className="relative w-full sm:max-w-xl rounded-t-3xl sm:rounded-3xl bg-white p-4 sm:p-6 shadow-2xl border border-neutral-100 max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setIsModalOpen(false)}
               className="absolute right-4 top-4 rounded-full p-2 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600"
@@ -869,8 +869,8 @@ export default function ReviewsPage() {
 
       {/* Farmer Reviews Detail Modal */}
       {viewingFarmer && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
-          <div className="relative w-full max-w-2xl rounded-3xl bg-white p-6 shadow-2xl border border-neutral-100 max-h-[85vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+          <div className="relative w-full sm:max-w-2xl rounded-t-3xl sm:rounded-3xl bg-white p-4 sm:p-6 shadow-2xl border border-neutral-100 max-h-[85vh] overflow-y-auto">
             <button
               onClick={() => setViewingFarmer(null)}
               className="absolute right-4 top-4 rounded-full p-2 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600"

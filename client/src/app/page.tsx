@@ -22,8 +22,8 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="space-y-16">
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand-600 to-brand-700 px-6 py-16 text-white sm:px-12 sm:py-20 shadow-xl">
+    <div className="space-y-8 sm:space-y-16">
+      <section className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-brand-600 to-brand-700 px-4 py-10 sm:px-12 sm:py-20 text-white shadow-xl">
         <div
           className="pointer-events-none absolute inset-0 opacity-10"
           style={{
@@ -32,41 +32,41 @@ export default function HomePage() {
           }}
         />
         <div className="relative mx-auto max-w-2xl text-center">
-          <span className="inline-flex items-center rounded-full bg-white/15 px-3.5 py-1 text-xs font-semibold uppercase tracking-wide">
+          <span className="inline-flex items-center rounded-full bg-white/15 px-3 py-1 text-[10px] sm:text-xs font-semibold uppercase tracking-wide">
             {t('home_tag')}
           </span>
-          <h1 className="mt-5 text-3xl font-extrabold leading-tight tracking-tight sm:text-5xl">
+          <h1 className="mt-4 sm:mt-5 text-2xl sm:text-3xl md:text-5xl font-extrabold leading-tight tracking-tight">
             {t('home_heroTitle')}
           </h1>
-          <p className="mx-auto mt-4 max-w-xl text-brand-50 sm:text-lg">
+          <p className="mx-auto mt-3 sm:mt-4 max-w-xl text-sm sm:text-lg text-brand-50">
             {t('home_heroDesc')}
           </p>
-          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row flex-wrap">
+          <div className="mt-6 sm:mt-8 grid grid-cols-2 sm:flex sm:flex-row sm:justify-center gap-2.5 sm:gap-3 sm:flex-wrap">
             <a
               href="/register"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-7 py-3.5 text-base font-extrabold text-neutral-900 shadow-xl transition-all duration-200 hover:bg-neutral-100 hover:text-black hover:shadow-2xl active:scale-[0.98] border border-white"
+              className="col-span-2 inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 sm:px-7 py-3 sm:py-3.5 text-sm sm:text-base font-extrabold text-neutral-900 shadow-xl transition-all duration-200 hover:bg-neutral-100 active:scale-[0.98] border border-white"
             >
               <span className="text-neutral-900 font-extrabold">{t('home_getStarted')}</span>
               <IconArrowRight className="h-4 w-4 text-neutral-900 stroke-[2.5]" />
             </a>
             <a
               href="/queue"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/10 px-6 py-3 text-sm font-bold text-white ring-1 ring-inset ring-white/40 transition hover:bg-white/20 active:scale-[0.99]"
+              className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-white/10 px-3 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-white ring-1 ring-inset ring-white/40 transition hover:bg-white/20 active:scale-[0.99]"
             >
               {t('home_viewLiveQueue')}
             </a>
             <a
               href="/tracking"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/10 px-6 py-3 text-sm font-bold text-white ring-1 ring-inset ring-white/40 transition hover:bg-white/20 active:scale-[0.99]"
+              className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-white/10 px-3 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-white ring-1 ring-inset ring-white/40 transition hover:bg-white/20 active:scale-[0.99]"
             >
-              <IconTruck className="h-4 w-4" />
+              <IconTruck className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               {t('nav_trackOrder')}
             </a>
             <a
               href="/reviews"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-400/20 px-6 py-3 text-sm font-bold text-amber-200 ring-1 ring-inset ring-amber-400/50 transition hover:bg-amber-400/30 active:scale-[0.99]"
+              className="col-span-2 inline-flex items-center justify-center gap-1.5 rounded-xl bg-amber-400/20 px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-amber-200 ring-1 ring-inset ring-amber-400/50 transition hover:bg-amber-400/30 active:scale-[0.99]"
             >
-              <IconStar className="h-4 w-4 fill-amber-300" filled />
+              <IconStar className="h-3.5 w-3.5 sm:h-4 sm:w-4 fill-amber-300" filled />
               <span>Buyer Reviews</span>
             </a>
           </div>
@@ -74,37 +74,37 @@ export default function HomePage() {
       </section>
 
       {/* Official Government Procurement Framework Banner */}
-      <Card className="p-6 sm:p-8 bg-white border-neutral-200 shadow-sm">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="space-y-2 max-w-2xl">
+      <Card className="p-4 sm:p-8 bg-white border-neutral-200 shadow-sm">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6">
+          <div className="space-y-1.5 sm:space-y-2 max-w-2xl min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="rounded-md bg-brand-50 px-2.5 py-0.5 text-xs font-bold text-brand-800 border border-brand-200">
-                Government Procurement Mandate
+              <span className="rounded-md bg-brand-50 px-2 sm:px-2.5 py-0.5 text-[10px] sm:text-xs font-bold text-brand-800 border border-brand-200">
+                Government Procurement
               </span>
-              <span className="text-xs text-neutral-500 font-medium">
+              <span className="hidden sm:inline text-xs text-neutral-500 font-medium">
                 Ministry of Consumer Affairs, Food & Public Distribution
               </span>
             </div>
-            <h3 className="text-xl font-bold text-neutral-900 tracking-tight">
-              20% DBT Safety Advance Guarantee & Mandated Logistics Transport
+            <h3 className="text-base sm:text-xl font-bold text-neutral-900 tracking-tight">
+              20% DBT Safety Advance & Mandated Logistics
             </h3>
-            <p className="text-xs text-neutral-600 leading-relaxed">
-              Under Problem Statement PS26032, this platform resolves long Mandi waiting hours, eliminates schedule uncertainty, and secures farmer income. Authorized 3rd-party logistics agencies transport procured grain directly to FCI and Central Warehousing Corporation (CWC) buffer depots.
+            <p className="text-[11px] sm:text-xs text-neutral-600 leading-relaxed">
+              Under PS26032, this platform resolves long Mandi waiting hours, eliminates schedule uncertainty, and secures farmer income.
             </p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 shrink-0">
-            <div className="rounded-xl bg-neutral-50 p-3 border border-neutral-200 text-center">
-              <div className="text-lg font-extrabold text-brand-700">20% DBT</div>
-              <div className="text-[11px] font-medium text-neutral-500 mt-0.5">Upfront Advance</div>
+          <div className="grid grid-cols-3 gap-2 sm:gap-3 shrink-0">
+            <div className="rounded-xl bg-neutral-50 p-2.5 sm:p-3 border border-neutral-200 text-center">
+              <div className="text-sm sm:text-lg font-extrabold text-brand-700">20% DBT</div>
+              <div className="text-[10px] sm:text-[11px] font-medium text-neutral-500 mt-0.5">Advance</div>
             </div>
-            <div className="rounded-xl bg-neutral-50 p-3 border border-neutral-200 text-center">
-              <div className="text-lg font-extrabold text-neutral-800">100% Digital</div>
-              <div className="text-[11px] font-medium text-neutral-500 mt-0.5">Token Scheduling</div>
+            <div className="rounded-xl bg-neutral-50 p-2.5 sm:p-3 border border-neutral-200 text-center">
+              <div className="text-sm sm:text-lg font-extrabold text-neutral-800">Digital</div>
+              <div className="text-[10px] sm:text-[11px] font-medium text-neutral-500 mt-0.5">Token</div>
             </div>
-            <div className="rounded-xl bg-neutral-50 p-3 border border-neutral-200 text-center col-span-2 sm:col-span-1">
-              <div className="text-lg font-extrabold text-emerald-700">GPS Sealed</div>
-              <div className="text-[11px] font-medium text-neutral-500 mt-0.5">Buffer Transport</div>
+            <div className="rounded-xl bg-neutral-50 p-2.5 sm:p-3 border border-neutral-200 text-center">
+              <div className="text-sm sm:text-lg font-extrabold text-emerald-700">GPS</div>
+              <div className="text-[10px] sm:text-[11px] font-medium text-neutral-500 mt-0.5">Transport</div>
             </div>
           </div>
         </div>
@@ -134,32 +134,32 @@ export default function HomePage() {
       </section>
 
       {/* Verified Buyer Reviews & Producer Reputation Spotlight */}
-      <section className="rounded-3xl border border-amber-200/80 bg-gradient-to-b from-amber-50/40 to-white p-6 sm:p-10 shadow-sm">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          <div>
-            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full mb-1.5">
-              <IconStar className="h-3.5 w-3.5 fill-amber-700" filled />
-              <span>Grain Quality & Buyer Satisfaction · मंडी समीक्षा</span>
+      <section className="rounded-2xl sm:rounded-3xl border border-amber-200/80 bg-gradient-to-b from-amber-50/40 to-white p-4 sm:p-10 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-5 sm:mb-8">
+          <div className="min-w-0">
+            <div className="inline-flex items-center gap-1.5 text-[10px] sm:text-xs font-bold text-amber-800 bg-amber-100 px-2 sm:px-2.5 py-0.5 rounded-full mb-1.5">
+              <IconStar className="h-3 w-3 sm:h-3.5 sm:w-3.5 fill-amber-700" filled />
+              <span>Grain Quality & Buyer Satisfaction</span>
             </div>
-            <h2 className="text-2xl font-bold tracking-tight text-neutral-900">
-              Verified Buyer Reviews & Farmer Produce Ratings
+            <h2 className="text-lg sm:text-2xl font-bold tracking-tight text-neutral-900">
+              Verified Buyer Reviews
             </h2>
-            <p className="mt-1 text-sm text-neutral-600">
-              Institutional purchasers (FCI, ITC, roller flour millers) submit direct laboratory & weighment quality ratings.
+            <p className="mt-1 text-xs sm:text-sm text-neutral-600">
+              Institutional purchasers submit direct quality ratings.
             </p>
           </div>
 
           <a
             href="/reviews"
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-700 hover:bg-brand-800 text-white px-5 py-2.5 text-sm font-bold shadow transition shrink-0"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-700 hover:bg-brand-800 text-white px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-bold shadow transition shrink-0 w-full sm:w-auto"
           >
-            <span>Explore All Buyer Reviews</span>
+            <span>Explore All Reviews</span>
             <IconArrowRight className="h-4 w-4 stroke-[2.5]" />
           </a>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-2xl bg-white p-5 border border-neutral-200 shadow-sm flex flex-col justify-between">
+        <div className="grid gap-3 sm:gap-4 md:grid-cols-3">
+          <div className="rounded-2xl bg-white p-4 sm:p-5 border border-neutral-200 shadow-sm flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-neutral-800">Vikramaditya Roy</span>
@@ -167,19 +167,19 @@ export default function HomePage() {
                   ★ 5.0
                 </span>
               </div>
-              <p className="text-[11px] text-neutral-500 mt-0.5">Chief Quality Officer · Food Corporation of India (FCI)</p>
-              <div className="mt-2 text-xs font-semibold text-brand-700">Lot: 40 Qtl Sharbati Wheat (Gurpreet Singh)</div>
-              <p className="mt-2 text-xs text-neutral-600 leading-relaxed">
-                &ldquo;Moisture measured at 10.4%, well below standard ceiling. Zero foreign matter during lab testing. Prompt delivery right on time.&rdquo;
+              <p className="text-[10px] sm:text-[11px] text-neutral-500 mt-0.5">Quality Officer · FCI</p>
+              <div className="mt-2 text-[11px] sm:text-xs font-semibold text-brand-700">Lot: 40 Qtl Sharbati Wheat</div>
+              <p className="mt-1.5 sm:mt-2 text-[11px] sm:text-xs text-neutral-600 leading-relaxed">
+                &ldquo;Moisture at 10.4%, well below ceiling. Zero foreign matter. Prompt delivery.&rdquo;
               </p>
             </div>
-            <div className="mt-3 pt-2 border-t border-neutral-100 flex flex-wrap gap-1">
+            <div className="mt-2.5 sm:mt-3 pt-2 border-t border-neutral-100 flex flex-wrap gap-1">
               <span className="text-[10px] font-semibold text-neutral-600 bg-neutral-100 px-2 py-0.5 rounded">✓ Low Moisture</span>
-              <span className="text-[10px] font-semibold text-neutral-600 bg-neutral-100 px-2 py-0.5 rounded">✓ Grade A Grain</span>
+              <span className="text-[10px] font-semibold text-neutral-600 bg-neutral-100 px-2 py-0.5 rounded">✓ Grade A</span>
             </div>
           </div>
 
-          <div className="rounded-2xl bg-white p-5 border border-neutral-200 shadow-sm flex flex-col justify-between">
+          <div className="rounded-2xl bg-white p-4 sm:p-5 border border-neutral-200 shadow-sm flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-neutral-800">Rajesh Singhania</span>
@@ -187,19 +187,19 @@ export default function HomePage() {
                   ★ 5.0
                 </span>
               </div>
-              <p className="text-[11px] text-neutral-500 mt-0.5">VP Raw Material · Shivalik Modern Roller Flour Mills</p>
-              <div className="mt-2 text-xs font-semibold text-brand-700">Lot: 65 Qtl Wheat</div>
-              <p className="mt-2 text-xs text-neutral-600 leading-relaxed">
-                &ldquo;High hectolitre test weight (&gt;79 kg/hL) and very uniform grain kernel size. Ideal for whole-wheat chakki atta milling.&rdquo;
+              <p className="text-[10px] sm:text-[11px] text-neutral-500 mt-0.5">VP · Shivalik Flour Mills</p>
+              <div className="mt-2 text-[11px] sm:text-xs font-semibold text-brand-700">Lot: 65 Qtl Wheat</div>
+              <p className="mt-1.5 sm:mt-2 text-[11px] sm:text-xs text-neutral-600 leading-relaxed">
+                &ldquo;High test weight (&gt;79 kg/hL) and uniform grain kernel. Ideal for chakki atta.&rdquo;
               </p>
             </div>
-            <div className="mt-3 pt-2 border-t border-neutral-100 flex flex-wrap gap-1">
+            <div className="mt-2.5 sm:mt-3 pt-2 border-t border-neutral-100 flex flex-wrap gap-1">
               <span className="text-[10px] font-semibold text-neutral-600 bg-neutral-100 px-2 py-0.5 rounded">✓ High Test Weight</span>
               <span className="text-[10px] font-semibold text-neutral-600 bg-neutral-100 px-2 py-0.5 rounded">✓ Uniform Kernel</span>
             </div>
           </div>
 
-          <div className="rounded-2xl bg-white p-5 border border-neutral-200 shadow-sm flex flex-col justify-between">
+          <div className="rounded-2xl bg-white p-4 sm:p-5 border border-neutral-200 shadow-sm flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-neutral-800">Anil Kumar Agarwal</span>
@@ -207,13 +207,13 @@ export default function HomePage() {
                   ★ 4.9
                 </span>
               </div>
-              <p className="text-[11px] text-neutral-500 mt-0.5">Procurement Director · Kuber Agro Rice Export Ltd.</p>
-              <div className="mt-2 text-xs font-semibold text-brand-700">Lot: 35 Qtl 1509 Basmati Paddy (Ram Lal Sharma)</div>
-              <p className="mt-2 text-xs text-neutral-600 leading-relaxed">
-                &ldquo;Moisture checked at 13.1%, broken grain percentage below 2.5%. Lot was well sun-dried and free from straw chaff.&rdquo;
+              <p className="text-[10px] sm:text-[11px] text-neutral-500 mt-0.5">Director · Kuber Agro Rice Export</p>
+              <div className="mt-2 text-[11px] sm:text-xs font-semibold text-brand-700">Lot: 35 Qtl Basmati Paddy</div>
+              <p className="mt-1.5 sm:mt-2 text-[11px] sm:text-xs text-neutral-600 leading-relaxed">
+                &ldquo;Moisture at 13.1%, broken grain below 2.5%. Well sun-dried and free from chaff.&rdquo;
               </p>
             </div>
-            <div className="mt-3 pt-2 border-t border-neutral-100 flex flex-wrap gap-1">
+            <div className="mt-2.5 sm:mt-3 pt-2 border-t border-neutral-100 flex flex-wrap gap-1">
               <span className="text-[10px] font-semibold text-neutral-600 bg-neutral-100 px-2 py-0.5 rounded">✓ Export Quality</span>
               <span className="text-[10px] font-semibold text-neutral-600 bg-neutral-100 px-2 py-0.5 rounded">✓ Clean Lot</span>
             </div>
@@ -221,7 +221,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="grid gap-8 rounded-3xl border border-neutral-200 bg-white p-6 sm:p-10 lg:grid-cols-2 shadow-sm">
+      <section className="grid gap-6 sm:gap-8 rounded-2xl sm:rounded-3xl border border-neutral-200 bg-white p-4 sm:p-10 lg:grid-cols-2 shadow-sm">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-brand-600">{t('home_builtForTag')}</p>
           <h2 className="mt-1 text-2xl font-bold tracking-tight text-neutral-900">

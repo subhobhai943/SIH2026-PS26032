@@ -487,11 +487,11 @@ export default function AdminPage() {
       </div>
 
       {/* Admin Module Navigation Tabs */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-neutral-200 pb-3">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 border-b border-neutral-200 pb-3">
         <button
           type="button"
           onClick={() => setAdminTab('queue')}
-          className={`rounded-xl px-4 py-2 text-xs font-bold transition ${
+          className={`rounded-xl px-4 py-2.5 sm:py-2 text-xs font-bold transition text-center justify-center ${
             adminTab === 'queue'
               ? 'bg-brand-700 text-white shadow-sm'
               : 'bg-white text-neutral-600 hover:bg-neutral-100 border border-neutral-200'
@@ -506,7 +506,7 @@ export default function AdminPage() {
             setAdminTab('system');
             loadSystemMetrics();
           }}
-          className={`rounded-xl px-4 py-2 text-xs font-bold transition flex items-center gap-2 ${
+          className={`rounded-xl px-4 py-2.5 sm:py-2 text-xs font-bold transition flex items-center justify-center gap-2 ${
             adminTab === 'system'
               ? 'bg-brand-700 text-white shadow-sm'
               : 'bg-white text-neutral-600 hover:bg-neutral-100 border border-neutral-200'
@@ -522,7 +522,7 @@ export default function AdminPage() {
             setAdminTab('reviews');
             loadAdminReviews();
           }}
-          className={`rounded-xl px-4 py-2 text-xs font-bold transition flex items-center gap-1.5 ${
+          className={`rounded-xl px-4 py-2.5 sm:py-2 text-xs font-bold transition flex items-center justify-center gap-1.5 ${
             adminTab === 'reviews'
               ? 'bg-brand-700 text-white shadow-sm'
               : 'bg-white text-neutral-600 hover:bg-neutral-100 border border-neutral-200'

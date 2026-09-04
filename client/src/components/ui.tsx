@@ -129,9 +129,9 @@ export function Spinner({ className = 'h-6 w-6 text-brand-600' }: { className?: 
 
 export function StatTile({ label, value, tone = 'default' }: { label: string; value: string; tone?: 'default' | 'brand' }) {
   return (
-    <Card className={`p-4 ${tone === 'brand' ? '!bg-brand-600 !border-brand-600 text-white' : ''}`}>
-      <div className={`text-xs font-medium ${tone === 'brand' ? 'text-brand-50' : 'text-neutral-500'}`}>{label}</div>
-      <div className="mt-1 text-2xl font-bold tracking-tight">{value}</div>
+    <Card className={`p-3 sm:p-4 ${tone === 'brand' ? '!bg-brand-600 !border-brand-600 text-white' : ''}`}>
+      <div className={`text-[11px] sm:text-xs font-medium truncate ${tone === 'brand' ? 'text-brand-50' : 'text-neutral-500'}`}>{label}</div>
+      <div className="mt-0.5 sm:mt-1 text-lg sm:text-2xl font-bold tracking-tight">{value}</div>
     </Card>
   );
 }
