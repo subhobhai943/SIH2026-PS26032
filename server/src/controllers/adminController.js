@@ -259,18 +259,45 @@ export const setQueueStatus = asyncHandler(async (req, res) => {
 // ---------------------------------------------------------------- procurement
 
 const procurementSchema = z.object({
-  stage: z.enum(PROCUREMENT_STAGES),
+  stage: z.enum(PROCUREMENT_STAGES).optional(),
   quantityQtl: z.number().min(0).optional(),
   qualityGrade: z.enum(['A', 'B', 'C', 'FAQ', '']).optional(),
   ratePerQtl: z.number().min(0).optional(),
   remark: z.string().max(200).optional(),
   paymentRef: z.string().max(60).optional(),
+  advancePaymentRef: z.string().max(60).optional(),
+});
+
+/** GET /api/admin/procurement/:queueEntryId — get or create procurement record for an entry. */
+export const getProcurementDetails = asyncHandler(async (req, res) => {
+  const entry = await Queue.findById(req.params.queueEntryId)
+    .populate('farmer', 'name phone village district state')
+    .populate('center', 'name code district state')
+    .populate('slot', 'startTime endTime');
+  if (!entry) throw ApiError.notFound('Queue entry not found');
+  resolveCenterScope(req.staff, entry.center._id);
+
+  let procurement = await Procurement.findOne({ queueEntry: entry._id });
+  if (!procurement) {
+    procurement = await Procurement.create({
+      queueEntry: entry._id,
+      farmer: entry.farmer._id,
+      center: entry.center._id,
+      date: entry.date,
+      crop: entry.crop || 'wheat',
+      quantityQtl: entry.estimatedQuantityQtl || 10,
+      stage: 'arrived',
+      timeline: [{ stage: 'arrived', by: req.staff._id }],
+    });
+  }
+
+  res.json({ ok: true, data: { entry, procurement } });
 });
 
 /** PATCH /api/admin/procurement/:queueEntryId — advance a farmer through the stage pipeline. */
 export const updateProcurementStage = asyncHandler(async (req, res) => {
   const body = parse(procurementSchema, req.body);
-  const entry = await Queue.findById(req.params.queueEntryId).populate('farmer', 'phone').populate('center', 'name');
+  const entry = await Queue.findById(req.params.queueEntryId).populate('farmer', 'phone name').populate('center', 'name');
   if (!entry) throw ApiError.notFound('Queue entry not found');
   resolveCenterScope(req.staff, entry.center._id);
 
@@ -282,23 +309,114 @@ export const updateProcurementStage = asyncHandler(async (req, res) => {
     { upsert: true, new: true }
   );
 
-  procurement.stage = body.stage;
+  if (body.stage) procurement.stage = body.stage;
   if (body.quantityQtl !== undefined) procurement.quantityQtl = body.quantityQtl;
   if (body.qualityGrade !== undefined) procurement.qualityGrade = body.qualityGrade;
   if (body.ratePerQtl !== undefined) procurement.ratePerQtl = body.ratePerQtl;
   if (body.paymentRef !== undefined) procurement.paymentRef = body.paymentRef;
-  if (body.stage === 'paid') procurement.paidAt = new Date();
-  procurement.timeline.push({ stage: body.stage, by: req.staff._id, remark: body.remark || '' });
-  await procurement.save();
+  if (body.advancePaymentRef !== undefined) procurement.advancePaymentRef = body.advancePaymentRef;
+
+  if (body.stage === 'advance_paid') {
+    procurement.advanceStatus = 'paid';
+    procurement.advancePaidAt = new Date();
+    procurement.advancePaymentRef = body.advancePaymentRef || body.paymentRef || ('ADV-' + Date.now().toString().slice(-6));
+  }
 
   if (body.stage === 'paid') {
-    await sendTemplate(entry.farmer.phone, 'paymentDone', {
+    procurement.balanceStatus = 'paid';
+    procurement.paidAt = new Date();
+    procurement.paymentRef = body.paymentRef || ('BAL-' + Date.now().toString().slice(-6));
+  }
+
+  if (body.stage) {
+    procurement.timeline.push({ stage: body.stage, by: req.staff._id, remark: body.remark || '' });
+  }
+
+  await procurement.save();
+
+  if (body.stage === 'advance_paid') {
+    await sendTemplate(entry.farmer.phone, 'advancePaymentDone', {
       amount: procurement.amount,
+      advanceAmount: procurement.advanceAmount,
+      balanceAmount: procurement.balanceAmount,
+      paymentRef: procurement.advancePaymentRef,
+      token: entry.token,
+    });
+  } else if (body.stage === 'paid') {
+    await sendTemplate(entry.farmer.phone, 'paymentDone', {
+      amount: procurement.balanceAmount || procurement.amount,
       paymentRef: procurement.paymentRef,
     });
-  } else {
+  } else if (body.stage) {
     await sendTemplate(entry.farmer.phone, 'procurementUpdate', { token: entry.token, stage: body.stage });
   }
+
+  res.json({ ok: true, data: procurement });
+});
+
+/** POST /api/admin/procurement/:queueEntryId/pay-advance — release 20% advance guarantee */
+export const payAdvance = asyncHandler(async (req, res) => {
+  const entry = await Queue.findById(req.params.queueEntryId).populate('farmer', 'phone name').populate('center', 'name');
+  if (!entry) throw ApiError.notFound('Queue entry not found');
+  resolveCenterScope(req.staff, entry.center._id);
+
+  let procurement = await Procurement.findOne({ queueEntry: entry._id });
+  if (!procurement) throw ApiError.badRequest('Procurement record not found, weigh and approve crop first');
+
+  if (procurement.amount <= 0) {
+    throw ApiError.badRequest('Total amount must be greater than 0 before paying advance');
+  }
+
+  const ref = req.body.paymentRef || `ADV-${Date.now().toString().slice(-6)}`;
+  procurement.advanceStatus = 'paid';
+  procurement.advancePaidAt = new Date();
+  procurement.advancePaymentRef = ref;
+  procurement.stage = 'advance_paid';
+  procurement.timeline.push({
+    stage: 'advance_paid',
+    by: req.staff._id,
+    remark: `20% Safety Advance Guarantee released (Rs ${procurement.advanceAmount})`,
+  });
+
+  await procurement.save();
+
+  await sendTemplate(entry.farmer.phone, 'advancePaymentDone', {
+    amount: procurement.amount,
+    advanceAmount: procurement.advanceAmount,
+    balanceAmount: procurement.balanceAmount,
+    paymentRef: ref,
+    token: entry.token,
+  });
+
+  res.json({ ok: true, data: procurement });
+});
+
+/** POST /api/admin/procurement/:queueEntryId/pay-balance — release final 80% balance */
+export const payBalance = asyncHandler(async (req, res) => {
+  const entry = await Queue.findById(req.params.queueEntryId).populate('farmer', 'phone name').populate('center', 'name');
+  if (!entry) throw ApiError.notFound('Queue entry not found');
+  resolveCenterScope(req.staff, entry.center._id);
+
+  let procurement = await Procurement.findOne({ queueEntry: entry._id });
+  if (!procurement) throw ApiError.badRequest('Procurement record not found');
+
+  const ref = req.body.paymentRef || `BAL-${Date.now().toString().slice(-6)}`;
+  procurement.balanceStatus = 'paid';
+  procurement.paidAt = new Date();
+  procurement.paymentRef = ref;
+  procurement.stage = 'paid';
+  procurement.timeline.push({
+    stage: 'paid',
+    by: req.staff._id,
+    remark: `Final 80% Settlement released (Rs ${procurement.balanceAmount})`,
+  });
+
+  await procurement.save();
+
+  await sendTemplate(entry.farmer.phone, 'paymentDone', {
+    amount: procurement.balanceAmount || procurement.amount,
+    paymentRef: ref,
+  });
 
   res.json({ ok: true, data: procurement });
 });

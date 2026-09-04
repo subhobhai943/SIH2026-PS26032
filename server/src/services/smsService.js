@@ -22,8 +22,11 @@ export const templates = {
 
   procurementUpdate: ({ token, stage }) => `Token ${token}: procurement status updated to ${stage.toUpperCase()}.`,
 
+  advancePaymentDone: ({ amount, advanceAmount, balanceAmount, paymentRef, token }) =>
+    `Token ${token}: 20% safety advance of Rs ${advanceAmount} (Total: Rs ${amount}) credited to your account. Balance Rs ${balanceAmount}. Ref: ${paymentRef || 'see portal'}.`,
+
   paymentDone: ({ amount, paymentRef }) =>
-    `Payment of Rs ${amount} has been released. Reference: ${paymentRef || 'see portal'}. Thank you.`,
+    `Final payment of Rs ${amount} has been released. Reference: ${paymentRef || 'see portal'}. Thank you.`,
 };
 
 async function sendViaMsg91(phone, message) {

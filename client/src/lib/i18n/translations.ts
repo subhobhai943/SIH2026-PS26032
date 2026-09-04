@@ -117,10 +117,18 @@ export type TranslationKey =
   | 'status_stageArrived'
   | 'status_stageWeighed'
   | 'status_stageApproved'
+  | 'status_stageAdvancePaid'
   | 'status_stagePaid'
   | 'status_produceDetails'
   | 'status_quantity'
   | 'status_amount'
+  | 'status_advanceAmount'
+  | 'status_balanceAmount'
+  | 'status_advanceNotice'
+  | 'status_paid'
+  | 'status_pending'
+  | 'status_paymentRef'
+  | 'book_advanceNotice'
 
   // Footer
   | 'footer_copyright'
@@ -211,6 +219,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     book_cropWheat: 'Wheat (गेहूं)',
     book_cropPaddy: 'Paddy / Rice (धान / चावल)',
     book_cropMaize: 'Maize (मक्का)',
+    book_advanceNotice: 'Safety Guarantee: 20% of your crop value is paid upfront in advance upon quality approval.',
 
     queue_eyebrow: 'Real-time display',
     queue_title: 'Live Mandi Queue',
@@ -237,10 +246,17 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     status_stageArrived: 'Arrived at Centre',
     status_stageWeighed: 'Weighed',
     status_stageApproved: 'Quality Approved',
-    status_stagePaid: 'Payment Released',
+    status_stageAdvancePaid: '20% Safety Advance Paid',
+    status_stagePaid: 'Final Payment Released',
     status_produceDetails: 'Produce & Payment Info',
     status_quantity: 'Quantity Weighed',
-    status_amount: 'Amount Released',
+    status_amount: 'Total Crop Value',
+    status_advanceAmount: '20% Advance Guarantee',
+    status_balanceAmount: '80% Balance Settlement',
+    status_advanceNotice: '20% advance payment has been credited to your bank account as a purchase safety guarantee.',
+    status_paid: 'Paid',
+    status_pending: 'Pending',
+    status_paymentRef: 'Reference',
 
     footer_copyright: 'Farmer Procurement Queue Management Platform',
     footer_ministry: 'SIH 2026 · PS26032 · Ministry of Consumer Affairs, Food & Public Distribution',
@@ -330,6 +346,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     book_cropWheat: 'गेहूं (Wheat)',
     book_cropPaddy: 'धान / चावल (Paddy)',
     book_cropMaize: 'मक्का (Maize)',
+    book_advanceNotice: 'सुरक्षा गारंटी: फसल पास होने पर 20% राशि का अग्रिम भुगतान सीधे आपके खाते में किया जाएगा।',
 
     queue_eyebrow: 'रीयल-टाइम डिस्प्ले',
     queue_title: 'मंडी लाइव कतार बोर्ड',
@@ -356,10 +373,17 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     status_stageArrived: 'केंद्र पर आगमन',
     status_stageWeighed: 'फसल तुलाई',
     status_stageApproved: 'गुणवत्ता स्वीकृत',
-    status_stagePaid: 'भुगतान जारी',
+    status_stageAdvancePaid: '20% सुरक्षा अग्रिम भुगतान जारी',
+    status_stagePaid: 'अंतिम भुगतान जारी',
     status_produceDetails: 'फसल और भुगतान का विवरण',
     status_quantity: 'तुलाई मात्रा',
-    status_amount: 'जारी की गई राशि',
+    status_amount: 'कुल फसल मूल्य',
+    status_advanceAmount: '20% सुरक्षा अग्रिम राशि',
+    status_balanceAmount: '80% शेष भुगतान राशि',
+    status_advanceNotice: 'सुरक्षा गारंटी के रूप में 20% अग्रिम राशि आपके बैंक खाते में जमा कर दी गई है।',
+    status_paid: 'भुगतान संपन्न',
+    status_pending: 'प्रतीक्षारत',
+    status_paymentRef: 'संदर्भ संख्या',
 
     footer_copyright: 'किसान खरीद कतार प्रबंधन मंच',
     footer_ministry: 'SIH 2026 · PS26032 · उपभोक्ता मामले, खाद्य और सार्वजनिक वितरण मंत्रालय',
@@ -449,6 +473,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     book_cropWheat: 'ਕਣਕ (Wheat)',
     book_cropPaddy: 'ਝੋਨਾ / ਚਾਵਲ (Paddy)',
     book_cropMaize: 'ਮੱਕੀ (Maize)',
+    book_advanceNotice: 'ਸੁਰੱਖਿਆ ਗਾਰੰਟੀ: ਫਸਲ ਪਾਸ ਹੋਣ ਤੇ 20% ਰਕਮ ਦਾ ਪੇਸ਼ਗੀ ਭੁਗਤਾਨ ਸਿੱਧਾ ਤੁਹਾਡੇ ਖਾਤੇ ਵਿੱਚ ਕੀਤਾ ਜਾਵੇਗਾ।',
 
     queue_eyebrow: 'ਰੀਅਲ-ਟਾਈਮ ਡਿਸਪਲੇ',
     queue_title: 'ਮੰਡੀ ਲਾਈਵ ਕਤਾਰ ਬੋਰਡ',
@@ -475,10 +500,17 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     status_stageArrived: 'ਕੇਂਦਰ ਤੇ ਪਹੁੰਚੇ',
     status_stageWeighed: 'ਫਸਲ ਤੁਲਾਈ',
     status_stageApproved: 'ਗੁਣਵੱਤਾ ਪਾਸ',
-    status_stagePaid: 'ਭੁਗਤਾਨ ਜਾਰੀ',
+    status_stageAdvancePaid: '20% ਸੁਰੱਖਿਆ ਪੇਸ਼ਗੀ ਭੁਗਤਾਨ ਜਾਰੀ',
+    status_stagePaid: 'ਅੰਤਿਮ ਭੁਗਤਾਨ ਜਾਰੀ',
     status_produceDetails: 'ਫਸਲ ਅਤੇ ਭੁਗਤਾਨ ਦਾ ਵੇਰਵਾ',
     status_quantity: 'ਤੋਲੀ ਗਈ ਮਾਤਰਾ',
-    status_amount: 'ਜਾਰੀ ਕੀਤੀ ਰਕਮ',
+    status_amount: 'ਕੁੱਲ ਫਸਲ ਮੁੱਲ',
+    status_advanceAmount: '20% ਸੁਰੱਖਿਆ ਪੇਸ਼ਗੀ ਰਕਮ',
+    status_balanceAmount: '80% ਬਾਕੀ ਬਚੀ ਰਕਮ',
+    status_advanceNotice: 'ਸੁਰੱਖਿਆ ਗਾਰੰਟੀ ਵਜੋਂ 20% ਪੇਸ਼ਗੀ ਰਕਮ ਤੁਹਾਡੇ ਬੈਂਕ ਖਾਤੇ ਵਿੱਚ ਜਮ੍ਹਾਂ ਕਰ ਦਿੱਤੀ ਗਈ ਹੈ।',
+    status_paid: 'ਭੁਗਤਾਨ ਸੰਪੰਨ',
+    status_pending: 'ਉਡੀਕ ਵਿੱਚ',
+    status_paymentRef: 'ਹਵਾਲਾ ਨੰਬਰ',
 
     footer_copyright: 'ਕਿਸਾਨ ਖਰੀਦ ਕਤਾਰ ਪ੍ਰਬੰਧਨ ਪਲੇਟਫਾਰਮ',
     footer_ministry: 'SIH 2026 · PS26032 · ਖਪਤਕਾਰ ਮਾਮਲੇ, ਖੁਰਾਕ ਅਤੇ ਜਨਤਕ ਵੰਡ ਮੰਤਰਾਲਾ',
@@ -568,6 +600,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     book_cropWheat: 'গম (Wheat)',
     book_cropPaddy: 'ধান / চাল (Paddy)',
     book_cropMaize: 'ভুট্টা (Maize)',
+    book_advanceNotice: 'নিরাপত্তা গ্যারান্টি: ফসল অনুমোদনের সাথে সাথে ২০% অগ্রিম অর্থ সরাসরি আপনার ব্যাংক একাউন্টে জমা হবে।',
 
     queue_eyebrow: 'রিয়েল-টাইম ডিসপ্লে',
     queue_title: 'লাইভ মাণ্ডি কিউ বোর্ড',
@@ -594,10 +627,17 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     status_stageArrived: 'কেন্দ্রে আগমন',
     status_stageWeighed: 'ওজন সম্পন্ন',
     status_stageApproved: 'গুণমান অনুমোদিত',
-    status_stagePaid: 'টাকা পাঠানো হয়েছে',
+    status_stageAdvancePaid: '২০% নিরাপত্তা অগ্রিম অর্থ প্রদান',
+    status_stagePaid: 'চূড়ান্ত অর্থ প্রদান সম্পন্ন',
     status_produceDetails: 'ফসল এবং পেমেন্টের তথ্য',
     status_quantity: 'পরিমাপকৃত ওজন',
-    status_amount: 'প্রদেয় অর্থ',
+    status_amount: 'মোট ফসলের মূল্য',
+    status_advanceAmount: '২০% নিরাপত্তা অগ্রিম',
+    status_balanceAmount: '৮০% চূড়ান্ত নিষ্পত্তি',
+    status_advanceNotice: 'নিরাপত্তা গ্যারান্টি হিসাবে ২০% অগ্রিম টাকা আপনার ব্যাংক অ্যাকাউন্টে পাঠানো হয়েছে।',
+    status_paid: 'পরিশোধিত',
+    status_pending: 'অপেক্ষারত',
+    status_paymentRef: 'রেফারেন্স নম্বর',
 
     footer_copyright: 'কৃষক সংগ্রহ কিউ ব্যবস্থাপনা প্ল্যাটফর্ম',
     footer_ministry: 'SIH 2026 · PS26032 · উপভোক্তা বিষয়ক, খাদ্য ও গণবন্টন মন্ত্রক',
@@ -687,6 +727,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     book_cropWheat: 'गहू (Wheat)',
     book_cropPaddy: 'भात / तांदूळ (Paddy)',
     book_cropMaize: 'मका (Maize)',
+    book_advanceNotice: 'सुरक्षा हमी: पीक मंजूर झाल्यावर २०% रक्कम आगाऊ (Advance) थेट आपल्या बँक खात्यात जमा केली जाईल.',
 
     queue_eyebrow: 'थेट डिस्प्ले',
     queue_title: 'थेट मंडी रांग बोर्ड',
@@ -713,10 +754,17 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     status_stageArrived: 'केंद्रावर आगमन',
     status_stageWeighed: 'वजन केले',
     status_stageApproved: 'गुणवत्ता मंजूर',
-    status_stagePaid: 'पेमेंट जमा झाले',
+    status_stageAdvancePaid: '२०% सुरक्षा आगाऊ रक्कम जमा',
+    status_stagePaid: 'अंतिम रक्कम जमा झाली',
     status_produceDetails: 'पीक आणि पेमेंट तपशील',
     status_quantity: 'मोजलेले वजन',
-    status_amount: 'दिलेली रक्कम',
+    status_amount: 'एकूण पीक मूल्य',
+    status_advanceAmount: '२०% सुरक्षा आगाऊ रक्कम',
+    status_balanceAmount: '८०% उर्वरित अंतिम रक्कम',
+    status_advanceNotice: 'सुरक्षा हमी म्हणून २०% आगाऊ रक्कम आपल्या बँक खात्यात जमा झाली आहे.',
+    status_paid: 'जमा झाले',
+    status_pending: 'प्रलंबित',
+    status_paymentRef: 'संदर्भ क्रमांक',
 
     footer_copyright: 'शेतकरी खरेदी रांग व्यवस्थापन व्यासपीठ',
     footer_ministry: 'SIH 2026 · PS26032 · ग्राहक व्यवहार, अन्न आणि सार्वजनिक वितरण मंत्रालय',
@@ -806,6 +854,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     book_cropWheat: 'గోధుమలు (Wheat)',
     book_cropPaddy: 'వరి / ధాన్యం (Paddy)',
     book_cropMaize: 'మొక్కజొన్న (Maize)',
+    book_advanceNotice: 'భద్రతా హామీ: నాణ్యత ఆమోదం పొందిన వెంటనే 20% ముందస్తు మొత్తం మీ ఖాతాలో జమ చేయబడుతుంది.',
 
     queue_eyebrow: 'రియల్-టైమ్ డిస్‌ప్లే',
     queue_title: 'లైవ్ మండీ క్యూ బోర్డు',
@@ -832,10 +881,17 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     status_stageArrived: 'కేంద్రానికి చేరారు',
     status_stageWeighed: 'తూకం వేయబడింది',
     status_stageApproved: 'నాణ్యత ఆమోదించబడింది',
-    status_stagePaid: 'చెల్లింపు పూర్తయింది',
+    status_stageAdvancePaid: '20% భద్రతా అడ్వాన్స్ జమయింది',
+    status_stagePaid: 'తుది చెల్లింపు పూర్తయింది',
     status_produceDetails: 'పంట మరియు చెల్లింపు వివరాలు',
     status_quantity: 'తూకం వేసిన పరిమాణం',
-    status_amount: 'చెల్లించిన మొత్తం',
+    status_amount: 'మొత్తం పంట విలువ',
+    status_advanceAmount: '20% ముందస్తు అడ్వాన్స్',
+    status_balanceAmount: '80% తుది బ్యాలెన్స్',
+    status_advanceNotice: 'రైతు భద్రత కోసం 20% ముందస్తు చెల్లింపు మీ బ్యాంక్ ఖాతాలో జమ చేయబడింది.',
+    status_paid: 'చెల్లించబడింది',
+    status_pending: 'పెండింగ్',
+    status_paymentRef: 'రిఫరెన్స్ సంఖ్య',
 
     footer_copyright: 'రైతు సేకరణ క్యూ నిర్వహణ వేదిక',
     footer_ministry: 'SIH 2026 · PS26032 · వినియోగదారుల వ్యవహారాలు, ఆహార మరియు ప్రజా పంపిణీ మంత్రిత్వ శాఖ',
@@ -925,6 +981,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     book_cropWheat: 'கோதுமை (Wheat)',
     book_cropPaddy: 'நெல் / அரிசி (Paddy)',
     book_cropMaize: 'மக்காச்சோளம் (Maize)',
+    book_advanceNotice: 'பாதுகாப்பு உத்தரவாதம்: தரம் சரிபார்க்கப்பட்டவுடன் 20% முன்பணம் உடனடியாக உங்கள் வங்கிக் கணக்கில் செலுத்தப்படும்.',
 
     queue_eyebrow: 'நேரலை திரை',
     queue_title: 'நேரலை மண்டி வரிசைப் பலகை',
@@ -951,10 +1008,17 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     status_stageArrived: 'மையத்திற்கு வருகை',
     status_stageWeighed: 'எடை போடப்பட்டது',
     status_stageApproved: 'தரம் அங்கீகரிக்கப்பட்டது',
-    status_stagePaid: 'பணம் செலுத்தப்பட்டது',
+    status_stageAdvancePaid: '20% பாதுகாப்பு முன்பணம் செலுத்தப்பட்டது',
+    status_stagePaid: 'இறுதித் தொகை செலுத்தப்பட்டது',
     status_produceDetails: 'விளைபொருள் மற்றும் பண விவரங்கள்',
     status_quantity: 'எடை அளவு',
-    status_amount: 'செலுத்தப்பட்ட தொகை',
+    status_amount: 'மொத்த விளைபொருள் மதிப்பு',
+    status_advanceAmount: '20% பாதுகாப்பு முன்பணம்',
+    status_balanceAmount: '80% மீதி இறுதித் தொகை',
+    status_advanceNotice: 'பாதுகாப்பு உத்தரவாதமாக 20% முன்பணம் உங்கள் வங்கிக் கணக்கில் வரவு வைக்கப்பட்டுள்ளது.',
+    status_paid: 'செலுத்தப்பட்டது',
+    status_pending: 'நிலுவையில்',
+    status_paymentRef: 'குறிப்பு எண்',
 
     footer_copyright: 'விவசாயிகள் கொள்முதல் வரிசை மேலாண்மை தளம்',
     footer_ministry: 'SIH 2026 · PS26032 · நுகர்வோர் விவகாரங்கள், உணவு மற்றும் பொது விநியோக அமைச்சகம்',

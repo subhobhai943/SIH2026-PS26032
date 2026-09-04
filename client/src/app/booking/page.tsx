@@ -207,6 +207,15 @@ export default function BookingPage() {
             <SummaryRow label="Time" value={selectedSlot ? `${selectedSlot.startTime}–${selectedSlot.endTime}` : '—'} />
           </div>
 
+          <div className="rounded-xl bg-emerald-50/90 p-3 text-xs text-emerald-900 border border-emerald-200">
+            <div className="font-bold flex items-center gap-1.5 text-emerald-950 mb-0.5">
+              <span>🛡️</span> 20% Safety Advance Guarantee
+            </div>
+            <p className="text-[11px] leading-relaxed text-emerald-800">
+              {t('book_advanceNotice')}
+            </p>
+          </div>
+
           <Button onClick={book} loading={loading} disabled={!selectedSlot} className="w-full">
             <IconWheat className="h-4 w-4" /> {loading ? t('book_booking') : t('book_btn')}
           </Button>

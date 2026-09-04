@@ -80,12 +80,18 @@ export const myProcurementStatus = asyncHandler(async (req, res) => {
  * farmer-facing status timeline renders.
  */
 function buildStageChecklist(entry, procurement) {
-  const order = ['booked', 'arrived', 'weighed', 'approved', 'paid'];
+  const order = ['booked', 'arrived', 'weighed', 'approved', 'advance_paid', 'paid'];
   const doneAt = {
     booked: entry.createdAt,
     arrived: entry.checkedInAt,
   };
   for (const event of procurement?.timeline || []) doneAt[event.stage] = event.at;
+  if (procurement?.advanceStatus === 'paid' && !doneAt.advance_paid) {
+    doneAt.advance_paid = procurement.advancePaidAt || procurement.updatedAt;
+  }
+  if (procurement?.balanceStatus === 'paid' && !doneAt.paid) {
+    doneAt.paid = procurement.paidAt || procurement.updatedAt;
+  }
 
   let reachedIndex = -1;
   order.forEach((stage, i) => {

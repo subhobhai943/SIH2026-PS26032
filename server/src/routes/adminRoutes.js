@@ -19,6 +19,9 @@ router.post('/queue/:id/check-in', requireStaff(), adminController.checkIn);
 router.post('/queue/:id/call-next', requireStaff(), adminController.callNext);
 router.patch('/queue/:id/status', requireStaff(), adminController.setQueueStatus);
 
+router.get('/procurement/:queueEntryId', requireStaff(), adminController.getProcurementDetails);
 router.patch('/procurement/:queueEntryId', requireStaff(), adminController.updateProcurementStage);
+router.post('/procurement/:queueEntryId/pay-advance', requireStaff(), adminController.payAdvance);
+router.post('/procurement/:queueEntryId/pay-balance', requireStaff(), adminController.payBalance);
 
 export default router;
