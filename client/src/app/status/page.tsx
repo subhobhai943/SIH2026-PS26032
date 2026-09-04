@@ -82,21 +82,25 @@ export default function StatusPage() {
 
   useEffect(() => {
     if (selected && !prefersReducedMotion()) {
-      if (detailsRef.current) {
-        gsap.fromTo(
-          detailsRef.current,
-          { opacity: 0, y: 16 },
-          { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out', clearProps: 'transform,opacity' }
-        );
+      try {
+        if (detailsRef.current) {
+          gsap.fromTo(
+            detailsRef.current,
+            { opacity: 0, y: 16 },
+            { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out', clearProps: 'transform,opacity' }
+          );
+        }
+        gsap.from('.timeline-stage', {
+          opacity: 0,
+          x: -8,
+          stagger: 0.04,
+          duration: 0.3,
+          ease: 'power2.out',
+          clearProps: 'transform,opacity',
+        });
+      } catch (err) {
+        console.warn('Status timeline animation skipped:', err);
       }
-      gsap.from('.timeline-stage', {
-        opacity: 0,
-        x: -8,
-        stagger: 0.04,
-        duration: 0.3,
-        ease: 'power2.out',
-        clearProps: 'transform,opacity',
-      });
     }
   }, [selected?.booking._id]);
 

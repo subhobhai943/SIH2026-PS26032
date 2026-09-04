@@ -15,18 +15,22 @@ export function LanguageModal() {
 
   useEffect(() => {
     if (showModal && backdropRef.current && modalRef.current) {
-      const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
-      animateModalEnter(backdropRef.current, modalRef.current, isMobile);
-      if (!prefersReducedMotion()) {
-        gsap.from('.lang-card', {
-          y: 16,
-          opacity: 0,
-          stagger: 0.03,
-          duration: 0.35,
-          ease: 'power2.out',
-          delay: 0.08,
-          clearProps: 'transform,opacity',
-        });
+      try {
+        const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+        animateModalEnter(backdropRef.current, modalRef.current, isMobile);
+        if (!prefersReducedMotion()) {
+          gsap.from('.lang-card', {
+            y: 16,
+            opacity: 0,
+            stagger: 0.03,
+            duration: 0.35,
+            ease: 'power2.out',
+            delay: 0.08,
+            clearProps: 'transform,opacity',
+          });
+        }
+      } catch (err) {
+        console.warn('LanguageModal enter animation failed:', err);
       }
     }
   }, [showModal]);
@@ -44,11 +48,16 @@ export function LanguageModal() {
       return;
     }
     setClosing(true);
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
-    animateModalExit(backdropRef.current, modalRef.current, isMobile, () => {
+    try {
+      const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+      animateModalExit(backdropRef.current, modalRef.current, isMobile, () => {
+        closeLanguageModal();
+        setClosing(false);
+      });
+    } catch {
       closeLanguageModal();
       setClosing(false);
-    });
+    }
   };
 
   return (

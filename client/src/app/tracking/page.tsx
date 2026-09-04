@@ -99,19 +99,23 @@ function TrackingContent() {
 
   useEffect(() => {
     if (selectedShipment && trackingDetailsRef.current && !prefersReducedMotion()) {
-      gsap.fromTo(
-        trackingDetailsRef.current,
-        { opacity: 0, y: 16 },
-        { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out', clearProps: 'transform,opacity' }
-      );
-      gsap.from('.checkpoint-item', {
-        opacity: 0,
-        x: -8,
-        stagger: 0.04,
-        duration: 0.3,
-        ease: 'power2.out',
-        clearProps: 'transform,opacity',
-      });
+      try {
+        gsap.fromTo(
+          trackingDetailsRef.current,
+          { opacity: 0, y: 16 },
+          { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out', clearProps: 'transform,opacity' }
+        );
+        gsap.from('.checkpoint-item', {
+          opacity: 0,
+          x: -8,
+          stagger: 0.04,
+          duration: 0.3,
+          ease: 'power2.out',
+          clearProps: 'transform,opacity',
+        });
+      } catch (err) {
+        console.warn('Tracking animation skipped:', err);
+      }
     }
   }, [selectedShipment?._id]);
 

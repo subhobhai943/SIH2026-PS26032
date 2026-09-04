@@ -105,8 +105,12 @@ export default function ReviewsPage() {
 
   useEffect(() => {
     if (isModalOpen && reviewModalBackdropRef.current && reviewModalCardRef.current) {
-      const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
-      animateModalEnter(reviewModalBackdropRef.current, reviewModalCardRef.current, isMobile);
+      try {
+        const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+        animateModalEnter(reviewModalBackdropRef.current, reviewModalCardRef.current, isMobile);
+      } catch (err) {
+        console.warn('Review modal enter animation failed:', err);
+      }
     }
   }, [isModalOpen]);
 
@@ -115,32 +119,40 @@ export default function ReviewsPage() {
       setIsModalOpen(false);
       return;
     }
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
-    animateModalExit(reviewModalBackdropRef.current, reviewModalCardRef.current, isMobile, () => {
+    try {
+      const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+      animateModalExit(reviewModalBackdropRef.current, reviewModalCardRef.current, isMobile, () => {
+        setIsModalOpen(false);
+      });
+    } catch {
       setIsModalOpen(false);
-    });
+    }
   };
 
   useEffect(() => {
     if (!loading && !prefersReducedMotion()) {
-      if (activeTab === 'reviews') {
-        gsap.from('.review-card-item', {
-          y: 16,
-          opacity: 0,
-          stagger: 0.04,
-          duration: 0.35,
-          ease: 'power2.out',
-          clearProps: 'transform,opacity',
-        });
-      } else {
-        gsap.from('.farmer-card-item', {
-          scale: 0.94,
-          opacity: 0,
-          stagger: 0.04,
-          duration: 0.35,
-          ease: 'back.out(1.4)',
-          clearProps: 'transform,opacity',
-        });
+      try {
+        if (activeTab === 'reviews') {
+          gsap.from('.review-card-item', {
+            y: 16,
+            opacity: 0,
+            stagger: 0.04,
+            duration: 0.35,
+            ease: 'power2.out',
+            clearProps: 'transform,opacity',
+          });
+        } else {
+          gsap.from('.farmer-card-item', {
+            scale: 0.94,
+            opacity: 0,
+            stagger: 0.04,
+            duration: 0.35,
+            ease: 'back.out(1.4)',
+            clearProps: 'transform,opacity',
+          });
+        }
+      } catch (err) {
+        console.warn('Review cards animation skipped:', err);
       }
     }
   }, [activeTab, loading]);

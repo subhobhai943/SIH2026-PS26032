@@ -44,14 +44,18 @@ export default function BookingPage() {
 
   useEffect(() => {
     if (slots.length > 0 && !prefersReducedMotion()) {
-      gsap.from('.slot-button', {
-        scale: 0.9,
-        opacity: 0,
-        stagger: 0.035,
-        duration: 0.35,
-        ease: 'back.out(1.4)',
-        clearProps: 'transform,opacity',
-      });
+      try {
+        gsap.from('.slot-button', {
+          scale: 0.9,
+          opacity: 0,
+          stagger: 0.035,
+          duration: 0.35,
+          ease: 'back.out(1.4)',
+          clearProps: 'transform,opacity',
+        });
+      } catch (err) {
+        console.warn('Booking slot animation skipped:', err);
+      }
     }
   }, [slots]);
 

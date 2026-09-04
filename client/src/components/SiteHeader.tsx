@@ -35,28 +35,36 @@ export function SiteHeader() {
 
   useEffect(() => {
     if (open && mobileMenuRef.current && !prefersReducedMotion()) {
-      gsap.fromTo(
-        mobileMenuRef.current,
-        { opacity: 0, y: -8 },
-        { opacity: 1, y: 0, duration: 0.25, ease: 'power2.out' }
-      );
-      gsap.from('.mobile-nav-link', {
-        x: -10,
-        opacity: 0,
-        stagger: 0.035,
-        duration: 0.22,
-        ease: 'power2.out',
-      });
+      try {
+        gsap.fromTo(
+          mobileMenuRef.current,
+          { opacity: 0, y: -8 },
+          { opacity: 1, y: 0, duration: 0.25, ease: 'power2.out' }
+        );
+        gsap.from('.mobile-nav-link', {
+          x: -10,
+          opacity: 0,
+          stagger: 0.035,
+          duration: 0.22,
+          ease: 'power2.out',
+        });
+      } catch (err) {
+        console.warn('SiteHeader menu animation skipped:', err);
+      }
     }
   }, [open]);
 
   useEffect(() => {
     if (langMenuOpen && langDropdownMenuRef.current && !prefersReducedMotion()) {
-      gsap.fromTo(
-        langDropdownMenuRef.current,
-        { opacity: 0, scale: 0.95, y: -6 },
-        { opacity: 1, scale: 1, y: 0, duration: 0.2, ease: 'back.out(1.5)' }
-      );
+      try {
+        gsap.fromTo(
+          langDropdownMenuRef.current,
+          { opacity: 0, scale: 0.95, y: -6 },
+          { opacity: 1, scale: 1, y: 0, duration: 0.2, ease: 'back.out(1.5)' }
+        );
+      } catch (err) {
+        console.warn('SiteHeader lang dropdown animation skipped:', err);
+      }
     }
   }, [langMenuOpen]);
 

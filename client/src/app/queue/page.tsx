@@ -40,21 +40,25 @@ export default function QueuePage() {
 
   useEffect(() => {
     if (board && !prefersReducedMotion()) {
-      if (servingBadgeRef.current) {
-        gsap.fromTo(
-          servingBadgeRef.current,
-          { scale: 0.88, opacity: 0.8 },
-          { scale: 1, opacity: 1, duration: 0.45, ease: 'back.out(1.8)' }
-        );
+      try {
+        if (servingBadgeRef.current) {
+          gsap.fromTo(
+            servingBadgeRef.current,
+            { scale: 0.88, opacity: 0.8 },
+            { scale: 1, opacity: 1, duration: 0.45, ease: 'back.out(1.8)' }
+          );
+        }
+        gsap.from('.queue-row', {
+          opacity: 0,
+          x: -10,
+          stagger: 0.035,
+          duration: 0.3,
+          ease: 'power2.out',
+          clearProps: 'transform,opacity',
+        });
+      } catch (err) {
+        console.warn('Queue animation skipped:', err);
       }
-      gsap.from('.queue-row', {
-        opacity: 0,
-        x: -10,
-        stagger: 0.035,
-        duration: 0.3,
-        ease: 'power2.out',
-        clearProps: 'transform,opacity',
-      });
     }
   }, [board?.nowServing?.token, board?.waiting.length]);
 

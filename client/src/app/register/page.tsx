@@ -37,11 +37,15 @@ export default function RegisterPage() {
 
   useEffect(() => {
     if (stepCardRef.current && !prefersReducedMotion()) {
-      gsap.fromTo(
-        stepCardRef.current,
-        { opacity: 0, x: 20 },
-        { opacity: 1, x: 0, duration: 0.35, ease: 'power2.out', clearProps: 'transform,opacity' }
-      );
+      try {
+        gsap.fromTo(
+          stepCardRef.current,
+          { opacity: 0, x: 20 },
+          { opacity: 1, x: 0, duration: 0.35, ease: 'power2.out', clearProps: 'transform,opacity' }
+        );
+      } catch (err) {
+        console.warn('Register step animation skipped:', err);
+      }
     }
   }, [step]);
 

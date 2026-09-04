@@ -10,14 +10,18 @@ export default function HomePage() {
   const { t } = useTranslation();
 
   const containerRef = useGsapContext(() => {
-    gsap.from('.hero-badge', { y: -16, opacity: 0, duration: 0.6, ease: 'back.out(1.8)' });
-    gsap.from('.hero-title', { y: 24, opacity: 0, duration: 0.7, delay: 0.1, ease: 'power3.out' });
-    gsap.from('.hero-desc', { y: 18, opacity: 0, duration: 0.7, delay: 0.2, ease: 'power3.out' });
-    gsap.from('.hero-btn', { scale: 0.92, opacity: 0, duration: 0.5, delay: 0.3, stagger: 0.08, ease: 'back.out(1.5)' });
-    gsap.from('.procurement-banner', { y: 28, opacity: 0, duration: 0.7, delay: 0.45, ease: 'power3.out' });
-    gsap.from('.step-card', { y: 24, opacity: 0, duration: 0.6, delay: 0.55, stagger: 0.09, ease: 'power2.out' });
-    gsap.from('.review-card', { y: 24, opacity: 0, duration: 0.6, delay: 0.65, stagger: 0.09, ease: 'power2.out' });
-    gsap.from('.highlight-item', { y: 20, opacity: 0, duration: 0.5, delay: 0.75, stagger: 0.08, ease: 'power2.out' });
+    try {
+      gsap.from('.hero-badge', { y: -16, opacity: 0, duration: 0.6, ease: 'back.out(1.8)' });
+      gsap.from('.hero-title', { y: 24, opacity: 0, duration: 0.7, delay: 0.1, ease: 'power3.out' });
+      gsap.from('.hero-desc', { y: 18, opacity: 0, duration: 0.7, delay: 0.2, ease: 'power3.out' });
+      gsap.from('.hero-btn', { scale: 0.92, opacity: 0, duration: 0.5, delay: 0.3, stagger: 0.08, ease: 'back.out(1.5)' });
+      gsap.from('.procurement-banner', { y: 28, opacity: 0, duration: 0.7, delay: 0.45, ease: 'power3.out' });
+      gsap.from('.step-card', { y: 24, opacity: 0, duration: 0.6, delay: 0.55, stagger: 0.09, ease: 'power2.out' });
+      gsap.from('.review-card', { y: 24, opacity: 0, duration: 0.6, delay: 0.65, stagger: 0.09, ease: 'power2.out' });
+      gsap.from('.highlight-item', { y: 20, opacity: 0, duration: 0.5, delay: 0.75, stagger: 0.08, ease: 'power2.out' });
+    } catch (err) {
+      console.warn('HomePage GSAP animations skipped:', err);
+    }
   }, []);
 
   const steps = [
