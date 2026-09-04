@@ -50,45 +50,51 @@ This platform is an official, production-grade digital government portal designe
 
 ```mermaid
 flowchart TD
-    subgraph Client["Frontend Client (Next.js 14 / Vercel)"]
-        UI["Multilingual Farmer Portal\n(7 Languages)"]
+    subgraph Client["Frontend Client (Next.js 14)"]
+        UI["Multilingual Farmer Portal\n(7 Languages + PWA)"]
+        FirebaseAuthClient["Firebase Auth Client\n(Phone OTP & reCAPTCHA)"]
         Compressor["HTML5 Canvas Compressor\n(90KB WebP/JPEG)"]
         SocketClient["Socket.io Client"]
     end
 
     subgraph CDN["Edge & Security Layer"]
-        VercelEdge["Vercel Edge Proxy"]
-        HelmetCORS["Helmet & Reverse Proxy Guard"]
+        NginxProxy["Nginx Load Balancer\n(least_conn pool)"]
+        RateLimit["4-Tier Rate Limiter\n(Global, Auth, OTP, Bookings)"]
     end
 
-    subgraph Backend["Core API Server (Node.js 20 / EC2)"]
+    subgraph Backend["Core API Server (Node.js 20 / PM2)"]
         API["Express REST API"]
-        AuthService["JWT & Farmer Auth Gate"]
+        FirebaseAuthServer["Firebase Admin SDK\n(ID Token Verification)"]
+        AuthService["JWT Session Security Gate"]
         UploadService["Dual-Engine Storage Service"]
         QueueEngine["Smart Token Scheduler"]
         SocketServer["Socket.io Real-Time Hub"]
     end
 
-    subgraph Cloud["External Cloud Services"]
-        S3["AWS S3 Bucket\n(eu-north-1 / sih26032-farmer-media)"]
-        Mongo["MongoDB Atlas / Local"]
-        Firebase["Firebase Auth (OTP)"]
-        SMS["MSG91 / SMS Gateway"]
-        Logistics["3PL Fleet Telematics\n(Delhivery / Rivigo / BlackBuck)"]
+    subgraph Cloud["External Cloud & Govt Services"]
+        FirebaseAuthService["Firebase Auth Service\n(Phone Verification)"]
+        AWSSNS["AWS SNS (Transactional SMS)\n(Sender: EMANDI)"]
+        S3["AWS S3 Bucket\n(Farmer KYC & Crop Photos)"]
+        PFMS["PFMS / APBS Gateway\n(20% Advance & 80% Balance)"]
+        Mongo["MongoDB Database\n(Indexed Replicas)"]
+        Logistics["3PL Fleet Telematics\n(Delhivery / BlackBuck)"]
     end
 
+    UI --> FirebaseAuthClient
+    FirebaseAuthClient <--> FirebaseAuthService
     UI --> Compressor
-    Compressor --> VercelEdge
+    Compressor --> NginxProxy
     SocketClient <--> SocketServer
-    VercelEdge --> HelmetCORS --> API
-    API --> AuthService
+    NginxProxy --> RateLimit --> API
+    API --> FirebaseAuthServer
+    FirebaseAuthServer --> AuthService
     API --> QueueEngine
     API --> UploadService
     UploadService -->|Direct Media Stream| S3
     UploadService -.->|Fallback| LocalDisk["Local Disk (/uploads)"]
     API --> Mongo
-    AuthService --> Firebase
-    AuthService --> SMS
+    API --> AWSSNS
+    API --> PFMS
     API --> Logistics
 ```
 
