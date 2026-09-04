@@ -374,6 +374,7 @@ export const payAdvance = asyncHandler(async (req, res) => {
   procurement.advanceStatus = 'paid';
   procurement.advancePaidAt = new Date();
   procurement.advancePaymentRef = ref;
+  procurement.advanceUtr = ref;
   procurement.stage = 'advance_paid';
   procurement.timeline.push({
     stage: 'advance_paid',
@@ -409,7 +410,18 @@ export const payBalance = asyncHandler(async (req, res) => {
   procurement.balanceStatus = 'paid';
   procurement.paidAt = new Date();
   procurement.paymentRef = ref;
+  procurement.balanceUtr = ref;
   procurement.stage = 'paid';
+
+  // Mark full DBT payment confirmed if both advance and balance are settled
+  if (procurement.advanceStatus === 'paid') {
+    procurement.paymentConfirmed = true;
+    procurement.paymentConfirmedAt = new Date();
+    procurement.utrNumber = procurement.utrNumber || `P${Date.now().toString().slice(-10)}${Math.floor(1000 + Math.random() * 9000)}`;
+    procurement.paymentConfirmationSlipId = procurement.paymentConfirmationSlipId || `DBT-REC-${new Date().getFullYear()}-${Date.now().toString(36).toUpperCase()}`;
+    procurement.confirmedBy = req.staff._id;
+  }
+
   procurement.timeline.push({
     stage: 'paid',
     by: req.staff._id,
@@ -418,9 +430,82 @@ export const payBalance = asyncHandler(async (req, res) => {
 
   await procurement.save();
 
-  await sendTemplate(entry.farmer.phone, 'paymentDone', {
-    amount: procurement.balanceAmount || procurement.amount,
-    paymentRef: ref,
+  if (procurement.paymentConfirmed) {
+    await sendTemplate(entry.farmer.phone, 'paymentConfirmed', {
+      token: entry.token,
+      amount: procurement.amount,
+      advanceAmount: procurement.advanceAmount,
+      balanceAmount: procurement.balanceAmount,
+      utrNumber: procurement.utrNumber,
+    });
+  } else {
+    await sendTemplate(entry.farmer.phone, 'paymentDone', {
+      amount: procurement.balanceAmount || procurement.amount,
+      paymentRef: ref,
+    });
+  }
+
+  try { await ensureShipmentForQueue(entry._id); } catch (_) {}
+
+  res.json({ ok: true, data: procurement });
+});
+
+/** POST /api/admin/procurement/:queueEntryId/confirm-payment — confirm and settle DBT payment with official UTR */
+export const confirmPayment = asyncHandler(async (req, res) => {
+  const entry = await Queue.findById(req.params.queueEntryId).populate('farmer', 'phone name').populate('center', 'name');
+  if (!entry) throw ApiError.notFound('Queue entry not found');
+  resolveCenterScope(req.staff, entry.center._id);
+
+  let procurement = await Procurement.findOne({ queueEntry: entry._id });
+  if (!procurement) throw ApiError.badRequest('Procurement record not found');
+
+  if (procurement.amount <= 0) {
+    throw ApiError.badRequest('Total produce value must be greater than 0');
+  }
+
+  const now = Date.now();
+  const utrNumber = req.body.utrNumber?.trim() || `P${now.toString().slice(-10)}${Math.floor(1000 + Math.random() * 9000)}`;
+  const advanceUtr = req.body.advanceUtr?.trim() || procurement.advanceUtr || `ADV-UTR-${now.toString().slice(-8)}`;
+  const balanceUtr = req.body.balanceUtr?.trim() || procurement.balanceUtr || `BAL-UTR-${now.toString().slice(-8)}`;
+  const slipId = procurement.paymentConfirmationSlipId || `DBT-REC-${new Date().getFullYear()}-${now.toString(36).toUpperCase()}`;
+
+  procurement.paymentConfirmed = true;
+  procurement.paymentConfirmedAt = new Date();
+  procurement.paymentConfirmationSlipId = slipId;
+  procurement.utrNumber = utrNumber;
+  procurement.advanceUtr = advanceUtr;
+  procurement.balanceUtr = balanceUtr;
+  procurement.confirmedBy = req.staff._id;
+
+  if (req.body.bankName) procurement.bankName = req.body.bankName;
+  if (req.body.accountMasked) procurement.accountMasked = req.body.accountMasked;
+  if (req.body.ifscCode) procurement.ifscCode = req.body.ifscCode;
+
+  // Mark both advance and balance as paid
+  procurement.advanceStatus = 'paid';
+  if (!procurement.advancePaidAt) procurement.advancePaidAt = new Date();
+  if (!procurement.advancePaymentRef) procurement.advancePaymentRef = advanceUtr;
+
+  procurement.balanceStatus = 'paid';
+  if (!procurement.paidAt) procurement.paidAt = new Date();
+  if (!procurement.paymentRef) procurement.paymentRef = balanceUtr;
+
+  procurement.stage = 'paid';
+  procurement.timeline.push({
+    stage: 'paid',
+    by: req.staff._id,
+    remark: `DBT Payment Confirmed & Settled (Gross: Rs ${procurement.amount}, UTR: ${utrNumber})`,
+  });
+
+  await procurement.save();
+
+  // Send DBT Payment Confirmation SMS
+  await sendTemplate(entry.farmer.phone, 'paymentConfirmed', {
+    token: entry.token,
+    amount: procurement.amount,
+    advanceAmount: procurement.advanceAmount,
+    balanceAmount: procurement.balanceAmount,
+    utrNumber: procurement.utrNumber,
   });
 
   try { await ensureShipmentForQueue(entry._id); } catch (_) {}

@@ -45,6 +45,15 @@ type ProcurementData = {
   balanceStatus: 'pending' | 'paid';
   paymentRef?: string;
   stage: string;
+  paymentConfirmed?: boolean;
+  paymentConfirmedAt?: string;
+  paymentConfirmationSlipId?: string;
+  utrNumber?: string;
+  advanceUtr?: string;
+  balanceUtr?: string;
+  bankName?: string;
+  accountMasked?: string;
+  ifscCode?: string;
 };
 
 export default function AdminPage() {
@@ -259,6 +268,27 @@ export default function AdminPage() {
       });
       setProcurement(res);
       setProcMessage(`Success! Final 80% Payment of ₹${res.balanceAmount} released. Ref: ${res.paymentRef}`);
+      await loadQueue();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setProcLoading(false);
+    }
+  }
+
+  async function confirmDbtPayment() {
+    if (!selectedEntry || !procurement) return;
+    setProcLoading(true);
+    setProcMessage(null);
+    try {
+      const res = await callAuthed(`/admin/procurement/${selectedEntry._id}/confirm-payment`, {
+        method: 'POST',
+        body: JSON.stringify({
+          bankName: 'State Bank of India (DBT Linked)',
+        }),
+      });
+      setProcurement(res);
+      setProcMessage(`DBT Payment Confirmed! ₹${res.amount} settled to farmer bank account. UTR: ${res.utrNumber}`);
       await loadQueue();
     } catch (err: any) {
       setError(err.message);
@@ -597,27 +627,56 @@ export default function AdminPage() {
                       </Button>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-neutral-100">
-                      <button
-                        type="button"
-                        disabled={procLoading || procurement.advanceStatus === 'paid'}
-                        onClick={payAdvance}
-                        className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white shadow-md transition hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        <IconRupee className="h-4 w-4" />
-                        {procurement.advanceStatus === 'paid' ? '20% Advance Already Paid' : `Release 20% Advance (₹${procurement.advanceAmount})`}
-                      </button>
+                    {procurement.paymentConfirmed ? (
+                      <div className="rounded-xl bg-emerald-50 border border-emerald-300 p-3.5 space-y-1.5 text-xs text-emerald-900 mt-2">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold flex items-center gap-1.5 text-emerald-800">
+                            <span className="text-base font-black text-emerald-600">✓</span> Government DBT Payment Confirmed
+                          </span>
+                          <span className="bg-emerald-600 text-white font-mono font-bold px-2 py-0.5 rounded text-[10px]">
+                            PAID IN FULL
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-[11px] font-mono text-emerald-700">
+                          <div>UTR: {procurement.utrNumber || procurement.paymentRef || 'N/A'}</div>
+                          <div>Slip ID: {procurement.paymentConfirmationSlipId || 'DBT-REC'}</div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-2 pt-2 border-t border-neutral-100">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          <button
+                            type="button"
+                            disabled={procLoading || procurement.advanceStatus === 'paid'}
+                            onClick={payAdvance}
+                            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white shadow-md transition hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <IconRupee className="h-4 w-4" />
+                            {procurement.advanceStatus === 'paid' ? '20% Advance Already Paid' : `Release 20% Advance (₹${procurement.advanceAmount})`}
+                          </button>
 
-                      <button
-                        type="button"
-                        disabled={procLoading || procurement.balanceStatus === 'paid'}
-                        onClick={payBalance}
-                        className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-neutral-900 px-4 py-2.5 text-xs font-bold text-white shadow-md transition hover:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        <IconWheat className="h-4 w-4" />
-                        {procurement.balanceStatus === 'paid' ? 'Final 80% Settled' : `Release Final 80% (₹${procurement.balanceAmount})`}
-                      </button>
-                    </div>
+                          <button
+                            type="button"
+                            disabled={procLoading || procurement.balanceStatus === 'paid'}
+                            onClick={payBalance}
+                            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-neutral-900 px-4 py-2.5 text-xs font-bold text-white shadow-md transition hover:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <IconWheat className="h-4 w-4" />
+                            {procurement.balanceStatus === 'paid' ? 'Final 80% Settled' : `Release Final 80% (₹${procurement.balanceAmount})`}
+                          </button>
+                        </div>
+
+                        <button
+                          type="button"
+                          disabled={procLoading}
+                          onClick={confirmDbtPayment}
+                          className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-700 to-emerald-700 px-4 py-2.5 text-xs font-bold text-white shadow-md transition hover:from-brand-800 hover:to-emerald-800 disabled:opacity-50"
+                        >
+                          <IconShieldCheck className="h-4 w-4 text-emerald-300" />
+                          <span>Confirm & Settle Full DBT Payment (₹{procurement.amount.toLocaleString()})</span>
+                        </button>
+                      </div>
+                    )}
 
                     {/* 3rd-Party Logistics Dispatch & Live Movement */}
                     <div className="border-t border-neutral-200 pt-4 mt-4 space-y-3">

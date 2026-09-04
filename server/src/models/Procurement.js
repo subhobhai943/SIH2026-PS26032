@@ -39,6 +39,18 @@ const procurementSchema = new mongoose.Schema(
     timeline: { type: [stageEventSchema], default: [] },
     paymentRef: { type: String, default: '' },
     paidAt: { type: Date },
+
+    // Direct Benefit Transfer (DBT) Confirmation
+    paymentConfirmed: { type: Boolean, default: false, index: true },
+    paymentConfirmedAt: { type: Date },
+    paymentConfirmationSlipId: { type: String, default: '' },
+    utrNumber: { type: String, default: '' },
+    advanceUtr: { type: String, default: '' },
+    balanceUtr: { type: String, default: '' },
+    bankName: { type: String, default: 'State Bank of India' },
+    accountMasked: { type: String, default: '•••• •••• 5421' },
+    ifscCode: { type: String, default: 'SBIN0001842' },
+    confirmedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Staff' },
   },
   { timestamps: true }
 );

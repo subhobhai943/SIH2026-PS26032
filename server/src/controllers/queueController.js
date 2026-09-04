@@ -60,6 +60,7 @@ export const myProcurementStatus = asyncHandler(async (req, res) => {
   const entry = await Queue.findOne({ _id: req.params.bookingId, farmer: req.farmer._id })
     .populate('center', 'name code address contactPhone')
     .populate('slot', 'startTime endTime')
+    .populate('farmer', 'name phone village district state')
     .lean();
   if (!entry) throw ApiError.notFound('Booking not found');
 

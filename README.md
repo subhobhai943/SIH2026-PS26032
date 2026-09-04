@@ -71,7 +71,7 @@ flowchart TD
         S3["AWS S3 Bucket\n(eu-north-1 / sih26032-farmer-media)"]
         Mongo["MongoDB Atlas / Local"]
         Firebase["Firebase Auth (OTP)"]
-        Fast2SMS["Fast2SMS & MSG91 Gateways"]
+        SMS["MSG91 / SMS Gateway"]
         Logistics["3PL Fleet Telematics\n(Delhivery / Rivigo / BlackBuck)"]
     end
 
@@ -86,7 +86,7 @@ flowchart TD
     UploadService -.->|Fallback| LocalDisk["Local Disk (/uploads)"]
     API --> Mongo
     AuthService --> Firebase
-    AuthService --> Fast2SMS
+    AuthService --> SMS
     API --> Logistics
 ```
 
@@ -95,7 +95,7 @@ flowchart TD
 ## 🚀 Key Features
 
 ### 1. Farmer Registration & Identity Verification
-* Mobile OTP verification via **Firebase Auth** with automatic SMS fallback via **Fast2SMS**.
+* Mobile OTP verification via **Firebase Auth** with automatic SMS gateway integration.
 * Camera capture for farmer identification photograph.
 * Accessible 4-step stepper with 48px+ touch targets optimized for mobile browsers in field conditions.
 
@@ -197,8 +197,8 @@ OTP_TTL_MINUTES=5
 OTP_DEV_MODE=false
 
 # SMS Gateways
-SMS_PROVIDER=fast2sms
-FAST2SMS_API_KEY=your_fast2sms_key
+SMS_PROVIDER=console # 'console' or 'msg91'
+MSG91_AUTH_KEY=your_msg91_key
 
 # AWS S3 Cloud Storage
 AWS_S3_BUCKET=sih26032-farmer-media

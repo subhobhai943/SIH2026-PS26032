@@ -28,9 +28,6 @@ export const env = {
     dltTeId: process.env.MSG91_DLT_TE_ID || '',
   },
 
-  fast2sms: {
-    apiKey: process.env.FAST2SMS_API_KEY || '',
-  },
 
   firebase: {
     projectId: process.env.FIREBASE_PROJECT_ID || '',

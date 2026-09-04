@@ -195,3 +195,14 @@ export function IconPhoto({ className = base }: IconProps) {
     </svg>
   );
 }
+
+export function IconPrinter({ className = base }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 6.75h10.5v3.75H6.75V6.75Z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 16.5H4.5A2.25 2.25 0 0 1 2.25 14.25v-4.5A2.25 2.25 0 0 1 4.5 7.5h15a2.25 2.25 0 0 1 2.25 2.25v4.5a2.25 2.25 0 0 1-2.25 2.25h-2.25" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 13.5h10.5v6.75H6.75V13.5Z" />
+      <circle cx="18" cy="10.5" r="0.75" fill="currentColor" />
+    </svg>
+  );
+}
