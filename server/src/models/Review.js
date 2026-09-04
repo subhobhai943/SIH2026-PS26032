@@ -16,6 +16,7 @@ const reviewSchema = new mongoose.Schema(
     comment: { type: String, required: true, trim: true, maxlength: 1000 },
     crop: { type: String, trim: true, default: 'Wheat' },
     lotQuantityQtl: { type: Number, min: 0 },
+    cropImageUrl: { type: String, default: '' },
     tags: [{ type: String, trim: true }],
     verifiedPurchase: { type: Boolean, default: true },
     helpfulCount: { type: Number, default: 0 },

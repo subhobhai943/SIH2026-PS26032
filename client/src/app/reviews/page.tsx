@@ -41,10 +41,18 @@ type ReviewItem = {
   comment: string;
   crop: string;
   lotQuantityQtl?: number;
+  cropImageUrl?: string;
   tags?: string[];
   verifiedPurchase: boolean;
   helpfulCount: number;
   createdAt: string;
+};
+
+const DEFAULT_CROP_IMAGES: Record<string, string> = {
+  wheat: 'https://sih26032-farmer-media.s3.eu-north-1.amazonaws.com/crops/crop_wheat.jpg',
+  paddy: 'https://sih26032-farmer-media.s3.eu-north-1.amazonaws.com/crops/crop_paddy.jpg',
+  maize: 'https://sih26032-farmer-media.s3.eu-north-1.amazonaws.com/crops/crop_maize.jpg',
+  mustard: 'https://sih26032-farmer-media.s3.eu-north-1.amazonaws.com/crops/crop_mustard.jpg',
 };
 
 const AVAILABLE_TAGS = [
@@ -86,6 +94,7 @@ export default function ReviewsPage() {
   const [rating, setRating] = useState(5);
   const [crop, setCrop] = useState('Wheat');
   const [lotQuantityQtl, setLotQuantityQtl] = useState<number>(30);
+  const [cropImageUrl, setCropImageUrl] = useState(DEFAULT_CROP_IMAGES.wheat);
   const [selectedTags, setSelectedTags] = useState<string[]>([
     'Grade A Grain',
     'Low Moisture (<11%)',
@@ -244,6 +253,7 @@ export default function ReviewsPage() {
         comment: comment.trim(),
         crop,
         lotQuantityQtl: Number(lotQuantityQtl) || 0,
+        cropImageUrl: cropImageUrl || undefined,
         tags: selectedTags,
       });
 
@@ -533,23 +543,44 @@ export default function ReviewsPage() {
                       </div>
                     </div>
 
-                    {/* Farmer Tagged */}
+                    {/* Farmer Tagged Profile Banner */}
                     {farmer && (
-                      <div className="mt-3.5 flex items-center justify-between rounded-xl bg-neutral-50 px-3 py-2 border border-neutral-100">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-neutral-500 font-medium">Farmer:</span>
-                          <span className="text-xs font-bold text-neutral-800">{farmer.name}</span>
-                          {farmer.village && (
-                            <span className="text-[11px] text-neutral-400">
-                              ({farmer.village}, {farmer.district})
-                            </span>
+                      <div className="mt-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl bg-neutral-50/80 p-3 border border-neutral-100/90 shadow-2xs">
+                        <div className="flex items-center gap-3 min-w-0">
+                          {farmer.photoUrl ? (
+                            <img
+                              src={farmer.photoUrl}
+                              alt={farmer.name}
+                              className="h-11 w-11 shrink-0 rounded-full object-cover border-2 border-brand-500 shadow-sm ring-2 ring-brand-100/50"
+                            />
+                          ) : (
+                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-100 text-brand-800 font-bold text-sm border-2 border-brand-200">
+                              {farmer.name?.charAt(0) || 'F'}
+                            </div>
                           )}
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="text-xs font-bold text-neutral-900">{farmer.name}</span>
+                              {farmer.badge && (
+                                <span className="rounded-md bg-amber-100 px-1.5 py-0.5 text-[9px] font-bold text-amber-800 border border-amber-200">
+                                  {farmer.badge}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-[11px] text-neutral-500 truncate">
+                              {farmer.village ? `${farmer.village}, ` : ''}{farmer.district || 'Mandi Yard'} · {farmer.state || 'India'}
+                            </p>
+                          </div>
                         </div>
-                        {farmer.badge && (
-                          <span className="rounded bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800">
-                            {farmer.badge}
-                          </span>
-                        )}
+
+                        <button
+                          type="button"
+                          onClick={() => openFarmerDetails(farmer)}
+                          className="self-end sm:self-auto shrink-0 text-[11px] font-bold text-brand-700 hover:text-brand-900 bg-white hover:bg-brand-50 px-3 py-1.5 rounded-xl border border-neutral-200/90 shadow-xs transition flex items-center gap-1"
+                        >
+                          <span>Farmer Profile & Lots</span>
+                          <span>→</span>
+                        </button>
                       </div>
                     )}
 
@@ -557,6 +588,49 @@ export default function ReviewsPage() {
                     <p className="mt-3 text-sm text-neutral-700 leading-relaxed font-normal">
                       &ldquo;{rev.comment}&rdquo;
                     </p>
+
+                    {/* Crop Produce Lot Inspection Media */}
+                    {rev.cropImageUrl && (
+                      <div className="mt-3.5 flex flex-col sm:flex-row gap-3.5 rounded-2xl bg-amber-50/30 p-3 border border-amber-200/60 shadow-2xs">
+                        <div className="relative shrink-0 overflow-hidden rounded-xl border border-amber-200/80 shadow-xs">
+                          <img
+                            src={rev.cropImageUrl}
+                            alt={`${rev.crop} Crop Lot Sample`}
+                            className="h-40 sm:h-28 w-full sm:w-36 object-cover transition duration-300 hover:scale-105"
+                          />
+                          <div className="absolute top-1.5 left-1.5 rounded bg-black/60 backdrop-blur-xs px-1.5 py-0.5 text-[9px] font-bold text-white uppercase tracking-wider">
+                            Harvest Sample
+                          </div>
+                        </div>
+                        <div className="flex flex-col justify-between py-0.5 min-w-0">
+                          <div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-xs font-bold text-neutral-900">
+                                🌾 {rev.crop} Procurement Inspection Lot
+                              </span>
+                              <span className="rounded bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
+                                S3 Cloud Media Verified
+                              </span>
+                            </div>
+                            <p className="text-xs text-neutral-600 mt-1 leading-relaxed">
+                              Physical grain lot sampled at weighbridge gate. Grain moisture, test weight, and foreign matter verified within FAQ limits.
+                            </p>
+                          </div>
+                          <div className="mt-2 flex items-center gap-3 text-[11px] text-neutral-600 flex-wrap">
+                            <span className="font-bold text-brand-800 bg-brand-50 px-2 py-0.5 rounded border border-brand-100">
+                              ⚖️ {rev.lotQuantityQtl || 30} Qtl Lot
+                            </span>
+                            <span className="text-emerald-700 font-semibold flex items-center gap-0.5">
+                              <IconCheck className="h-3 w-3 text-emerald-600" />
+                              <span>100% Traceable</span>
+                            </span>
+                            <span className="text-neutral-400">
+                              Direct from {farmer?.name || 'Farmer Producer'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Quality Tags Chips */}
                     {rev.tags && rev.tags.length > 0 && (
@@ -613,14 +687,22 @@ export default function ReviewsPage() {
                 <div>
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-100 text-brand-800 font-bold text-base border-2 border-brand-200">
-                        {farmer.name?.charAt(0) || 'F'}
-                      </div>
+                      {farmer.photoUrl ? (
+                        <img
+                          src={farmer.photoUrl}
+                          alt={farmer.name}
+                          className="h-12 w-12 shrink-0 rounded-full object-cover border-2 border-brand-500 shadow-sm"
+                        />
+                      ) : (
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand-100 text-brand-800 font-bold text-base border-2 border-brand-200">
+                          {farmer.name?.charAt(0) || 'F'}
+                        </div>
+                      )}
                       <div>
                         <h3 className="text-base font-bold text-neutral-900">{farmer.name}</h3>
                         <p className="text-xs text-neutral-500">
                           {farmer.village ? `${farmer.village}, ` : ''}
-                          {farmer.district || 'Patiala'}
+                          {farmer.district || 'Patiala'}, {farmer.state || 'Punjab'}
                         </p>
                       </div>
                     </div>
@@ -784,7 +866,12 @@ export default function ReviewsPage() {
                     <label className="block text-xs font-bold text-neutral-700 mb-1">Crop *</label>
                     <select
                       value={crop}
-                      onChange={(e) => setCrop(e.target.value)}
+                      onChange={(e) => {
+                        const newCrop = e.target.value;
+                        setCrop(newCrop);
+                        const matched = DEFAULT_CROP_IMAGES[newCrop.toLowerCase()];
+                        if (matched) setCropImageUrl(matched);
+                      }}
                       className="w-full rounded-xl border border-neutral-300 p-2 text-xs font-semibold"
                     >
                       <option value="Wheat">Wheat (गेहूं)</option>
@@ -805,6 +892,45 @@ export default function ReviewsPage() {
                       onChange={(e) => setLotQuantityQtl(Number(e.target.value))}
                       className="w-full rounded-xl border border-neutral-300 p-2 text-xs font-semibold"
                     />
+                  </div>
+                </div>
+
+                {/* Crop Produce Image Preview */}
+                <div>
+                  <label className="block text-xs font-bold text-neutral-700 mb-1">
+                    Verified Crop Produce Image (AWS S3 Cloud Storage)
+                  </label>
+                  <div className="flex items-center gap-3 rounded-2xl bg-neutral-50 p-2.5 border border-neutral-200">
+                    <img
+                      src={cropImageUrl || DEFAULT_CROP_IMAGES.wheat}
+                      alt={crop}
+                      className="h-14 w-20 rounded-xl object-cover border border-neutral-200 shadow-xs shrink-0"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-bold text-neutral-800 flex items-center gap-1">
+                        <span>🌾 {crop} Harvest Sample</span>
+                        <span className="text-emerald-700 font-medium text-[10px]">• S3 Synced</span>
+                      </p>
+                      <p className="text-[10px] text-neutral-400 mt-0.5 truncate">
+                        {cropImageUrl}
+                      </p>
+                      <div className="flex items-center gap-1.5 mt-1.5">
+                        {Object.keys(DEFAULT_CROP_IMAGES).map((cKey) => (
+                          <button
+                            key={cKey}
+                            type="button"
+                            onClick={() => setCropImageUrl(DEFAULT_CROP_IMAGES[cKey])}
+                            className={`rounded-md px-2 py-0.5 text-[10px] font-bold capitalize transition ${
+                              cropImageUrl === DEFAULT_CROP_IMAGES[cKey]
+                                ? 'bg-brand-700 text-white shadow-xs'
+                                : 'bg-neutral-200 text-neutral-700 hover:bg-neutral-300'
+                            }`}
+                          >
+                            {cKey}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -952,9 +1078,17 @@ export default function ReviewsPage() {
             </button>
 
             <div className="flex items-center gap-3">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-100 text-brand-800 font-bold text-xl border-2 border-brand-200">
-                {viewingFarmer.name?.charAt(0) || 'F'}
-              </div>
+              {viewingFarmer.photoUrl ? (
+                <img
+                  src={viewingFarmer.photoUrl}
+                  alt={viewingFarmer.name}
+                  className="h-16 w-16 shrink-0 rounded-full object-cover border-2 border-brand-500 shadow-md ring-2 ring-brand-100"
+                />
+              ) : (
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-100 text-brand-800 font-bold text-xl border-2 border-brand-200">
+                  {viewingFarmer.name?.charAt(0) || 'F'}
+                </div>
+              )}
               <div>
                 <h2 className="text-xl font-black text-neutral-900">{viewingFarmer.name}</h2>
                 <p className="text-xs text-neutral-500">
@@ -1005,6 +1139,24 @@ export default function ReviewsPage() {
                       <p className="mt-2 text-xs text-neutral-700 leading-relaxed font-normal">
                         &ldquo;{r.comment}&rdquo;
                       </p>
+                      {r.cropImageUrl && (
+                        <div className="mt-2.5 flex items-center gap-2.5 rounded-xl bg-amber-50/60 p-2 border border-amber-200/60">
+                          <img
+                            src={r.cropImageUrl}
+                            alt={`${r.crop} sample`}
+                            className="h-12 w-16 shrink-0 rounded-lg object-cover border border-neutral-200"
+                          />
+                          <div className="text-[11px] text-neutral-600 min-w-0">
+                            <div className="font-bold text-neutral-800 flex items-center gap-1">
+                              <span>🌾 {r.crop} Lot Sample</span>
+                              <span className="text-emerald-700 font-semibold">• S3 Media</span>
+                            </div>
+                            <div className="text-[10px] text-neutral-500">
+                              {r.lotQuantityQtl ? `${r.lotQuantityQtl} Qtl · ` : ''}Weighbridge Inspected
+                            </div>
+                          </div>
+                        </div>
+                      )}
                       {r.tags && r.tags.length > 0 && (
                         <div className="mt-2 flex flex-wrap gap-1">
                           {r.tags.map((tg) => (

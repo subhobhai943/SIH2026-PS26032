@@ -1458,14 +1458,50 @@ export default function AdminPage() {
                     </div>
                   </div>
 
-                  <div className="mt-2.5 rounded-xl bg-neutral-50 p-2.5 text-xs text-neutral-600 border border-neutral-100">
-                    <span className="font-semibold text-neutral-800">Farmer: </span>
-                    <span>{typeof rev.farmer === 'object' ? rev.farmer?.name : 'Farmer Producer'}</span>
+                  <div className="mt-2.5 flex items-center justify-between rounded-xl bg-neutral-50 p-2.5 text-xs text-neutral-600 border border-neutral-100">
+                    <div className="flex items-center gap-2">
+                      {typeof rev.farmer === 'object' && rev.farmer?.photoUrl ? (
+                        <img
+                          src={rev.farmer.photoUrl}
+                          alt={rev.farmer.name}
+                          className="h-7 w-7 rounded-full object-cover border border-amber-300"
+                        />
+                      ) : (
+                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-100 text-brand-800 text-[10px] font-bold">
+                          {typeof rev.farmer === 'object' ? rev.farmer?.name?.charAt(0) : 'F'}
+                        </span>
+                      )}
+                      <span className="font-semibold text-neutral-800">
+                        {typeof rev.farmer === 'object' ? rev.farmer?.name : 'Farmer Producer'}
+                      </span>
+                      {typeof rev.farmer === 'object' && rev.farmer?.district && (
+                        <span className="text-[11px] text-neutral-400">({rev.farmer.district})</span>
+                      )}
+                    </div>
                   </div>
 
                   <p className="mt-3 text-xs text-neutral-700 leading-relaxed font-normal">
                     &ldquo;{rev.comment}&rdquo;
                   </p>
+
+                  {rev.cropImageUrl && (
+                    <div className="mt-2.5 flex items-center gap-2.5 rounded-xl bg-amber-50/50 p-2 border border-amber-200/60">
+                      <img
+                        src={rev.cropImageUrl}
+                        alt={`${rev.crop} sample`}
+                        className="h-12 w-16 shrink-0 rounded-lg object-cover border border-neutral-200"
+                      />
+                      <div className="text-[11px] text-neutral-600 min-w-0">
+                        <div className="font-bold text-neutral-800 flex items-center gap-1">
+                          <span>🌾 {rev.crop} Lot Sample</span>
+                          <span className="text-emerald-700 font-semibold">• S3 Cloud Media</span>
+                        </div>
+                        <div className="text-[10px] text-neutral-500">
+                          {rev.lotQuantityQtl ? `${rev.lotQuantityQtl} Qtl · ` : ''}Verified Produce Sample
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {rev.tags && rev.tags.length > 0 && (
                     <div className="mt-3 flex flex-wrap gap-1.5">

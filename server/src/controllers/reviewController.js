@@ -14,6 +14,7 @@ const createReviewSchema = z.object({
   comment: z.string().min(5, 'Review comment must be at least 5 characters').max(1000),
   crop: z.string().optional(),
   lotQuantityQtl: z.number().min(0).optional(),
+  cropImageUrl: z.string().optional(),
   tags: z.array(z.string()).optional(),
 });
 
@@ -34,6 +35,7 @@ export const createReview = asyncHandler(async (req, res) => {
     comment: body.comment,
     crop: body.crop || farmer.crops?.[0] || 'Wheat',
     lotQuantityQtl: body.lotQuantityQtl || 0,
+    cropImageUrl: body.cropImageUrl || '',
     tags: body.tags || [],
     verifiedPurchase: true,
   });
