@@ -1,9 +1,37 @@
+import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
 import { env } from '../config/env.js';
 
 const MSG91_ENDPOINT = 'https://api.msg91.com/api/v2/sendsms';
 
+let snsClient = null;
+
+function getSnsClient() {
+  if (!snsClient) {
+    if (!env.aws.accessKeyId || !env.aws.secretAccessKey) {
+      throw new Error('AWS credentials (accessKeyId, secretAccessKey) are not configured');
+    }
+    snsClient = new SNSClient({
+      region: env.aws.region || 'eu-north-1',
+      credentials: {
+        accessKeyId: env.aws.accessKeyId,
+        secretAccessKey: env.aws.secretAccessKey,
+      },
+    });
+  }
+  return snsClient;
+}
+
+/** Formats an Indian mobile number to E.164 (+91XXXXXXXXXX) */
+function toE164(phone) {
+  const clean = String(phone).replace(/\D/g, '');
+  if (clean.length === 10) return `+91${clean}`;
+  if (clean.length === 12 && clean.startsWith('91')) return `+${clean}`;
+  if (String(phone).startsWith('+')) return String(phone);
+  return `+91${clean}`;
+}
+
 /**
- * Message templates. Kept short — MSG91 bills per 160-character segment and
+ * Message templates. Kept short — SMS gateways bill per 160-character segment and
  * many farmers are on feature phones where long messages get split badly.
  */
 export const templates = {
@@ -32,6 +60,31 @@ export const templates = {
     `Token ${token}: DBT Payment of Rs ${amount} confirmed (Advance: Rs ${advanceAmount}, Final: Rs ${balanceAmount}). UTR: ${utrNumber}. Receipt available on portal.`,
 };
 
+/** Send SMS via AWS SNS */
+async function sendViaAwsSns(phone, message) {
+  const client = getSnsClient();
+  const phoneNumber = toE164(phone);
+
+  const command = new PublishCommand({
+    PhoneNumber: phoneNumber,
+    Message: message,
+    MessageAttributes: {
+      'AWS.SNS.SMS.SMSType': {
+        DataType: 'String',
+        StringValue: 'Transactional',
+      },
+      'AWS.SNS.SMS.SenderID': {
+        DataType: 'String',
+        StringValue: 'SIHPRC',
+      },
+    },
+  });
+
+  const response = await client.send(command);
+  console.log(`[sms:aws-sns] -> ${phoneNumber} | MessageId: ${response.MessageId}`);
+  return { provider: 'sns', messageId: response.MessageId };
+}
+
 async function sendViaMsg91(phone, message) {
   if (!env.msg91.authKey) throw new Error('MSG91_AUTH_KEY is not configured');
 
@@ -53,16 +106,25 @@ async function sendViaMsg91(phone, message) {
 }
 
 function sendViaConsole(phone, message) {
-  console.log(`[sms] -> +91${phone}: ${message}`);
+  console.log(`[sms:console] -> +91${phone}: ${message}`);
   return { provider: 'console' };
 }
 
 /**
  * Sends an SMS. Delivery failures are logged and swallowed: a farmer must never
- * lose their slot because the SMS gateway was down.
+ * lose their slot or payment because the SMS gateway was down.
  */
 export async function sendSMS(phone, message) {
   try {
+    if (env.smsProvider === 'sns') {
+      try {
+        return await sendViaAwsSns(phone, message);
+      } catch (snsErr) {
+        console.error(`[sms:aws-sns] delivery to +91${phone} failed: ${snsErr.message}. Fallback to console.`);
+        sendViaConsole(phone, message);
+        return { provider: 'sns', error: snsErr.message, fallback: 'console' };
+      }
+    }
     if (env.smsProvider === 'msg91') return await sendViaMsg91(phone, message);
     return sendViaConsole(phone, message);
   } catch (err) {
