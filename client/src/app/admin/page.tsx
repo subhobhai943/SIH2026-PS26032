@@ -72,8 +72,10 @@ type ProcurementData = {
 
 export default function AdminPage() {
   const [token, setToken] = useState<string | null>(null);
-  const [usernameOrEmail, setUsernameOrEmail] = useState('SUB');
-  const [password, setPassword] = useState('SUB');
+  const [usernameOrEmail, setUsernameOrEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [lockoutUntil, setLockoutUntil] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loginLoading, setLoginLoading] = useState(false);
   const [adminTab, setAdminTab] = useState<'queue' | 'system' | 'reviews'>('queue');
@@ -114,8 +116,25 @@ export default function AdminPage() {
       .catch(() => {});
   }, []);
 
+  // Lockout countdown timer
+  useEffect(() => {
+    if (!lockoutUntil) return;
+    const iv = setInterval(() => {
+      const remaining = Math.ceil((lockoutUntil - Date.now()) / 1000);
+      if (remaining <= 0) {
+        setLockoutUntil(null);
+        setError(null);
+        setFailedAttempts(0);
+      } else {
+        setError(`Too many login attempts. Try again in ${remaining}s`);
+      }
+    }, 1000);
+    return () => clearInterval(iv);
+  }, [lockoutUntil]);
+
   async function login(e: React.FormEvent) {
     e.preventDefault();
+    if (lockoutUntil && Date.now() < lockoutUntil) return;
     setError(null);
     setLoginLoading(true);
     try {
@@ -124,8 +143,19 @@ export default function AdminPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: usernameOrEmail, email: usernameOrEmail, password }),
       });
+      if (res.status === 429) {
+        const body = await res.json().catch(() => ({}));
+        const retryAfter = body?.retryAfterSeconds || 900;
+        setLockoutUntil(Date.now() + retryAfter * 1000);
+        setError(`Too many login attempts. Try again in ${retryAfter}s`);
+        return;
+      }
       const body = await res.json();
-      if (!res.ok || !body.ok) throw new Error(body?.error?.message || 'Login failed');
+      if (!res.ok || !body.ok) {
+        setFailedAttempts((p) => p + 1);
+        throw new Error(body?.error?.message || 'Invalid credentials');
+      }
+      setFailedAttempts(0);
       window.localStorage.setItem(ADMIN_TOKEN_KEY, body.data.token);
       setToken(body.data.token);
       if (body.data.staff.center) setCenterId(body.data.staff.center);
@@ -412,51 +442,33 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* Admin Credentials Info Callout */}
-          <div className="mb-4 rounded-2xl bg-amber-50/90 p-3.5 border border-amber-200 text-xs text-amber-950">
-            <div className="flex items-center justify-between">
-              <span className="font-bold flex items-center gap-1.5">
-                <IconShieldCheck className="h-4 w-4 text-amber-700" />
-                <span>Default Admin Login:</span>
-              </span>
-              <button
-                type="button"
-                onClick={() => {
-                  setUsernameOrEmail('SUB');
-                  setPassword('SUB');
-                }}
-                className="rounded-lg bg-amber-200 hover:bg-amber-300 px-2 py-0.5 text-[11px] font-bold text-amber-900 transition"
-              >
-                Auto-Fill SUB
-              </button>
-            </div>
-            <div className="mt-2 font-mono text-[11px] bg-white rounded-lg p-2 border border-amber-200/80 space-y-1">
-              <div className="flex justify-between">
-                <span className="text-neutral-500">Username:</span>
-                <strong className="text-amber-900">SUB</strong>
+          {failedAttempts >= 3 && !lockoutUntil && (
+            <div className="mb-4 rounded-2xl bg-red-50/90 p-3.5 border border-red-200 text-xs text-red-900">
+              <div className="flex items-center gap-1.5 font-bold">
+                <IconShieldCheck className="h-4 w-4 text-red-700" />
+                <span>Warning: {failedAttempts} failed attempts detected</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-neutral-500">Password:</span>
-                <strong className="text-amber-900">SUB</strong>
-              </div>
+              <p className="mt-1 text-red-800">Your account may be locked after continued failed attempts.</p>
             </div>
-          </div>
+          )}
 
           <form onSubmit={login} className="space-y-4">
             <TextField
               label="Username or Email"
               value={usernameOrEmail}
               onChange={(e) => setUsernameOrEmail(e.target.value)}
-              placeholder="Enter SUB or email"
+              placeholder="Enter your username or email"
+              disabled={!!lockoutUntil}
             />
             <TextField
               label="Password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter SUB"
+              placeholder="••••••••"
+              disabled={!!lockoutUntil}
             />
-            <Button type="submit" loading={loginLoading} className="w-full">
+            <Button type="submit" loading={loginLoading} disabled={!!lockoutUntil} className="w-full">
               <IconAdmin className="h-4 w-4" /> Sign In to Admin Console
             </Button>
           </form>
