@@ -3,9 +3,10 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import rateLimit from 'express-rate-limit';
+import mongoose from 'mongoose';
 import { env } from './config/env.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
+import { globalLimiter, trafficMonitorMiddleware } from './middleware/rateLimiter.js';
 import farmerRoutes from './routes/farmerRoutes.js';
 import slotRoutes from './routes/slotRoutes.js';
 import queueRoutes from './routes/queueRoutes.js';
@@ -17,21 +18,50 @@ import reviewRoutes from './routes/reviewRoutes.js';
 export function createApp() {
   const app = express();
 
-  // Trust reverse proxies (Vercel, Nginx) so rate-limiter sees real client IPs
+  // Trust reverse proxies (Vercel, AWS ALB, Nginx) so rate-limiter sees real client IPs
   app.set('trust proxy', 1);
   app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
   app.use(cors({ origin: env.clientOrigin, credentials: true }));
-  app.use(express.json({ limit: '10mb' }));
+  app.use(express.json({ limit: '15mb' }));
   app.use(morgan(env.nodeEnv === 'production' ? 'combined' : 'dev'));
-  app.use(
-    rateLimit({ windowMs: 60 * 1000, max: 300, standardHeaders: true, legacyHeaders: false })
-  );
+
+  // Live traffic tracking and rate limiting
+  app.use(trafficMonitorMiddleware);
+  app.use('/api', globalLimiter);
 
   // Serve static uploaded media files
   app.use('/uploads', express.static(path.resolve(process.cwd(), 'uploads')));
 
-  app.get('/health', (_req, res) => res.json({ ok: true, service: 'sih26032-server', time: new Date().toISOString() }));
-  app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'sih26032-server', time: new Date().toISOString() }));
+  // High-availability health check for AWS ALB / Nginx Load Balancers
+  const healthCheck = (req, res) => {
+    const mem = process.memoryUsage();
+    res.json({
+      ok: true,
+      status: 'HEALTHY',
+      service: 'sih26032-server',
+      pid: process.pid,
+      instanceId: process.env.NODE_APP_INSTANCE || '0',
+      uptimeSeconds: Math.floor(process.uptime()),
+      timestamp: new Date().toISOString(),
+      loadBalancer: {
+        detectedIp: req.ip || req.headers['x-forwarded-for'] || req.socket.remoteAddress,
+        protocol: req.protocol,
+        host: req.get('host'),
+        forwardedProto: req.headers['x-forwarded-proto'] || 'direct',
+      },
+      memory: {
+        rssMb: Math.round(mem.rss / (1024 * 1024)),
+        heapUsedMb: Math.round(mem.heapUsed / (1024 * 1024)),
+        heapTotalMb: Math.round(mem.heapTotal / (1024 * 1024)),
+      },
+      database: {
+        status: mongoose.connection.readyState === 1 ? 'CONNECTED' : 'DISCONNECTED',
+      },
+    });
+  };
+
+  app.get('/health', healthCheck);
+  app.get('/api/health', healthCheck);
 
   app.use('/api/farmers', farmerRoutes);
   // Centre/slot browsing and booking share one router mounted at /api.

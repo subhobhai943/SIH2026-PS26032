@@ -46,6 +46,18 @@ async function seed() {
     console.log(`[seed] centre ready: ${center.name} (${center.code})`);
   }
 
+  const subUser = await Staff.findOne({ $or: [{ username: 'SUB' }, { email: 'sub@sih26032.local' }] });
+  if (!subUser) {
+    await Staff.create({
+      username: 'SUB',
+      email: 'sub@sih26032.local',
+      passwordHash: await Staff.hashPassword('SUB'),
+      name: 'System Administrator (SUB)',
+      role: 'admin',
+    });
+    console.log('[seed] admin user SUB created with password SUB');
+  }
+
   const adminEmail = 'admin@sih26032.local';
   const existingAdmin = await Staff.findOne({ email: adminEmail });
   if (!existingAdmin) {

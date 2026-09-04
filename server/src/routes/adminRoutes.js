@@ -1,11 +1,13 @@
 import { Router } from 'express';
 import { requireStaff } from '../middleware/auth.js';
+import { authLimiter } from '../middleware/rateLimiter.js';
 import * as adminController from '../controllers/adminController.js';
 
 const router = Router();
 
-router.post('/login', adminController.login);
+router.post('/login', authLimiter, adminController.login);
 router.get('/me', requireStaff(), adminController.me);
+router.get('/system-metrics', requireStaff(), adminController.getSystemMetrics);
 
 router.post('/centers', requireStaff('admin'), adminController.createCenter);
 router.put('/centers/:id', requireStaff('admin'), adminController.updateCenter);
