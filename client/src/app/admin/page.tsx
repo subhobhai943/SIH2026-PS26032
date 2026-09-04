@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Alert, Button, Card, EmptyState, PageHeader, StatTile, StatusBadge, TextField } from '@/components/ui';
-import { IconAdmin, IconClose, IconMapPin, IconQueue, IconRupee, IconWheat } from '@/components/icons';
+import { IconAdmin, IconClose, IconMapPin, IconQueue, IconRupee, IconWheat, IconTruck, IconShieldCheck } from '@/components/icons';
 
 const API_URL = '/api';
 const ADMIN_TOKEN_KEY = 'sih26032_admin_token';
@@ -63,6 +63,17 @@ export default function AdminPage() {
   const [procurement, setProcurement] = useState<ProcurementData | null>(null);
   const [procLoading, setProcLoading] = useState(false);
   const [procMessage, setProcMessage] = useState<string | null>(null);
+
+  // 3rd-Party Logistics & Tracking state
+  const [shipment, setShipment] = useState<any>(null);
+  const [carrierName, setCarrierName] = useState('Delhivery Agri Logistics');
+  const [vehicleNumber, setVehicleNumber] = useState('HR 05 BA 4421');
+  const [driverName, setDriverName] = useState('Rajesh Kumar');
+  const [driverPhone, setDriverPhone] = useState('+91 98765 43210');
+  const [checkpointStatus, setCheckpointStatus] = useState('in_transit');
+  const [checkpointLocation, setCheckpointLocation] = useState('');
+  const [checkpointTitle, setCheckpointTitle] = useState('');
+  const [shipLoading, setShipLoading] = useState(false);
 
   useEffect(() => {
     setToken(window.localStorage.getItem(ADMIN_TOKEN_KEY));
@@ -163,6 +174,20 @@ export default function AdminPage() {
         balanceAmount: data.procurement.balanceAmount || bal,
         qualityGrade: data.procurement.qualityGrade || 'A',
       });
+
+      // Load or initialize shipment for logistics tracking
+      try {
+        const shipData = await callAuthed(`/shipments/booking/${entry._id}`);
+        setShipment(shipData);
+        if (shipData?.logisticsPartner) {
+          setCarrierName(shipData.logisticsPartner.name || 'Delhivery Agri Logistics');
+          setVehicleNumber(shipData.logisticsPartner.vehicleNumber || 'HR 05 BA 4421');
+          setDriverName(shipData.logisticsPartner.driverName || 'Rajesh Kumar');
+          setDriverPhone(shipData.logisticsPartner.driverPhone || '+91 98765 43210');
+        }
+      } catch (_) {
+        setShipment(null);
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -239,6 +264,53 @@ export default function AdminPage() {
       setError(err.message);
     } finally {
       setProcLoading(false);
+    }
+  }
+
+  async function updateLogisticsPartner() {
+    if (!shipment) return;
+    setShipLoading(true);
+    setProcMessage(null);
+    try {
+      const updated = await callAuthed(`/shipments/${shipment._id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          partnerName: carrierName,
+          vehicleNumber,
+          driverName,
+          driverPhone,
+        }),
+      });
+      setShipment(updated);
+      setProcMessage('Logistics partner & vehicle details saved successfully.');
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setShipLoading(false);
+    }
+  }
+
+  async function addTransitCheckpoint() {
+    if (!shipment || !checkpointTitle.trim() || !checkpointLocation.trim()) return;
+    setShipLoading(true);
+    setProcMessage(null);
+    try {
+      const updated = await callAuthed(`/shipments/${shipment._id}/checkpoint`, {
+        method: 'POST',
+        body: JSON.stringify({
+          status: checkpointStatus,
+          title: checkpointTitle.trim(),
+          location: checkpointLocation.trim(),
+        }),
+      });
+      setShipment(updated);
+      setCheckpointTitle('');
+      setCheckpointLocation('');
+      setProcMessage('Live checkpoint posted! Now visible on customer tracking page.');
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setShipLoading(false);
     }
   }
 
@@ -545,6 +617,148 @@ export default function AdminPage() {
                         <IconWheat className="h-4 w-4" />
                         {procurement.balanceStatus === 'paid' ? 'Final 80% Settled' : `Release Final 80% (₹${procurement.balanceAmount})`}
                       </button>
+                    </div>
+
+                    {/* 3rd-Party Logistics Dispatch & Live Movement */}
+                    <div className="border-t border-neutral-200 pt-4 mt-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 font-bold text-neutral-900 text-xs uppercase tracking-wider">
+                          <IconTruck className="h-4 w-4 text-brand-600" />
+                          <span>3rd-Party Logistics Partner & Tracking</span>
+                        </div>
+                        {selectedEntry && (
+                          <a
+                            href={`/tracking?id=${selectedEntry._id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[11px] font-bold text-brand-700 hover:underline inline-flex items-center gap-1"
+                          >
+                            <span>Open Tracking Page</span> ➔
+                          </a>
+                        )}
+                      </div>
+
+                      {shipment && (
+                        <div className="rounded-xl bg-neutral-50 p-3 border border-neutral-200 space-y-3 text-xs">
+                          <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-neutral-200">
+                            <div>
+                              <span className="text-neutral-500">Consignment:</span>{' '}
+                              <strong className="font-mono text-neutral-800">{shipment.trackingNumber}</strong>
+                            </div>
+                            <div>
+                              <span className="text-neutral-500">Order:</span>{' '}
+                              <strong className="font-mono text-neutral-800">{shipment.orderId}</strong>
+                            </div>
+                            <StatusBadge status={shipment.status} />
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            <div>
+                              <label className="block text-[10px] font-bold text-neutral-600 uppercase mb-1">Carrier Partner</label>
+                              <select
+                                value={carrierName}
+                                onChange={(e) => setCarrierName(e.target.value)}
+                                className="w-full rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-xs focus:border-brand-500 focus:outline-none"
+                              >
+                                <option value="Delhivery Agri Logistics">Delhivery Agri Logistics</option>
+                                <option value="BlackBuck Ag-Freight">BlackBuck Ag-Freight</option>
+                                <option value="TCI Express Mandi Line">TCI Express Mandi Line</option>
+                                <option value="Rivigo Agri Relay">Rivigo Agri Relay</option>
+                              </select>
+                            </div>
+
+                            <div>
+                              <label className="block text-[10px] font-bold text-neutral-600 uppercase mb-1">Vehicle / Truck No</label>
+                              <input
+                                type="text"
+                                value={vehicleNumber}
+                                onChange={(e) => setVehicleNumber(e.target.value)}
+                                placeholder="HR 05 BA 4421"
+                                className="w-full rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-xs focus:border-brand-500 focus:outline-none"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-[10px] font-bold text-neutral-600 uppercase mb-1">Driver Name</label>
+                              <input
+                                type="text"
+                                value={driverName}
+                                onChange={(e) => setDriverName(e.target.value)}
+                                placeholder="Driver Name"
+                                className="w-full rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-xs focus:border-brand-500 focus:outline-none"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-[10px] font-bold text-neutral-600 uppercase mb-1">Driver Phone</label>
+                              <input
+                                type="text"
+                                value={driverPhone}
+                                onChange={(e) => setDriverPhone(e.target.value)}
+                                placeholder="+91 98765 43210"
+                                className="w-full rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-xs focus:border-brand-500 focus:outline-none"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="pt-1 flex justify-end">
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              loading={shipLoading}
+                              onClick={updateLogisticsPartner}
+                              className="text-xs"
+                            >
+                              Update Logistics Details
+                            </Button>
+                          </div>
+
+                          {/* Quick Checkpoint Addition */}
+                          <div className="pt-2 border-t border-neutral-200 space-y-2">
+                            <div className="text-[11px] font-bold text-neutral-700 uppercase">
+                              Post Live Movement Checkpoint
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                              <select
+                                value={checkpointStatus}
+                                onChange={(e) => setCheckpointStatus(e.target.value)}
+                                className="rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-xs focus:border-brand-500 focus:outline-none"
+                              >
+                                <option value="produce_dispatched">Produce Dispatched</option>
+                                <option value="picked_up">Picked Up by Truck</option>
+                                <option value="in_transit">In Transit (Corridor)</option>
+                                <option value="out_for_delivery">Arrived at Depot</option>
+                                <option value="delivered">Delivered & Verified</option>
+                              </select>
+                              <input
+                                type="text"
+                                value={checkpointTitle}
+                                onChange={(e) => setCheckpointTitle(e.target.value)}
+                                placeholder="Checkpoint Title (e.g. Passed Toll)"
+                                className="rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-xs focus:border-brand-500 focus:outline-none"
+                              />
+                              <input
+                                type="text"
+                                value={checkpointLocation}
+                                onChange={(e) => setCheckpointLocation(e.target.value)}
+                                placeholder="Location (e.g. Panipat NH-44)"
+                                className="rounded-lg border border-neutral-300 bg-white px-2.5 py-1.5 text-xs focus:border-brand-500 focus:outline-none"
+                              />
+                            </div>
+                            <div className="flex justify-end">
+                              <Button
+                                size="sm"
+                                loading={shipLoading}
+                                onClick={addTransitCheckpoint}
+                                disabled={!checkpointTitle.trim() || !checkpointLocation.trim()}
+                                className="text-xs"
+                              >
+                                📍 Post Live Checkpoint
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </>

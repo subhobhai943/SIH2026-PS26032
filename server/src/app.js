@@ -9,6 +9,7 @@ import farmerRoutes from './routes/farmerRoutes.js';
 import slotRoutes from './routes/slotRoutes.js';
 import queueRoutes from './routes/queueRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import shipmentRoutes from './routes/shipmentRoutes.js';
 
 export function createApp() {
   const app = express();
@@ -30,6 +31,7 @@ export function createApp() {
   app.use('/api', slotRoutes);
   app.use('/api/queue', queueRoutes);
   app.use('/api/admin', adminRoutes);
+  app.use('/api/shipments', shipmentRoutes);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

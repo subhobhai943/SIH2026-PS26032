@@ -1,7 +1,7 @@
 'use client';
 
 import { Card } from '@/components/ui';
-import { IconArrowRight, IconBell, IconCalendar, IconPhone, IconQueue, IconStatus } from '@/components/icons';
+import { IconArrowRight, IconBell, IconCalendar, IconPhone, IconQueue, IconStatus, IconTruck } from '@/components/icons';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
 
 export default function HomePage() {
@@ -41,7 +41,7 @@ export default function HomePage() {
           <p className="mx-auto mt-4 max-w-xl text-brand-50 sm:text-lg">
             {t('home_heroDesc')}
           </p>
-          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row flex-wrap">
             <a
               href="/register"
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-bold text-brand-700 shadow-lg transition hover:bg-brand-50 active:scale-[0.99]"
@@ -54,9 +54,48 @@ export default function HomePage() {
             >
               {t('home_viewLiveQueue')}
             </a>
+            <a
+              href="/tracking"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-400 px-6 py-3 text-sm font-bold text-neutral-950 shadow-lg transition hover:bg-amber-300 active:scale-[0.99]"
+            >
+              <IconTruck className="h-4 w-4 text-neutral-950" />
+              {t('nav_trackOrder')}
+            </a>
           </div>
         </div>
       </section>
+
+      {/* 3rd-Party Logistics & Tracking Callout Banner */}
+      <Card className="p-5 sm:p-6 bg-gradient-to-r from-neutral-900 via-neutral-800 to-neutral-900 text-white shadow-lg border-neutral-700">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-5">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-brand-500/20 text-brand-400 border border-brand-500/30 flex items-center justify-center shrink-0">
+              <IconTruck className="h-7 w-7" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-amber-400 bg-amber-400/10 px-2.5 py-0.5 rounded-full border border-amber-400/20">
+                  New Feature
+                </span>
+                <span className="text-xs text-neutral-400">Delhivery · BlackBuck · TCI · Rivigo</span>
+              </div>
+              <h3 className="text-lg font-bold text-white mt-1">
+                {t('track_pageTitle')} & 20% Advance Guarantee
+              </h3>
+              <p className="text-xs text-neutral-300 mt-0.5 max-w-xl">
+                {t('track_pageSubtitle')}
+              </p>
+            </div>
+          </div>
+          <a
+            href="/tracking"
+            className="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-5 py-2.5 text-xs font-bold text-white shadow-md transition hover:bg-brand-500 shrink-0"
+          >
+            <span>{t('track_btnTrackNow')}</span>
+            <IconArrowRight className="h-3.5 w-3.5" />
+          </a>
+        </div>
+      </Card>
 
       <section>
         <div className="mb-8 text-center">

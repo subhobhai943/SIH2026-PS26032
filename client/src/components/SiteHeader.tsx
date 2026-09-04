@@ -29,6 +29,7 @@ export function SiteHeader() {
     { href: '/booking', label: t('nav_bookSlot') },
     { href: '/queue', label: t('nav_liveQueue') },
     { href: '/status', label: t('nav_myStatus') },
+    { href: '/tracking', label: t('nav_trackOrder') },
   ];
 
   return (

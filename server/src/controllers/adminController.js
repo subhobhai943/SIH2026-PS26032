@@ -11,6 +11,7 @@ import { minutesOfDay, toHHMM, todayISO } from '../utils/datetime.js';
 import { broadcastQueue, notifyFarmer } from '../services/socketService.js';
 import { sendTemplate } from '../services/smsService.js';
 import { farmersToAlert, getQueueState } from '../services/queueService.js';
+import { ensureShipmentForQueue } from './shipmentController.js';
 
 // ---------------------------------------------------------------- auth
 
@@ -351,6 +352,8 @@ export const updateProcurementStage = asyncHandler(async (req, res) => {
     await sendTemplate(entry.farmer.phone, 'procurementUpdate', { token: entry.token, stage: body.stage });
   }
 
+  try { await ensureShipmentForQueue(entry._id); } catch (_) {}
+
   res.json({ ok: true, data: procurement });
 });
 
@@ -388,6 +391,8 @@ export const payAdvance = asyncHandler(async (req, res) => {
     token: entry.token,
   });
 
+  try { await ensureShipmentForQueue(entry._id); } catch (_) {}
+
   res.json({ ok: true, data: procurement });
 });
 
@@ -417,6 +422,8 @@ export const payBalance = asyncHandler(async (req, res) => {
     amount: procurement.balanceAmount || procurement.amount,
     paymentRef: ref,
   });
+
+  try { await ensureShipmentForQueue(entry._id); } catch (_) {}
 
   res.json({ ok: true, data: procurement });
 });

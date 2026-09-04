@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import { Alert, Card, EmptyState, PageHeader, StatusBadge } from '@/components/ui';
-import { IconCalendar, IconRupee, IconStatus, IconWheat } from '@/components/icons';
+import { IconCalendar, IconRupee, IconStatus, IconWheat, IconTruck } from '@/components/icons';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
 import { TranslationKey } from '@/lib/i18n/translations';
 
@@ -104,9 +104,14 @@ export default function StatusPage() {
                   <span className="font-semibold text-neutral-900">Token #{b.token}</span>
                   <StatusBadge status={b.status} />
                 </div>
-                <div className="mt-1.5 flex items-center gap-1.5 text-sm text-neutral-500">
-                  <IconCalendar className="h-3.5 w-3.5 shrink-0" />
-                  {b.center?.name} · {b.date} {b.slot ? `(${b.slot.startTime}–${b.slot.endTime})` : ''}
+                <div className="mt-1.5 flex items-center justify-between gap-1.5 text-sm text-neutral-500">
+                  <div className="flex items-center gap-1.5">
+                    <IconCalendar className="h-3.5 w-3.5 shrink-0" />
+                    <span>{b.center?.name} · {b.date} {b.slot ? `(${b.slot.startTime}–${b.slot.endTime})` : ''}</span>
+                  </div>
+                  <span className="text-xs font-bold text-brand-700 bg-brand-50 px-2 py-0.5 rounded border border-brand-200">
+                    🚚 Track
+                  </span>
                 </div>
               </Card>
             </button>
@@ -116,9 +121,18 @@ export default function StatusPage() {
         {selected && (
           <div className="space-y-4">
             <Card className="h-fit p-6 shadow-md">
-              <h2 className="mb-5 font-semibold text-neutral-900">
-                {t('status_timeline')} — Token #{selected.booking.token}
-              </h2>
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-5">
+                <h2 className="font-semibold text-neutral-900">
+                  {t('status_timeline')} — Token #{selected.booking.token}
+                </h2>
+                <a
+                  href={`/tracking?id=${selected.booking._id}`}
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-neutral-900 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-neutral-800 transition"
+                >
+                  <IconTruck className="h-3.5 w-3.5 text-amber-400" />
+                  <span>{t('status_trackDeliveryBtn')}</span>
+                </a>
+              </div>
 
               <ol className="space-y-0 mb-6">
                 {selected.stages.map((s, i) => {

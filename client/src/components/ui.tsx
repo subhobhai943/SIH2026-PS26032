@@ -32,6 +32,12 @@ const badgeStyles: Record<string, string> = {
   paid: 'bg-brand-50 text-brand-700 ring-brand-200',
   rejected: 'bg-red-50 text-red-700 ring-red-200',
   open: 'bg-brand-50 text-brand-700 ring-brand-200',
+  order_confirmed: 'bg-blue-50 text-blue-700 ring-blue-200',
+  produce_dispatched: 'bg-indigo-50 text-indigo-700 ring-indigo-200',
+  picked_up: 'bg-amber-50 text-amber-700 ring-amber-200',
+  in_transit: 'bg-purple-50 text-purple-700 ring-purple-200',
+  out_for_delivery: 'bg-orange-50 text-orange-700 ring-orange-200',
+  delivered: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
 };
 
 export function StatusBadge({ status }: { status: string }) {
