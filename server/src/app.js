@@ -25,6 +25,7 @@ export function createApp() {
   );
 
   app.get('/health', (_req, res) => res.json({ ok: true, service: 'sih26032-server', time: new Date().toISOString() }));
+  app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'sih26032-server', time: new Date().toISOString() }));
 
   app.use('/api/farmers', farmerRoutes);
   // Centre/slot browsing and booking share one router mounted at /api.
