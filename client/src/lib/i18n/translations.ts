@@ -199,7 +199,7 @@ export type TranslationKey =
 export const translations: Record<LanguageCode, Record<TranslationKey, string>> = {
   en: {
     nav_appName: 'Procurement Queue',
-    nav_appSubtitle: 'SIH 2026 · PS26032',
+    nav_appSubtitle: 'National e-Procurement Portal',
     nav_bookSlot: 'Book a Slot',
     nav_liveQueue: 'Live Queue',
     nav_myStatus: 'My Status',
@@ -212,7 +212,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     modal_selectSubtitle: 'You can change this anytime from the top bar.',
     modal_continue: 'Continue',
 
-    home_tag: 'Smart India Hackathon 2026 · PS26032',
+    home_tag: 'Government of India · National e-Procurement Portal',
     home_heroTitle: 'No more waiting in the sun for your turn at the mandi.',
     home_heroDesc: 'Book your procurement slot, track your live queue position, and follow your payment status — all from your phone, in your own time.',
     home_getStarted: 'Get Started',
@@ -382,12 +382,12 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     track_gatePass: 'e-Procurement Gate Pass & Logistics Note',
 
     footer_copyright: 'Farmer Procurement Queue Management Platform',
-    footer_ministry: 'SIH 2026 · PS26032 · Ministry of Consumer Affairs, Food & Public Distribution',
+    footer_ministry: 'Ministry of Consumer Affairs, Food & Public Distribution · Government of India',
   },
 
   hi: {
     nav_appName: 'खरीद कतार पोर्टल',
-    nav_appSubtitle: 'SIH 2026 · PS26032',
+    nav_appSubtitle: 'राष्ट्रीय ई-उपार्जन मंच',
     nav_bookSlot: 'स्लॉट बुक करें',
     nav_liveQueue: 'लाइव कतार',
     nav_myStatus: 'मेरी स्थिति',
@@ -400,7 +400,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     modal_selectSubtitle: 'आप इसे ऊपर दिए गए मेनू से कभी भी बदल सकते हैं।',
     modal_continue: 'आगे बढ़ें',
 
-    home_tag: 'स्मार्ट इंडिया हैकथॉन 2026 · PS26032',
+    home_tag: 'भारत सरकार · राष्ट्रीय ई-उपार्जन एवं डीबीटी पोर्टल',
     home_heroTitle: 'मंडी में धूप में खड़े रहकर अपनी बारी का इंतजार करने की अब जरूरत नहीं।',
     home_heroDesc: 'अपनी खरीद का स्लॉट बुक करें, मोबाइल पर लाइव कतार की स्थिति देखें और भुगतान तक हर चरण ट्रैक करें — सब कुछ अपने फोन से।',
     home_getStarted: 'शुरू करें',
@@ -570,12 +570,12 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     track_gatePass: 'ई-खरीद गेट पास व परिवहन चालान',
 
     footer_copyright: 'किसान खरीद कतार प्रबंधन मंच',
-    footer_ministry: 'SIH 2026 · PS26032 · उपभोक्ता मामले, खाद्य और सार्वजनिक वितरण मंत्रालय',
+    footer_ministry: 'उपभोक्ता मामले, खाद्य और सार्वजनिक वितरण मंत्रालय · भारत सरकार',
   },
 
   pa: {
     nav_appName: 'ਖਰੀਦ ਕਤਾਰ ਪੋਰਟਲ',
-    nav_appSubtitle: 'SIH 2026 · PS26032',
+    nav_appSubtitle: 'ਰਾਸ਼ਟਰੀ ਈ-ਖਰੀਦ ਮੰਚ',
     nav_bookSlot: 'ਸਲਾਟ ਬੁੱਕ ਕਰੋ',
     nav_liveQueue: 'ਲਾਈਵ ਕਤਾਰ',
     nav_myStatus: 'ਮੇਰੀ ਸਥਿਤੀ',
@@ -588,7 +588,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     modal_selectSubtitle: 'ਤੁਸੀਂ ਇਸਨੂੰ ਉੱਪਰਲੇ ਮੀਨੂ ਤੋਂ ਕਦੇ ਵੀ ਬਦਲ ਸਕਦੇ ਹੋ।',
     modal_continue: 'ਅੱਗੇ ਵਧੋ',
 
-    home_tag: 'ਸਮਾਰਟ ਇੰਡੀਆ ਹੈਕਾਥਾਨ 2026 · PS26032',
+    home_tag: 'ਭਾਰਤ ਸਰਕਾਰ · ਰਾਸ਼ਟਰੀ ਈ-ਖਰੀਦ ਅਤੇ ਡੀਬੀਟੀ ਪੋਰਟਲ',
     home_heroTitle: 'ਮੰਡੀ ਵਿੱਚ ਧੁੱਪ ਵਿੱਚ ਖੜ੍ਹ ਕੇ ਆਪਣੀ ਵਾਰੀ ਦੀ ਉਡੀਕ ਕਰਨ ਦੀ ਲੋੜ ਨਹੀਂ।',
     home_heroDesc: 'ਆਪਣੀ ਖਰੀਦ ਦਾ ਸਲਾਟ ਬੁੱਕ ਕਰੋ, ਮੋਬਾਈਲ ਤੇ ਲਾਈਵ ਕਤਾਰ ਦੀ ਸਥਿਤੀ ਦੇਖੋ ਅਤੇ ਭੁਗਤਾਨ ਤੱਕ ਹਰ ਕਦਮ ਟਰੈਕ ਕਰੋ — ਸਭ ਕੁਝ ਆਪਣੇ ਫ਼ੋਨ ਤੋਂ।',
     home_getStarted: 'ਸ਼ੁਰੂ ਕਰੋ',
@@ -758,12 +758,12 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     track_gatePass: 'ਈ-ਖ਼ਰੀਦ ਗੇਟ ਪਾਸ ਅਤੇ ਟਰਾਂਸਪੋਰਟ ਚਲਾਨ',
 
     footer_copyright: 'ਕਿਸਾਨ ਖਰੀਦ ਕਤਾਰ ਪ੍ਰਬੰਧਨ ਪਲੇਟਫਾਰਮ',
-    footer_ministry: 'SIH 2026 · PS26032 · ਖਪਤਕਾਰ ਮਾਮਲੇ, ਖੁਰਾਕ ਅਤੇ ਜਨਤਕ ਵੰਡ ਮੰਤਰਾਲਾ',
+    footer_ministry: 'ਖਪਤਕਾਰ ਮਾਮਲੇ, ਖੁਰਾਕ ਅਤੇ ਜਨਤਕ ਵੰਡ ਮੰਤਰਾਲਾ · ਭਾਰਤ ਸਰਕਾਰ',
   },
 
   bn: {
     nav_appName: 'সংগ্রহ কিউ পোর্টাল',
-    nav_appSubtitle: 'SIH 2026 · PS26032',
+    nav_appSubtitle: 'জাতীয় ই-সংগ্রহ পোর্টাল',
     nav_bookSlot: 'স্লট বুক করুন',
     nav_liveQueue: 'লাইভ কিউ',
     nav_myStatus: 'আমার স্ট্যাটাস',
@@ -776,7 +776,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     modal_selectSubtitle: 'আপনি উপরের মেনু থেকে যেকোনো সময় এটি পরিবর্তন করতে পারেন।',
     modal_continue: 'চালিয়ে যান',
 
-    home_tag: 'স্মার্ট ইন্ডিয়া হ্যাকাথন ২০২৬ · PS26032',
+    home_tag: 'ভারত সরকার · জাতীয় ই-সংগ্রহ এবং ডিবিটি পোর্টাল',
     home_heroTitle: 'মন্ডিতে রোদে দাঁড়িয়ে আপনার পালা আসার অপেক্ষা করার দিন শেষ।',
     home_heroDesc: 'আপনার ফসল বিক্রির স্লট বুক করুন, মোবাইলে লাইভ কিউ পজিশন দেখুন এবং পেমেন্ট পর্যন্ত প্রতিটি ধাপ ট্র্যাক করুন।',
     home_getStarted: 'শুরু করুন',
@@ -946,12 +946,12 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     track_gatePass: 'ই-ক্রয় গেট পাস ও লজিস্টিক চালান',
 
     footer_copyright: 'কৃষক সংগ্রহ কিউ ব্যবস্থাপনা প্ল্যাটফর্ম',
-    footer_ministry: 'SIH 2026 · PS26032 · উপভোক্তা বিষয়ক, খাদ্য ও গণবন্টন মন্ত্রক',
+    footer_ministry: 'উপভোক্তা বিষয়ক, খাদ্য ও গণবন্টন মন্ত্রক · ভারত সরকার',
   },
 
   mr: {
     nav_appName: 'खरेदी रांग पोर्टल',
-    nav_appSubtitle: 'SIH 2026 · PS26032',
+    nav_appSubtitle: 'राष्ट्रीय ई-खरेदी मंच',
     nav_bookSlot: 'स्लॉट बुक करा',
     nav_liveQueue: 'थेट रांग',
     nav_myStatus: 'माझी स्थिती',
@@ -964,7 +964,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     modal_selectSubtitle: 'आपण हे वर दिलेल्या मेनूमधून कधीही बदलू शकता.',
     modal_continue: 'पुढे जा',
 
-    home_tag: 'स्मार्ट इंडिया हॅकाथॉन २०२६ · PS26032',
+    home_tag: 'भारत सरकार · राष्ट्रीय ई-खरेदी आणि डीबीटी पोर्टल',
     home_heroTitle: 'मंडीत उन्हात उभे राहून आपल्या पाळीची वाट पाहण्याची आता गरज नाही.',
     home_heroDesc: 'आपला खरेदीचा स्लॉट बुक करा, मोबाईलवर थेट रांगेची स्थिती पाहा आणि खात्यात पैसे जमा होईपर्यंत प्रत्येक टप्पा ट्रॅक करा.',
     home_getStarted: 'सुरू करा',
@@ -1134,12 +1134,12 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     track_gatePass: 'ई-खरेदी गेट पास व वाहतूक पावती',
 
     footer_copyright: 'शेतकरी खरेदी रांग व्यवस्थापन व्यासपीठ',
-    footer_ministry: 'SIH 2026 · PS26032 · ग्राहक व्यवहार, अन्न आणि सार्वजनिक वितरण मंत्रालय',
+    footer_ministry: 'ग्राहक व्यवहार, अन्न आणि सार्वजनिक वितरण मंत्रालय · भारत सरकार',
   },
 
   te: {
     nav_appName: 'సేకరణ క్యూ పోర్టల్',
-    nav_appSubtitle: 'SIH 2026 · PS26032',
+    nav_appSubtitle: 'జాతీయ ఈ-సేకరణ వేదిక',
     nav_bookSlot: 'స్లాట్ బుక్ చేయండి',
     nav_liveQueue: 'లైవ్ క్యూ',
     nav_myStatus: 'నా స్థితి',
@@ -1152,7 +1152,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     modal_selectSubtitle: 'మీరు ఎగువ మెనూ నుండి ఎప్పుడైనా దీన్ని మార్చవచ్చు.',
     modal_continue: 'కొనసాగించండి',
 
-    home_tag: 'స్మార్ట్ ఇండియా హ్యాకథాన్ 2026 · PS26032',
+    home_tag: 'భారత ప్రభుత్వం · జాతీయ ఈ-సేకరణ & డిబిటి పోర్టల్',
     home_heroTitle: 'మండీలో ఎండలో నిలబడి మీ వంతు కోసం వేచి ఉండాల్సిన అవసరం లేదు.',
     home_heroDesc: 'మీ పంట సేకరణ స్లాట్‌ను బుక్ చేసుకోండి, మొబైల్‌లో లైవ్ క్యూ స్థితిని మరియు చెల్లింపుల వరకు ప్రతి దశను ట్రాక్ చేయండి.',
     home_getStarted: 'ప్రారంభించండి',
@@ -1322,12 +1322,12 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     track_gatePass: 'ఈ-సేకరణ గేట్ పాస్ & రవాణా నోట్',
 
     footer_copyright: 'రైతు సేకరణ క్యూ నిర్వహణ వేదిక',
-    footer_ministry: 'SIH 2026 · PS26032 · వినియోగదారుల వ్యవహారాలు, ఆహార మరియు ప్రజా పంపిణీ మంత్రిత్వ శాఖ',
+    footer_ministry: 'వినియోగదారుల వ్యవహారాలు, ఆహార మరియు ప్రజా పంపిణీ మంత్రిత్వ శాఖ · భారత ప్రభుత్వం',
   },
 
   ta: {
     nav_appName: 'கொள்முதல் வரிசை போர்டல்',
-    nav_appSubtitle: 'SIH 2026 · PS26032',
+    nav_appSubtitle: 'தேசிய மின்-கொள்முதல் தளம்',
     nav_bookSlot: 'முன்பதிவு செய்',
     nav_liveQueue: 'நேரலை வரிசை',
     nav_myStatus: 'என் நிலை',
@@ -1340,7 +1340,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     modal_selectSubtitle: 'மேலே உள்ள மெனுவிலிருந்து எப்போது வேண்டுமானாலும் இதை மாற்றலாம்.',
     modal_continue: 'தொடரவும்',
 
-    home_tag: 'ஸ்மார்ட் இந்தியா ஹேக்கத்தான் 2026 · PS26032',
+    home_tag: 'இந்திய அரசு · தேசிய மின்-கொள்முதல் & டிபிடி போர்டல்',
     home_heroTitle: 'மண்டியில் வெயிலில் நின்று உங்கள் முறைக்காக காத்திருக்க வேண்டியதில்லை.',
     home_heroDesc: 'உங்கள் கொள்முதல் நேரத்தை முன்பதிவு செய்யுங்கள், மொபைலில் நேரலை வரிசை நிலையைக் கவனியுங்கள் மற்றும் பணம் பெறுவது வரை பின்தொடருங்கள்.',
     home_getStarted: 'தொடங்குங்கள்',
@@ -1510,6 +1510,6 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     track_gatePass: 'மின்-கொள்முதல் நுழைவுச் சீட்டு & போக்குவரத்து குறிப்பு',
 
     footer_copyright: 'விவசாயிகள் கொள்முதல் வரிசை மேலாண்மை தளம்',
-    footer_ministry: 'SIH 2026 · PS26032 · நுகர்வோர் விவகாரங்கள், உணவு மற்றும் பொது விநியோக அமைச்சகம்',
+    footer_ministry: 'நுகர்வோர் விவகாரங்கள், உணவு மற்றும் பொது விநியோக அமைச்சகம் · இந்திய அரசு',
   },
 };

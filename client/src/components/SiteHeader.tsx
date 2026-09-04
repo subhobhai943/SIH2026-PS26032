@@ -49,8 +49,8 @@ export function SiteHeader() {
             <span className="hidden md:inline text-neutral-300">Ministry of Consumer Affairs, Food & Public Distribution</span>
           </div>
           <div className="hidden sm:flex items-center gap-3 text-[10px] shrink-0">
-            <span className="rounded bg-neutral-800 px-2 py-0.5 font-mono text-neutral-300">
-              SIH2026 · PS26032
+            <span className="rounded bg-neutral-800 px-2 py-0.5 font-medium text-emerald-400 border border-neutral-700">
+              राष्ट्रीय ई-उपार्जन पोर्टल · National e-Procurement Portal
             </span>
           </div>
         </div>

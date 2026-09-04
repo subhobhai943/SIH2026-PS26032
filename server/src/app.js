@@ -38,7 +38,7 @@ export function createApp() {
     res.json({
       ok: true,
       status: 'HEALTHY',
-      service: 'sih26032-server',
+      service: 'emandi-procurement-server',
       pid: process.pid,
       instanceId: process.env.NODE_APP_INSTANCE || '0',
       uptimeSeconds: Math.floor(process.uptime()),

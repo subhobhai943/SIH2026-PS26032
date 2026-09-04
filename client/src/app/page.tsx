@@ -89,7 +89,7 @@ export default function HomePage() {
               20% DBT Safety Advance & Mandated Logistics
             </h3>
             <p className="text-[11px] sm:text-xs text-neutral-600 leading-relaxed">
-              Under PS26032, this platform resolves long Mandi waiting hours, eliminates schedule uncertainty, and secures farmer income.
+              Under the National e-Procurement Mandate, this platform resolves long Mandi waiting hours, eliminates schedule uncertainty, and secures farmer income.
             </p>
           </div>
 

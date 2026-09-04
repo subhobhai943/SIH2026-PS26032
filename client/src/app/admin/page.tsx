@@ -1093,7 +1093,7 @@ export default function AdminPage() {
 
               <div className="rounded-xl bg-neutral-900 text-neutral-200 p-3.5 font-mono text-[11px] space-y-1">
                 <div className="text-neutral-400 text-[10px] uppercase font-bold">Upstream Load Balancer Pool</div>
-                <div>upstream sih_backend_cluster &#123;</div>
+                <div>upstream emandi_backend_cluster &#123;</div>
                 <div className="pl-4 text-emerald-400">least_conn;</div>
                 <div className="pl-4">server 127.0.0.1:5000 max_fails=3 fail_timeout=10s;</div>
                 <div className="pl-4 text-neutral-500">keepalive 32;</div>
@@ -1241,7 +1241,7 @@ export default function AdminPage() {
                     <span className="h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
                     <div>
                       <strong className="text-neutral-800 block">MongoDB Replica Connection</strong>
-                      <span className="text-[11px] text-neutral-400">Database: sih26032 with indexed queues & bookings</span>
+                      <span className="text-[11px] text-neutral-400">Database: emandi_db with indexed queues & bookings</span>
                     </div>
                   </div>
                   <span className="rounded-lg bg-white px-2.5 py-1 text-[11px] font-bold text-emerald-800 border">

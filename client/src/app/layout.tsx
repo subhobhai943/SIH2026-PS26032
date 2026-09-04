@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     template: '%s | Smart Mandi Portal',
   },
   description:
-    'Smart slot booking, live digital queue management, and Direct Benefit Transfer (DBT) 20% advance guarantee for government procurement centres — SIH 2026 PS26032',
+    'Smart slot booking, live digital queue management, and Direct Benefit Transfer (DBT) 20% advance guarantee for government procurement centres across India',
   applicationName: 'Smart Mandi Procurement Queue',
   authors: [{ name: 'Government of India - e-Mandi Department' }],
   keywords: [
@@ -28,8 +28,8 @@ export const metadata: Metadata = {
     'Direct Benefit Transfer',
     'DBT',
     'Agri Logistics',
-    'SIH 2026',
-    'PS26032',
+    'National e-Procurement',
+    'Mandi Board India',
   ],
   icons: {
     icon: '/icon.svg',

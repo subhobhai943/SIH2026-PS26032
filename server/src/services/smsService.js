@@ -75,7 +75,7 @@ async function sendViaAwsSns(phone, message) {
       },
       'AWS.SNS.SMS.SenderID': {
         DataType: 'String',
-        StringValue: 'SIHPRC',
+        StringValue: 'EMANDI',
       },
     },
   });
