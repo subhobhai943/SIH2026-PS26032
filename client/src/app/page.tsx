@@ -45,7 +45,7 @@ export default function HomePage() {
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-1000 scale-105"
           style={{
-            backgroundImage: `url('https://sih26032-farmer-media.s3.eu-north-1.amazonaws.com/backgrounds/bg_crops_landscape.jpg')`,
+            backgroundImage: `url('/api/media/backgrounds/bg_crops_landscape.jpg')`,
           }}
         />
 

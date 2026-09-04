@@ -1385,12 +1385,12 @@ export default function AdminPage() {
                   <div className="flex items-center gap-2">
                     <span className="h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
                     <div>
-                      <strong className="text-neutral-800 block">AWS S3 Cloud Storage</strong>
-                      <span className="text-[11px] text-neutral-400">Farmer photo uploads & tamper-evident lot images (eu-north-1)</span>
+                      <strong className="text-neutral-800 block">Cloud Media Storage (Proxied)</strong>
+                      <span className="text-[11px] text-neutral-400">Secure proxied media assets & verified lot images</span>
                     </div>
                   </div>
                   <span className="rounded-lg bg-white px-2.5 py-1 text-[11px] font-bold text-emerald-800 border">
-                    ACTIVE (S3 Bucket)
+                    ACTIVE (Media Service)
                   </span>
                 </div>
 

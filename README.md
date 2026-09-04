@@ -126,9 +126,9 @@ flowchart TD
 * Security Gate: Protected by `requireFarmer` authentication. Farmers can only view their own confidential consignments.
 * Digital Mandi Gate Pass verification, gross/tare weighbridge slips, GPS container seal IDs, and driver identity cards.
 
-### 5. Dual-Mode Storage (AWS S3 + Local Fallback)
-* **Production:** Direct upload to **AWS S3** (`sih26032-farmer-media`).
-* **Development / Offline:** Automated zero-configuration fallback to local static file storage in `server/uploads/`.
+### 5. Dual-Mode Storage & Secure Backend Media Proxy
+* **Production Storage:** Secure **AWS S3** object storage strictly proxied through backend `/api/media/*` endpoints with HTTP caching (`Cache-Control: public, max-age=31536000, immutable`) and ETag validation. The raw S3 bucket URL, region, and AWS infrastructure details remain 100% private to backend environment variables and are never disclosed to client applications.
+* **Development / Offline:** Automated zero-configuration fallback to local static file storage in `server/uploads/` and `server/media/`.
 * **Client-Side Compression:** Images compressed to < 100KB before upload, cutting 95% bandwidth on rural 3G/4G networks.
 
 ---
@@ -207,8 +207,8 @@ SMS_PROVIDER=console # 'console' or 'msg91'
 MSG91_AUTH_KEY=your_msg91_key
 
 # AWS S3 Cloud Storage
-AWS_S3_BUCKET=sih26032-farmer-media
-AWS_REGION=eu-north-1
+AWS_S3_BUCKET=your_s3_bucket_name
+AWS_REGION=your_aws_region
 AWS_ACCESS_KEY_ID=your_access_key
 AWS_SECRET_ACCESS_KEY=your_secret_key
 ```

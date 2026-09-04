@@ -70,14 +70,13 @@ export const uploadImage = asyncHandler(async (req, res) => {
         })
       );
 
-      const s3Url = env.s3.endpoint
-        ? `${env.s3.endpoint}/${env.s3.bucket}/${s3Key}`
-        : `https://${env.s3.bucket}.s3.${env.s3.region || 'ap-south-1'}.amazonaws.com/${s3Key}`;
+      // Conceal cloud storage endpoints behind backend proxy to prevent S3 bucket exposure
+      const proxiedUrl = `/api/media/${s3Key}`;
 
       return res.json({
         ok: true,
         data: {
-          url: s3Url,
+          url: proxiedUrl,
           provider: 's3',
           filename: safeFilename,
           sizeBytes: buffer.length,
@@ -93,7 +92,7 @@ export const uploadImage = asyncHandler(async (req, res) => {
   const filePath = path.join(UPLOAD_DIR, safeFilename);
   await fs.writeFile(filePath, buffer);
 
-  const localUrl = `/uploads/${safeFilename}`;
+  const localUrl = `/api/media/uploads/${safeFilename}`;
 
   return res.json({
     ok: true,

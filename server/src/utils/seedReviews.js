@@ -3,19 +3,19 @@ import { env } from '../config/env.js';
 import Farmer from '../models/Farmer.js';
 import Review from '../models/Review.js';
 
-const S3_BASE = `https://${env.s3.bucket || 'sih26032-farmer-media'}.s3.${env.s3.region || 'eu-north-1'}.amazonaws.com`;
+const MEDIA_BASE = '/api/media';
 
 const S3_FARMERS = {
-  gurpreet: `${S3_BASE}/farmers/gurpreet_singh.jpg`,
-  ramlal: `${S3_BASE}/farmers/ram_lal_sharma.jpg`,
-  harjinder: `${S3_BASE}/farmers/harjinder_kaur.jpg`,
+  gurpreet: `${MEDIA_BASE}/farmers/gurpreet_singh.jpg`,
+  ramlal: `${MEDIA_BASE}/farmers/ram_lal_sharma.jpg`,
+  harjinder: `${MEDIA_BASE}/farmers/harjinder_kaur.jpg`,
 };
 
 const S3_CROPS = {
-  wheat: `${S3_BASE}/crops/crop_wheat.jpg`,
-  paddy: `${S3_BASE}/crops/crop_paddy.jpg`,
-  maize: `${S3_BASE}/crops/crop_maize.jpg`,
-  mustard: `${S3_BASE}/crops/crop_mustard.jpg`,
+  wheat: `${MEDIA_BASE}/crops/crop_wheat.jpg`,
+  paddy: `${MEDIA_BASE}/crops/crop_paddy.jpg`,
+  maize: `${MEDIA_BASE}/crops/crop_maize.jpg`,
+  mustard: `${MEDIA_BASE}/crops/crop_mustard.jpg`,
 };
 
 export async function seedReviews() {

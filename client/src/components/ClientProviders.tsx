@@ -19,7 +19,7 @@ export function ClientProviders({ children }: { children: React.ReactNode }) {
           <div
             className="absolute right-0 bottom-0 w-[450px] h-[450px] sm:w-[650px] sm:h-[650px] max-w-full max-h-full bg-contain bg-no-repeat bg-right-bottom opacity-[0.09] dark:opacity-[0.06] transition-opacity duration-500 filter contrast-125"
             style={{
-              backgroundImage: `url('https://sih26032-farmer-media.s3.eu-north-1.amazonaws.com/backgrounds/bg_wheat_pattern.jpg')`,
+              backgroundImage: `url('/api/media/backgrounds/bg_wheat_pattern.jpg')`,
             }}
           />
         </div>

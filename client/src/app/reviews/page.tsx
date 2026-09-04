@@ -49,10 +49,10 @@ type ReviewItem = {
 };
 
 const DEFAULT_CROP_IMAGES: Record<string, string> = {
-  wheat: 'https://sih26032-farmer-media.s3.eu-north-1.amazonaws.com/crops/crop_wheat.jpg',
-  paddy: 'https://sih26032-farmer-media.s3.eu-north-1.amazonaws.com/crops/crop_paddy.jpg',
-  maize: 'https://sih26032-farmer-media.s3.eu-north-1.amazonaws.com/crops/crop_maize.jpg',
-  mustard: 'https://sih26032-farmer-media.s3.eu-north-1.amazonaws.com/crops/crop_mustard.jpg',
+  wheat: '/api/media/crops/crop_wheat.jpg',
+  paddy: '/api/media/crops/crop_paddy.jpg',
+  maize: '/api/media/crops/crop_maize.jpg',
+  mustard: '/api/media/crops/crop_mustard.jpg',
 };
 
 const AVAILABLE_TAGS = [
@@ -321,7 +321,7 @@ export default function ReviewsPage() {
         <div
           className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-overlay pointer-events-none"
           style={{
-            backgroundImage: `url('https://sih26032-farmer-media.s3.eu-north-1.amazonaws.com/backgrounds/bg_crops_landscape.jpg')`,
+            backgroundImage: `url('/api/media/backgrounds/bg_crops_landscape.jpg')`,
           }}
         />
         <div className="relative mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:py-12">

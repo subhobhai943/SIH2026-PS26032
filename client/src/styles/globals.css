@@ -20,7 +20,7 @@ body {
   background-color: #f8fafc;
   background-image: 
     linear-gradient(to bottom, rgba(248, 250, 252, 0.82) 0%, rgba(248, 250, 252, 0.90) 100%),
-    url('https://sih26032-farmer-media.s3.eu-north-1.amazonaws.com/backgrounds/bg_crops_landscape.jpg');
+    url('/api/media/backgrounds/bg_crops_landscape.jpg');
   background-repeat: no-repeat;
   background-position: center top;
   background-size: cover;
@@ -32,7 +32,7 @@ html.dark body {
   background-color: #030712;
   background-image: 
     linear-gradient(to bottom, rgba(3, 7, 18, 0.86) 0%, rgba(3, 7, 18, 0.94) 100%),
-    url('https://sih26032-farmer-media.s3.eu-north-1.amazonaws.com/backgrounds/bg_crops_landscape.jpg');
+    url('/api/media/backgrounds/bg_crops_landscape.jpg');
   background-repeat: no-repeat;
   background-position: center top;
   background-size: cover;
