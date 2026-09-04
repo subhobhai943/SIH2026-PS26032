@@ -30,3 +30,11 @@ yarn-error.log*
 coverage/
 .vscode/
 .idea/
+
+# agents & local skills
+.agents/
+.agent/
+
+# uploaded media
+uploads/
+server/uploads/
