@@ -10,6 +10,7 @@ interface LanguageContextType {
   t: (key: TranslationKey) => string;
   showModal: boolean;
   setShowModal: (show: boolean) => void;
+  closeLanguageModal: () => void;
   openLanguageSelector: () => void;
 }
 
@@ -19,6 +20,7 @@ const LanguageContext = createContext<LanguageContextType>({
   t: (key) => key,
   showModal: false,
   setShowModal: () => {},
+  closeLanguageModal: () => {},
   openLanguageSelector: () => {},
 });
 
@@ -34,15 +36,30 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     setMounted(true);
     try {
       const saved = window.localStorage.getItem(STORAGE_KEY) as LanguageCode | null;
-      const alreadyPrompted = window.localStorage.getItem(PROMPTED_KEY);
+      const alreadyPromptedLocal = window.localStorage.getItem(PROMPTED_KEY);
+      const alreadyPromptedSession = window.sessionStorage.getItem(PROMPTED_KEY);
+      const alreadyPromptedCookie = typeof document !== 'undefined' && document.cookie.includes(`${PROMPTED_KEY}=true`);
+
+      const alreadyPrompted =
+        alreadyPromptedLocal === 'true' ||
+        alreadyPromptedSession === 'true' ||
+        alreadyPromptedCookie;
 
       if (saved && SUPPORTED_LANGUAGES.some((l) => l.code === saved)) {
         setLanguageState(saved);
       }
 
-      // If this is the farmer's first visit, display the language selection modal
+      // If this is the farmer's first visit, display the language selection modal ONLY ONCE
       if (!alreadyPrompted) {
         setShowModal(true);
+        // Persist immediately so route changes or refreshes never re-prompt
+        try {
+          window.localStorage.setItem(PROMPTED_KEY, 'true');
+          window.sessionStorage.setItem(PROMPTED_KEY, 'true');
+          document.cookie = `${PROMPTED_KEY}=true; path=/; max-age=31536000; SameSite=Lax`;
+        } catch {
+          // ignore
+        }
       }
     } catch {
       // localStorage may fail in restricted/private modes
@@ -54,6 +71,26 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     try {
       window.localStorage.setItem(STORAGE_KEY, code);
       window.localStorage.setItem(PROMPTED_KEY, 'true');
+      window.sessionStorage.setItem(PROMPTED_KEY, 'true');
+      if (typeof document !== 'undefined') {
+        document.cookie = `${PROMPTED_KEY}=true; path=/; max-age=31536000; SameSite=Lax`;
+        document.cookie = `${STORAGE_KEY}=${code}; path=/; max-age=31536000; SameSite=Lax`;
+      }
+    } catch {
+      // ignore
+    }
+  };
+
+  const closeLanguageModal = () => {
+    setShowModal(false);
+    try {
+      window.localStorage.setItem(PROMPTED_KEY, 'true');
+      window.localStorage.setItem(STORAGE_KEY, language);
+      window.sessionStorage.setItem(PROMPTED_KEY, 'true');
+      if (typeof document !== 'undefined') {
+        document.cookie = `${PROMPTED_KEY}=true; path=/; max-age=31536000; SameSite=Lax`;
+        document.cookie = `${STORAGE_KEY}=${language}; path=/; max-age=31536000; SameSite=Lax`;
+      }
     } catch {
       // ignore
     }
@@ -80,6 +117,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         t,
         showModal,
         setShowModal,
+        closeLanguageModal,
         openLanguageSelector,
       }}
     >

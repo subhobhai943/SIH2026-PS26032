@@ -45,6 +45,7 @@ export default function RegisterPage() {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   async function requestOtp(e: React.FormEvent) {
     e.preventDefault();
@@ -93,24 +94,40 @@ export default function RegisterPage() {
     setError(null);
     setLoading(true);
     try {
+      let data: { token: string; isNew: boolean; isProfileComplete?: boolean; hasPhoto?: boolean; farmer?: any };
       if (confirmationResult) {
         const userCredential = await confirmationResult.confirm(code);
         const idToken = await userCredential.user.getIdToken();
-        const data = await api.post<{ token: string; isNew: boolean; farmer?: any }>('/farmers/firebase/verify', { idToken });
-        setToken(data.token);
-        if (data.farmer?.photoUrl) {
-          setProfile((p) => ({ ...p, photoUrl: data.farmer.photoUrl, name: data.farmer.name || '' }));
-          setPhotoPreview(data.farmer.photoUrl);
-        }
-        setStep(data.isNew ? 'photo' : 'done');
+        data = await api.post<{ token: string; isNew: boolean; isProfileComplete?: boolean; hasPhoto?: boolean; farmer?: any }>('/farmers/firebase/verify', { idToken });
       } else {
-        const data = await api.post<{ token: string; isNew: boolean; farmer?: any }>('/farmers/otp/verify', { phone, code });
-        setToken(data.token);
-        if (data.farmer?.photoUrl) {
-          setProfile((p) => ({ ...p, photoUrl: data.farmer.photoUrl, name: data.farmer.name || '' }));
-          setPhotoPreview(data.farmer.photoUrl);
+        data = await api.post<{ token: string; isNew: boolean; isProfileComplete?: boolean; hasPhoto?: boolean; farmer?: any }>('/farmers/otp/verify', { phone, code });
+      }
+      setToken(data.token);
+
+      const f = data.farmer;
+      if (f) {
+        setProfile({
+          name: f.name || '',
+          village: f.village || '',
+          district: f.district || '',
+          state: f.state || '',
+          photoUrl: f.photoUrl || '',
+        });
+        if (f.photoUrl) {
+          setPhotoPreview(f.photoUrl);
         }
-        setStep(data.isNew ? 'photo' : 'done');
+      }
+
+      // Mandatory Photo & Profile Verification:
+      // If the farmer does NOT have a photograph yet, ALWAYS navigate to Step 3: Photo
+      if (!f?.photoUrl) {
+        setStep('photo');
+      } else if (!f?.name?.trim() || !f?.village?.trim() || !f?.district?.trim()) {
+        // If photograph exists but profile details are incomplete, navigate to Step 4: Profile
+        setStep('profile');
+      } else {
+        // Both photograph and profile details are complete
+        setStep('done');
       }
     } catch (err: any) {
       setError(err.message || 'Incorrect or expired OTP');
@@ -142,6 +159,7 @@ export default function RegisterPage() {
       setError(err.message || 'Failed to process and upload photograph');
     } finally {
       setUploadingPhoto(false);
+      if (e.target) e.target.value = '';
     }
   }
 
@@ -291,7 +309,7 @@ export default function RegisterPage() {
                 {t('reg_uploadPhotoTitle')}
               </h3>
               <p className="mt-1 text-xs text-neutral-500 leading-relaxed">
-                {t('reg_uploadPhotoSubtitle')}
+                {t('reg_uploadPhotoSubtitle')} (Mandatory for biometric identity on Mandi Gate Pass)
               </p>
             </div>
 
@@ -309,72 +327,105 @@ export default function RegisterPage() {
                       <IconCheck className="h-4 w-4" />
                     </div>
                   </div>
-                  <p className="text-xs font-semibold text-emerald-700">
-                    {t('reg_photoUploaded')}
+                  <p className="text-xs font-semibold text-emerald-700 flex items-center justify-center gap-1">
+                    <span>✓</span> {t('reg_photoUploaded')}
                   </p>
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => fileInputRef.current?.click()}
-                    loading={uploadingPhoto}
-                  >
-                    <IconCamera className="h-4 w-4" />
-                    {t('reg_changePhoto')}
-                  </Button>
+                  <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => cameraInputRef.current?.click()}
+                      loading={uploadingPhoto}
+                    >
+                      <IconCamera className="h-4 w-4" />
+                      Retake via Camera
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                      loading={uploadingPhoto}
+                    >
+                      <IconUpload className="h-4 w-4" />
+                      {t('reg_changePhoto')}
+                    </Button>
+                  </div>
                 </div>
               ) : (
-                <div className="space-y-3 text-center">
+                <div className="space-y-4 text-center">
                   <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-neutral-200 text-neutral-400">
                     <IconUser className="h-12 w-12" />
                   </div>
                   <div>
-                    <Button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      loading={uploadingPhoto}
-                      className="py-2.5 px-5 text-sm"
-                    >
-                      <IconCamera className="h-5 w-5" />
-                      {t('reg_takePhoto')}
-                    </Button>
-                    <p className="mt-2 text-[11px] text-neutral-400">
-                      Supports direct mobile camera capture or gallery selection
+                    <div className="flex flex-wrap items-center justify-center gap-2.5">
+                      <Button
+                        type="button"
+                        onClick={() => cameraInputRef.current?.click()}
+                        loading={uploadingPhoto}
+                        className="py-2.5 px-4 text-sm"
+                      >
+                        <IconCamera className="h-4.5 w-4.5" />
+                        {t('reg_takePhoto')}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => fileInputRef.current?.click()}
+                        loading={uploadingPhoto}
+                        className="py-2.5 px-4 text-sm"
+                      >
+                        <IconUpload className="h-4.5 w-4.5" />
+                        Choose from Gallery
+                      </Button>
+                    </div>
+                    <p className="mt-3 text-[11px] text-neutral-400">
+                      Capture live photo with camera or choose an existing portrait photo
                     </p>
                   </div>
                 </div>
               )}
 
-              {/* Hidden file input with camera trigger */}
+              {/* Hidden file input with direct camera trigger */}
               <input
-                ref={fileInputRef}
+                ref={cameraInputRef}
                 type="file"
                 accept="image/*"
                 capture="user"
                 className="hidden"
                 onChange={handlePhotoSelected}
               />
+              {/* Hidden file input for file picker/gallery */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handlePhotoSelected}
+              />
             </div>
 
-            <div className="flex items-center gap-3 pt-2">
+            <div className="pt-2">
               <Button
                 type="button"
                 className="w-full py-3 text-base"
-                onClick={() => setStep('profile')}
+                disabled={!profile.photoUrl || uploadingPhoto}
+                onClick={() => {
+                  if (!profile.photoUrl) {
+                    setError('Please take or upload your identification photograph before continuing.');
+                    return;
+                  }
+                  setStep('profile');
+                }}
               >
-                Continue to Profile Details →
+                {uploadingPhoto
+                  ? 'Uploading photograph...'
+                  : profile.photoUrl
+                  ? 'Continue to Profile Details →'
+                  : 'Take or Upload Photo to Continue'}
               </Button>
             </div>
-
-            {!profile.photoUrl && (
-              <button
-                type="button"
-                onClick={() => setStep('profile')}
-                className="w-full text-center text-xs font-medium text-neutral-400 hover:text-neutral-600 underline"
-              >
-                Skip photo for now & complete details
-              </button>
-            )}
           </div>
         )}
 
@@ -459,9 +510,18 @@ export default function RegisterPage() {
               <div>Phone: <span className="font-medium text-neutral-800">+91 {phone || 'Verified'}</span></div>
               <div>Mandi Verification: <span className="text-emerald-700 font-semibold">Active · 20% DBT Guarantee Enabled</span></div>
             </div>
-            <Button onClick={() => (window.location.href = '/booking')} className="w-full py-3 text-base">
-              {t('reg_bookFirstSlot')} →
-            </Button>
+            <div className="space-y-2">
+              <Button onClick={() => (window.location.href = '/booking')} className="w-full py-3 text-base">
+                {t('reg_bookFirstSlot')} →
+              </Button>
+              <button
+                type="button"
+                onClick={() => setStep('photo')}
+                className="w-full text-center text-xs font-semibold text-brand-700 hover:text-brand-800 transition py-1"
+              >
+                Update Profile or Photo (विवरण या फोटो बदलें)
+              </button>
+            </div>
           </div>
         )}
       </Card>

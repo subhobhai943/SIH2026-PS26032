@@ -6,7 +6,7 @@ import { SUPPORTED_LANGUAGES, LanguageCode } from '@/lib/i18n/languages';
 import { IconCheck, IconClose, IconGlobe } from './icons';
 
 export function LanguageModal() {
-  const { language, setLanguage, showModal, setShowModal, t } = useTranslation();
+  const { language, setLanguage, showModal, closeLanguageModal, t } = useTranslation();
 
   if (!showModal) return null;
 
@@ -15,7 +15,7 @@ export function LanguageModal() {
   };
 
   const handleConfirm = () => {
-    setShowModal(false);
+    closeLanguageModal();
   };
 
   return (
@@ -23,7 +23,7 @@ export function LanguageModal() {
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-neutral-900/60 backdrop-blur-sm transition-opacity"
-        onClick={() => setShowModal(false)}
+        onClick={closeLanguageModal}
       />
 
       {/* Modal Dialog */}
@@ -45,7 +45,7 @@ export function LanguageModal() {
               </div>
             </div>
             <button
-              onClick={() => setShowModal(false)}
+              onClick={closeLanguageModal}
               className="rounded-full p-1.5 text-white/80 hover:bg-white/10 hover:text-white"
               aria-label="Close"
             >

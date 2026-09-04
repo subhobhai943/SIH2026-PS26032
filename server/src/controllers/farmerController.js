@@ -84,11 +84,16 @@ export const verifyOtp = asyncHandler(async (req, res) => {
     isNew = true;
   }
 
+  const isProfileComplete = Boolean(farmer.name?.trim() && farmer.photoUrl?.trim());
+  const hasPhoto = Boolean(farmer.photoUrl?.trim());
+
   res.json({
     ok: true,
     data: {
       token: signToken({ sub: String(farmer._id), kind: 'farmer', phone }),
-      isNew,
+      isNew: Boolean(isNew || !isProfileComplete),
+      isProfileComplete,
+      hasPhoto,
       farmer: farmer.toJSON(),
     },
   });
@@ -110,11 +115,16 @@ export const verifyFirebase = asyncHandler(async (req, res) => {
     isNew = true;
   }
 
+  const isProfileComplete = Boolean(farmer.name?.trim() && farmer.photoUrl?.trim());
+  const hasPhoto = Boolean(farmer.photoUrl?.trim());
+
   res.json({
     ok: true,
     data: {
       token: signToken({ sub: String(farmer._id), kind: 'farmer', phone }),
-      isNew,
+      isNew: Boolean(isNew || !isProfileComplete),
+      isProfileComplete,
+      hasPhoto,
       farmer: farmer.toJSON(),
     },
   });
