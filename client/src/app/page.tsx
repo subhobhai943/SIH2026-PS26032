@@ -173,28 +173,51 @@ export default function HomePage() {
       </section>
 
       {/* Verified Buyer Reviews & Producer Reputation Spotlight */}
-      <section className="rounded-2xl sm:rounded-3xl border border-amber-200/80 dark:border-amber-900/40 bg-gradient-to-b from-amber-50/40 to-white dark:from-neutral-900 dark:to-neutral-900 p-4 sm:p-10 shadow-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-5 sm:mb-8">
-          <div className="min-w-0">
-            <div className="inline-flex items-center gap-1.5 text-[10px] sm:text-xs font-bold text-amber-800 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/60 px-2 sm:px-2.5 py-0.5 rounded-full mb-1.5 border border-amber-200 dark:border-amber-800/60">
-              <IconStar className="h-3 w-3 sm:h-3.5 sm:w-3.5 fill-amber-700 dark:fill-amber-400" filled />
-              <span>Grain Quality & Buyer Satisfaction</span>
+      <section className="rounded-2xl sm:rounded-3xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50/60 dark:bg-neutral-900/40 p-4 sm:p-8 shadow-sm">
+        {/* Banner opening with agricultural crops landscape image */}
+        <div 
+          className="relative overflow-hidden rounded-2xl p-5 sm:p-7 mb-6 text-white shadow-md border border-emerald-950/40"
+          style={{
+            backgroundColor: '#021e0f',
+            background: 'linear-gradient(135deg, #021e0f 0%, #052e16 50%, #291202 100%)',
+          }}
+        >
+          <div
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none"
+            style={{
+              backgroundImage: `url('/api/media/backgrounds/bg_crops_landscape.jpg')`,
+              backgroundPosition: 'center 35%',
+              opacity: 0.45,
+            }}
+          />
+          <div 
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: 'linear-gradient(90deg, rgba(2, 30, 15, 0.92) 0%, rgba(2, 30, 15, 0.78) 60%, rgba(41, 18, 2, 0.88) 100%)',
+            }}
+          />
+          <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="min-w-0">
+              <div className="inline-flex items-center gap-1.5 text-[10px] sm:text-xs font-bold text-amber-300 bg-emerald-900/70 backdrop-blur-md px-3 py-1 rounded-full mb-2.5 border border-emerald-500/30">
+                <IconStar className="h-3.5 w-3.5 fill-amber-300" filled />
+                <span>Grain Quality & Buyer Satisfaction · खरीददार समीक्षा</span>
+              </div>
+              <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white drop-shadow-xs">
+                Verified Buyer Reviews
+              </h2>
+              <p className="mt-1 text-xs sm:text-sm text-emerald-100 font-medium">
+                Institutional purchasers submit direct quality ratings and mandi weighment satisfaction.
+              </p>
             </div>
-            <h2 className="text-lg sm:text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
-              Verified Buyer Reviews
-            </h2>
-            <p className="mt-1 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400">
-              Institutional purchasers submit direct quality ratings.
-            </p>
-          </div>
 
-          <a
-            href="/reviews"
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-700 hover:bg-brand-800 text-white px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-bold shadow transition shrink-0 w-full sm:w-auto"
-          >
-            <span>Explore All Reviews</span>
-            <IconArrowRight className="h-4 w-4 stroke-[2.5]" />
-          </a>
+            <a
+              href="/reviews"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-neutral-950 px-5 py-2.5 text-xs sm:text-sm font-extrabold shadow-md transition shrink-0 w-full sm:w-auto"
+            >
+              <span>Explore All Reviews</span>
+              <IconArrowRight className="h-4 w-4 stroke-[2.5]" />
+            </a>
+          </div>
         </div>
 
         <div className="grid gap-3 sm:gap-4 md:grid-cols-3">

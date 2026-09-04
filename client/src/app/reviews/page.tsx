@@ -316,78 +316,100 @@ export default function ReviewsPage() {
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 pb-16 transition-colors">
-      {/* Top Banner */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-brand-950 via-brand-900 to-amber-950 text-white shadow-md">
+      {/* Top Banner - Hero Opening */}
+      <div 
+        className="relative overflow-hidden text-white shadow-xl border-b border-emerald-950/40"
+        style={{
+          backgroundColor: '#021e0f',
+          background: 'linear-gradient(135deg, #021e0f 0%, #052e16 50%, #291202 100%)',
+        }}
+      >
+        {/* Agricultural Landscape Background Image */}
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-overlay pointer-events-none"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none transform scale-105"
           style={{
             backgroundImage: `url('/api/media/backgrounds/bg_crops_landscape.jpg')`,
+            backgroundPosition: 'center 40%',
+            opacity: 0.45,
           }}
         />
+
+        {/* Multi-stop Contrast Gradient Overlay to guarantee WCAG AAA readability */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: 'linear-gradient(90deg, rgba(2, 30, 15, 0.92) 0%, rgba(2, 30, 15, 0.78) 55%, rgba(41, 18, 2, 0.88) 100%)',
+          }}
+        />
+
+        {/* Atmospheric ambient glows */}
+        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-96 h-96 rounded-full bg-amber-500/15 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-1/4 w-80 h-80 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
+
         <div className="relative mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:py-12">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div className="space-y-3 max-w-2xl">
-              <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold backdrop-blur text-amber-200 border border-white/10">
-                <IconShieldCheck className="h-3.5 w-3.5" />
+              <div className="inline-flex items-center gap-2 rounded-full bg-emerald-900/60 px-3.5 py-1 text-xs font-bold backdrop-blur-md text-amber-300 border border-emerald-500/30 shadow-xs">
+                <IconShieldCheck className="h-4 w-4 text-emerald-400" />
                 <span>Verified Procurement Feedback · खरीददार समीक्षा मंच</span>
               </div>
-              <h1 className="text-2xl font-black sm:text-4xl tracking-tight leading-tight">
+              <h1 className="text-2xl font-black sm:text-4xl tracking-tight leading-tight text-white drop-shadow-xs">
                 Buyer Reviews & Farmer Produce Ratings
               </h1>
-              <p className="text-sm sm:text-base text-brand-100 font-normal leading-relaxed">
+              <p className="text-sm sm:text-base text-emerald-100/95 font-medium leading-relaxed drop-shadow-xs">
                 Direct crop quality analysis, hectolitre weight feedback, and weighment satisfaction
                 ratings submitted by FCI officers, flour millers, and bulk grain aggregators.
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row gap-3 shrink-0">
               <button
                 type="button"
                 onClick={() => {
                   setFormError(null);
                   setIsModalOpen(true);
                 }}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-brand-950 px-5 py-3 text-sm font-bold shadow-lg shadow-amber-500/20 transition transform active:scale-95"
+                className="inline-flex items-center justify-center gap-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 active:scale-95 text-neutral-950 px-5 py-3 text-sm font-extrabold shadow-lg shadow-black/30 transition transform"
               >
-                <IconStar className="h-4 w-4 fill-brand-950" filled />
+                <IconStar className="h-4 w-4 fill-neutral-950" filled />
                 <span>Write Buyer Review (समीक्षा लिखें)</span>
               </button>
             </div>
           </div>
 
           {/* Stat Cards */}
-          <div className="mt-6 sm:mt-8 grid grid-cols-2 gap-2 sm:gap-3 sm:grid-cols-4">
-            <div className="rounded-2xl bg-white/10 p-3 sm:p-3.5 backdrop-blur border border-white/10">
-              <p className="text-[11px] sm:text-xs text-brand-200 font-medium">Avg Produce Rating</p>
-              <div className="mt-1 flex items-baseline gap-1.5">
+          <div className="mt-7 sm:mt-9 grid grid-cols-2 gap-2.5 sm:gap-4 sm:grid-cols-4">
+            <div className="rounded-2xl bg-black/40 backdrop-blur-md p-3.5 sm:p-4 border border-white/15 shadow-sm">
+              <p className="text-[11px] sm:text-xs text-emerald-200 font-bold uppercase tracking-wider">Avg Produce Rating</p>
+              <div className="mt-1 flex items-baseline gap-2">
                 <span className="text-xl sm:text-2xl font-black text-white">4.9</span>
-                <span className="text-[10px] sm:text-xs text-amber-300">★★★★★</span>
+                <span className="text-xs sm:text-sm text-amber-300 font-bold">★★★★★</span>
               </div>
-              <p className="text-[10px] sm:text-[11px] text-brand-200/80 mt-0.5 truncate">Across mandi lots</p>
+              <p className="text-[10px] sm:text-[11px] text-emerald-300/80 mt-0.5 truncate font-medium">Across mandi lots</p>
             </div>
 
-            <div className="rounded-2xl bg-white/10 p-3 sm:p-3.5 backdrop-blur border border-white/10">
-              <p className="text-[11px] sm:text-xs text-brand-200 font-medium">Weighbridge Accuracy</p>
+            <div className="rounded-2xl bg-black/40 backdrop-blur-md p-3.5 sm:p-4 border border-white/15 shadow-sm">
+              <p className="text-[11px] sm:text-xs text-emerald-200 font-bold uppercase tracking-wider">Weighbridge Accuracy</p>
               <div className="mt-1 flex items-baseline gap-1">
-                <span className="text-xl sm:text-2xl font-black text-emerald-400">99.8%</span>
+                <span className="text-xl sm:text-2xl font-black text-emerald-300">99.8%</span>
               </div>
-              <p className="text-[10px] sm:text-[11px] text-brand-200/80 mt-0.5 truncate">Zero tare discrepancy</p>
+              <p className="text-[10px] sm:text-[11px] text-emerald-300/80 mt-0.5 truncate font-medium">Zero tare discrepancy</p>
             </div>
 
-            <div className="rounded-2xl bg-white/10 p-3 sm:p-3.5 backdrop-blur border border-white/10">
-              <p className="text-[11px] sm:text-xs text-brand-200 font-medium">Moisture Adherence</p>
+            <div className="rounded-2xl bg-black/40 backdrop-blur-md p-3.5 sm:p-4 border border-white/15 shadow-sm">
+              <p className="text-[11px] sm:text-xs text-emerald-200 font-bold uppercase tracking-wider">Moisture Adherence</p>
               <div className="mt-1 flex items-baseline gap-1">
                 <span className="text-xl sm:text-2xl font-black text-amber-300">&lt; 12%</span>
               </div>
-              <p className="text-[10px] sm:text-[11px] text-brand-200/80 mt-0.5 truncate">Optimal storage grade</p>
+              <p className="text-[10px] sm:text-[11px] text-emerald-300/80 mt-0.5 truncate font-medium">Optimal storage grade</p>
             </div>
 
-            <div className="rounded-2xl bg-white/10 p-3 sm:p-3.5 backdrop-blur border border-white/10">
-              <p className="text-[11px] sm:text-xs text-brand-200 font-medium">Institutional Buyers</p>
+            <div className="rounded-2xl bg-black/40 backdrop-blur-md p-3.5 sm:p-4 border border-white/15 shadow-sm">
+              <p className="text-[11px] sm:text-xs text-emerald-200 font-bold uppercase tracking-wider">Institutional Buyers</p>
               <div className="mt-1 flex items-baseline gap-1">
-                <span className="text-xs sm:text-xl font-black text-white truncate block">FCI · ITC · Cargill</span>
+                <span className="text-xs sm:text-lg font-black text-white truncate block">FCI · ITC · Cargill</span>
               </div>
-              <p className="text-[10px] sm:text-[11px] text-brand-200/80 mt-0.5 truncate">Verified bulk buyers</p>
+              <p className="text-[10px] sm:text-[11px] text-emerald-300/80 mt-0.5 truncate font-medium">Verified bulk aggregators</p>
             </div>
           </div>
         </div>
