@@ -21,6 +21,7 @@ const bookSchema = z.object({
   slotId: z.string().min(1),
   crop: z.string().min(1).max(40),
   estimatedQuantityQtl: z.number().min(0.1).max(1000),
+  cropPhotoUrl: z.string().optional(),
 });
 
 /** GET /api/centers — optionally filtered by district or crop. */
@@ -109,7 +110,7 @@ export const getAvailability = asyncHandler(async (req, res) => {
  * farmers hitting the last seat at the same time cannot both succeed.
  */
 export const bookSlot = asyncHandler(async (req, res) => {
-  const { slotId, crop, estimatedQuantityQtl } = parse(bookSchema, req.body);
+  const { slotId, crop, estimatedQuantityQtl, cropPhotoUrl } = parse(bookSchema, req.body);
   const farmer = req.farmer;
 
   const slot = await Slot.findById(slotId);
@@ -147,6 +148,7 @@ export const bookSlot = asyncHandler(async (req, res) => {
           date: claimed.date,
           token: await nextToken(claimed.center, claimed.date),
           crop,
+          cropPhotoUrl: cropPhotoUrl || '',
           estimatedQuantityQtl,
         });
         break;

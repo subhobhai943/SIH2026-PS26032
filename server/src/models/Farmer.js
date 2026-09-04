@@ -9,6 +9,7 @@ const farmerSchema = new mongoose.Schema(
       match: [/^[6-9]\d{9}$/, 'phone must be a 10-digit Indian mobile number'],
     },
     name: { type: String, trim: true, default: '' },
+    photoUrl: { type: String, default: '' },
     // Last 4 digits only — we never store a full Aadhaar number.
     aadhaarLast4: { type: String, match: [/^\d{4}$/, 'aadhaarLast4 must be 4 digits'] },
     village: { type: String, trim: true, default: '' },

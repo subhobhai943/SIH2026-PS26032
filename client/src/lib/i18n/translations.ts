@@ -68,6 +68,22 @@ export type TranslationKey =
   | 'reg_allSet'
   | 'reg_accountReady'
   | 'reg_bookFirstSlot'
+  | 'reg_uploadPhotoTitle'
+  | 'reg_uploadPhotoSubtitle'
+  | 'reg_takePhoto'
+  | 'reg_photoUploaded'
+  | 'reg_changePhoto'
+  | 'reg_stepPhone'
+  | 'reg_stepOtp'
+  | 'reg_stepPhoto'
+  | 'reg_stepProfile'
+  | 'book_uploadCropPhoto'
+  | 'book_uploadCropPhotoDesc'
+  | 'book_cropMspRate'
+  | 'book_estimatedTotal'
+  | 'book_safetyAdvanceAmount'
+  | 'book_cropPhotoOptional'
+  | 'book_retakePhoto'
 
   // Booking Page
   | 'book_eyebrow'
@@ -244,6 +260,22 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     reg_allSet: "You're all set!",
     reg_accountReady: 'Your account is ready — go ahead and book your first slot.',
     reg_bookFirstSlot: 'Book a Procurement Slot',
+    reg_uploadPhotoTitle: 'Farmer Identification Photograph',
+    reg_uploadPhotoSubtitle: 'Upload a clear front-facing photograph for verification at the Mandi gate.',
+    reg_takePhoto: 'Take Photo / Upload Image',
+    reg_photoUploaded: 'Photograph attached successfully',
+    reg_changePhoto: 'Change Photograph',
+    reg_stepPhone: 'Mobile',
+    reg_stepOtp: 'OTP',
+    reg_stepPhoto: 'Photo',
+    reg_stepProfile: 'Profile',
+    book_uploadCropPhoto: 'Upload Crop Sample Photograph',
+    book_uploadCropPhotoDesc: 'Capture a clear photo of your harvest lot for preliminary grade inspection.',
+    book_cropMspRate: 'Government MSP Benchmark',
+    book_estimatedTotal: 'Estimated Total Value',
+    book_safetyAdvanceAmount: '20% DBT Advance Credit',
+    book_cropPhotoOptional: 'Photo Attached (Mandatory for Fast-Track Pass)',
+    book_retakePhoto: 'Retake Photo',
 
     book_eyebrow: 'Procurement slot',
     book_title: 'Book a visit',
@@ -415,6 +447,22 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     reg_allSet: 'आपका पंजीकरण पूरा हुआ!',
     reg_accountReady: 'आपका खाता तैयार है — अब अपनी फसल के लिए स्लॉट बुक करें।',
     reg_bookFirstSlot: 'खरीद स्लॉट बुक करें',
+    reg_uploadPhotoTitle: 'किसान पहचान फोटो',
+    reg_uploadPhotoSubtitle: 'मंडी गेट पर सत्यापन हेतु अपनी स्पष्ट सामने की फोटो अपलोड करें।',
+    reg_takePhoto: 'फोटो खींचें / फोटो अपलोड करें',
+    reg_photoUploaded: 'फोटो सफलतापूर्वक संलग्न की गई',
+    reg_changePhoto: 'फोटो बदलें',
+    reg_stepPhone: 'मोबाइल',
+    reg_stepOtp: 'ओटीपी',
+    reg_stepPhoto: 'फोटो',
+    reg_stepProfile: 'विवरण',
+    book_uploadCropPhoto: 'फसल नमूना फोटो अपलोड करें',
+    book_uploadCropPhotoDesc: 'मंडी ग्रेड निरीक्षण हेतु अपनी फसल की स्पष्ट फोटो अपलोड करें।',
+    book_cropMspRate: 'सरकारी न्यूनतम समर्थन मूल्य (MSP)',
+    book_estimatedTotal: 'अनुमानित कुल मूल्य',
+    book_safetyAdvanceAmount: '20% डीबीटी सुरक्षा अग्रिम राशि',
+    book_cropPhotoOptional: 'फोटो संलग्न (फास्ट-ट्रैक गेट पास हेतु)',
+    book_retakePhoto: 'दूसरी फोटो लें',
 
     book_eyebrow: 'खरीद स्लॉट',
     book_title: 'मंडी यात्रा बुक करें',
@@ -586,6 +634,22 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     reg_allSet: 'ਤੁਹਾਡਾ ਖਾਤਾ ਤਿਆਰ ਹੈ!',
     reg_accountReady: 'ਤੁਹਾਡਾ ਖਾਤਾ ਤਿਆਰ ਹੈ — ਹੁਣ ਆਪਣੀ ਫਸਲ ਲਈ ਸਲਾਟ ਬੁੱਕ ਕਰੋ।',
     reg_bookFirstSlot: 'ਖਰੀਦ ਸਲਾਟ ਬੁੱਕ ਕਰੋ',
+    reg_uploadPhotoTitle: 'ਕਿਸਾਨ ਪਛਾਣ ਫੋਟੋ',
+    reg_uploadPhotoSubtitle: 'ਮੰਡੀ ਗੇਟ ਤੇ ਪੁਸ਼ਟੀ ਲਈ ਆਪਣੀ ਸਾਹਮਣੇ ਵਾਲੀ ਸਾਫ਼ ਫੋਟੋ ਅਪਲੋਡ ਕਰੋ।',
+    reg_takePhoto: 'ਫੋਟੋ ਖਿੱਚੋ / ਅਪਲੋਡ ਕਰੋ',
+    reg_photoUploaded: 'ਫੋਟੋ ਸਫਲਤਾਪੂਰਵਕ ਜੋੜੀ ਗਈ',
+    reg_changePhoto: 'ਫੋਟੋ ਬਦਲੋ',
+    reg_stepPhone: 'ਮੋਬਾਈਲ',
+    reg_stepOtp: 'ਓ.ਟੀ.ਪੀ.',
+    reg_stepPhoto: 'ਫੋਟੋ',
+    reg_stepProfile: 'ਵੇਰਵਾ',
+    book_uploadCropPhoto: 'ਫ਼ਸਲ ਨਮੂਨਾ ਫੋਟੋ ਅਪਲੋਡ ਕਰੋ',
+    book_uploadCropPhotoDesc: 'ਗ੍ਰੇਡ ਜਾਂਚ ਲਈ ਆਪਣੀ ਫ਼ਸਲ ਦੀ ਸਾਫ਼ ਤਸਵੀਰ ਅਪਲੋਡ ਕਰੋ।',
+    book_cropMspRate: 'ਸਰਕਾਰੀ ਘੱਟੋ-ਘੱਟ ਸਮਰਥਨ ਮੁੱਲ (MSP)',
+    book_estimatedTotal: 'ਅੰਦਾਜ਼ਨ ਕੁੱਲ ਰਕਮ',
+    book_safetyAdvanceAmount: '20% ਡੀ.ਬੀ.ਟੀ. ਅਗਾਊਂ ਰਕਮ',
+    book_cropPhotoOptional: 'ਫੋਟੋ ਨੱਥੀ (ਤੇਜ਼ ਗੇਟ ਪਾਸ ਲਈ)',
+    book_retakePhoto: 'ਦੂਜੀ ਫੋਟੋ ਲਵੋ',
 
     book_eyebrow: 'ਖਰੀਦ ਸਲਾਟ',
     book_title: 'ਮੰਡੀ ਫੇਰੀ ਬੁੱਕ ਕਰੋ',
@@ -757,6 +821,22 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     reg_allSet: 'আপনি প্রস্তুত!',
     reg_accountReady: 'আপনার অ্যাকাউন্ট প্রস্তুত — আপনার প্রথম স্লট বুক করুন।',
     reg_bookFirstSlot: 'সংগ্রহের স্লট বুক করুন',
+    reg_uploadPhotoTitle: 'কৃষক পরিচয় ছবি',
+    reg_uploadPhotoSubtitle: 'মান্ডি গেটে যাচাইকরণের জন্য আপনার স্পষ্ট সামনের ছবি আপলোড করুন।',
+    reg_takePhoto: 'ছবি তুলুন / আপলোড করুন',
+    reg_photoUploaded: 'ছবি সফলভাবে যুক্ত করা হয়েছে',
+    reg_changePhoto: 'ছবি পরিবর্তন করুন',
+    reg_stepPhone: 'মোবাইল',
+    reg_stepOtp: 'ওটিপি',
+    reg_stepPhoto: 'ছবি',
+    reg_stepProfile: 'প্রোফাইল',
+    book_uploadCropPhoto: 'ফসলের নমুনা ছবি আপলোড করুন',
+    book_uploadCropPhotoDesc: 'গুণমান পরিদর্শনের জন্য আপনার ফসলের একটি স্পষ্ট ছবি তুলুন।',
+    book_cropMspRate: 'সরকারি ন্যূনতম সহায়ক মূল্য (MSP)',
+    book_estimatedTotal: 'আনুমানিক মোট মূল্য',
+    book_safetyAdvanceAmount: '২০% ডিবিটি অগ্রিম অর্থ',
+    book_cropPhotoOptional: 'ছবি যুক্ত হয়েছে (ফাস্ট-ট্র্যাক গেট পাসের জন্য)',
+    book_retakePhoto: 'পুনরায় ছবি তুলুন',
 
     book_eyebrow: 'সংগ্রহ স্লট',
     book_title: 'স্লট বুক করুন',
@@ -928,6 +1008,22 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     reg_allSet: 'आपली नोंदणी पूर्ण झाली!',
     reg_accountReady: 'आपले खाते तयार आहे — आता खरेदीचा स्लॉट बुक करा.',
     reg_bookFirstSlot: 'खरेदी स्लॉट बुक करा',
+    reg_uploadPhotoTitle: 'शेतकरी ओळख फोटो',
+    reg_uploadPhotoSubtitle: 'मंडी गेटवर पडताळणीसाठी आपला स्पष्ट समोरचा फोटो अपलोड करा.',
+    reg_takePhoto: 'फोटो काढा / अपलोड करा',
+    reg_photoUploaded: 'फोटो यशस्वीरित्या जोडला गेला',
+    reg_changePhoto: 'फोटो बदला',
+    reg_stepPhone: 'मोबाईल',
+    reg_stepOtp: 'ओटीपी',
+    reg_stepPhoto: 'फोटो',
+    reg_stepProfile: 'माहिती',
+    book_uploadCropPhoto: 'पिकाचा नमुना फोटो अपलोड करा',
+    book_uploadCropPhotoDesc: 'ग्रेड तपासणीसाठी आपल्या पिकाचा स्पष्ट फोटो अपलोड करा.',
+    book_cropMspRate: 'शासकीय हमीभाव (MSP)',
+    book_estimatedTotal: 'अंदाजे एकूण रक्कम',
+    book_safetyAdvanceAmount: '२०% डीबीटी आगाऊ रक्कम',
+    book_cropPhotoOptional: 'फोटो जोडला (फास्ट-ट्रॅक पाससाठी)',
+    book_retakePhoto: 'पुन्हा फोटो काढा',
 
     book_eyebrow: 'खरेदी स्लॉट',
     book_title: 'मंडी भेट बुक करा',
@@ -1099,6 +1195,22 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     reg_allSet: 'మీ నమోదు పూర్తయింది!',
     reg_accountReady: 'మీ ఖాతా సిద్ధంగా ఉంది — ఇప్పుడు మొదటి స్లాట్‌ను బుక్ చేసుకోండి.',
     reg_bookFirstSlot: 'సేకరణ స్లాట్ బుక్ చేయండి',
+    reg_uploadPhotoTitle: 'రైతు గుర్తింపు ఫోటో',
+    reg_uploadPhotoSubtitle: 'మండీ గేట్ వద్ద ధృవీకరణ కోసం మీ స్పష్టమైన ముఖ ఫోటోను అప్‌లోడ్ చేయండి.',
+    reg_takePhoto: 'ఫోటో తీయండి / అప్‌లోడ్ చేయండి',
+    reg_photoUploaded: 'ఫోటో విజయవంతంగా జోడించబడింది',
+    reg_changePhoto: 'ఫోటో మార్చండి',
+    reg_stepPhone: 'మొబైల్',
+    reg_stepOtp: 'ఓటీపీ',
+    reg_stepPhoto: 'ఫోటో',
+    reg_stepProfile: 'ప్రొఫైల్',
+    book_uploadCropPhoto: 'పంట నమూనా ఫోటో అప్‌లోడ్ చేయండి',
+    book_uploadCropPhotoDesc: 'గ్రేడ్ తనిఖీ కోసం మీ పంట యొక్క స్పష్టమైన ఫోటోను అప్‌లోడ్ చేయండి.',
+    book_cropMspRate: 'ప్రభుత్వ మద్దతు ధర (MSP)',
+    book_estimatedTotal: 'అంచనా వేసిన మొత్తం విలువ',
+    book_safetyAdvanceAmount: '20% డీబీటీ అడ్వాన్స్ క్రెడిట్',
+    book_cropPhotoOptional: 'ఫోటో జోడించబడింది (ఫాస్ట్ ట్రాక్ పాస్ కొరకు)',
+    book_retakePhoto: 'మళ్లీ ఫోటో తీయండి',
 
     book_eyebrow: 'సేకరణ స్లాట్',
     book_title: 'సందర్శనను బుక్ చేయండి',
@@ -1270,6 +1382,22 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     reg_allSet: 'பதிவு முடிந்தது!',
     reg_accountReady: 'உங்கள் கணக்கு தயாராக உள்ளது — இப்போது முதல் முன்பதிவைச் செய்யுங்கள்.',
     reg_bookFirstSlot: 'கொள்முதல் நேரத்தை முன்பதிவு செய்',
+    reg_uploadPhotoTitle: 'விவசாயி அடையாள புகைப்படம்',
+    reg_uploadPhotoSubtitle: 'மண்டி நுழைவாயிலில் சரிபார்ப்பதற்காக தெளிவான புகைப்படத்தை பதிவேற்றவும்.',
+    reg_takePhoto: 'புகைப்படம் எடுக்க / பதிவேற்ற',
+    reg_photoUploaded: 'புகைப்படம் வெற்றிகரமாக இணைக்கப்பட்டது',
+    reg_changePhoto: 'புகைப்படத்தை மாற்று',
+    reg_stepPhone: 'மொபைல்',
+    reg_stepOtp: 'ஓடிபி',
+    reg_stepPhoto: 'புகைப்படம்',
+    reg_stepProfile: 'விவரம்',
+    book_uploadCropPhoto: 'பயிர் மாதிரி புகைப்படத்தை பதிவேற்றவும்',
+    book_uploadCropPhotoDesc: 'தர ஆய்விற்காக உங்கள் விளைச்சலின் தெளிவான புகைப்படத்தை எடுக்கவும்.',
+    book_cropMspRate: 'அரசு குறைந்தபட்ச ஆதரவு விலை (MSP)',
+    book_estimatedTotal: 'மதிப்பிடப்பட்ட மொத்த மதிப்பு',
+    book_safetyAdvanceAmount: '20% டிபிடி முன்பணம்',
+    book_cropPhotoOptional: 'புகைப்படம் இணைக்கப்பட்டது',
+    book_retakePhoto: 'மீண்டும் புகைப்படம் எடுக்கவும்',
 
     book_eyebrow: 'கொள்முதல் நேரம்',
     book_title: 'நேரத்தை முன்பதிவு செய்',

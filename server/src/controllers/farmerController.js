@@ -26,6 +26,7 @@ const profileSchema = z.object({
   village: z.string().min(2).max(80),
   district: z.string().min(2).max(80),
   state: z.string().min(2).max(80),
+  photoUrl: z.string().optional(),
   aadhaarLast4: z.string().regex(/^\d{4}$/).optional(),
   crops: z.array(z.string().min(1)).max(10).optional(),
   landAreaAcres: z.number().min(0).max(10_000).optional(),

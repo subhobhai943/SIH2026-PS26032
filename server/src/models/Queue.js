@@ -16,6 +16,7 @@ const queueSchema = new mongoose.Schema(
     token: { type: Number, required: true },
     status: { type: String, enum: QUEUE_STATUSES, default: 'booked', index: true },
     crop: { type: String, trim: true, default: '' },
+    cropPhotoUrl: { type: String, default: '' },
     estimatedQuantityQtl: { type: Number, min: 0 },
     checkedInAt: { type: Date },
     servingStartedAt: { type: Date },
