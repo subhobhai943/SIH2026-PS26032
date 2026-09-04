@@ -34,6 +34,7 @@ export function SiteHeader() {
     { href: '/queue', label: t('nav_liveQueue') },
     { href: '/status', label: t('nav_myStatus') },
     { href: '/tracking', label: t('nav_trackOrder') },
+    { href: '/reviews', label: t('nav_buyerReviews') },
   ];
 
   return (

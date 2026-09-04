@@ -20,6 +20,9 @@ const farmerSchema = new mongoose.Schema(
     preferredLanguage: { type: String, enum: ['en', 'hi', 'bn', 'ta', 'te', 'mr'], default: 'en' },
     profileComplete: { type: Boolean, default: false },
     fcmToken: { type: String, default: '' },
+    averageRating: { type: Number, default: 5, min: 1, max: 5 },
+    totalReviews: { type: Number, default: 0, min: 0 },
+    badge: { type: String, default: 'Verified Producer' },
   },
   { timestamps: true }
 );

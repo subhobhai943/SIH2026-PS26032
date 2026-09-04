@@ -146,8 +146,9 @@ export type TranslationKey =
   | 'status_paymentRef'
   | 'book_advanceNotice'
 
-  // Order Tracking
+  // Order Tracking & Reviews
   | 'nav_trackOrder'
+  | 'nav_buyerReviews'
   | 'track_eyebrow'
   | 'track_pageTitle'
   | 'track_pageSubtitle'
@@ -336,6 +337,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     status_paymentRef: 'Reference',
 
     nav_trackOrder: 'Track Order',
+    nav_buyerReviews: 'Buyer Reviews',
     track_eyebrow: '3rd-Party Logistics Tracking',
     track_pageTitle: 'Crop Shipment & Delivery Tracking',
     track_pageSubtitle: 'Real-time e-commerce tracking for your crop shipment managed by national 3rd-party logistics carriers.',
@@ -523,6 +525,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     status_paymentRef: 'संदर्भ संख्या',
 
     nav_trackOrder: 'ऑर्डर ट्रैक करें',
+    nav_buyerReviews: 'खरीदार समीक्षाएं',
     track_eyebrow: 'थर्ड-पार्टी लॉजिस्टिक्स ट्रैकिंग',
     track_pageTitle: 'फसल खेप व डिलीवरी ट्रैकिंग',
     track_pageSubtitle: 'राष्ट्रीय लॉजिस्टिक्स ट्रांसपोर्टर्स द्वारा आपकी फसल की सुरक्षित डिलीवरी का ई-कॉमर्स जैसा लाइव ट्रैकिंग।',
@@ -710,6 +713,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     status_paymentRef: 'ਹਵਾਲਾ ਨੰਬਰ',
 
     nav_trackOrder: 'ਆਰਡਰ ਟ੍ਰੈਕ ਕਰੋ',
+    nav_buyerReviews: 'ਖਰੀਦਦਾਰ ਸਮੀਖਿਆਵਾਂ',
     track_eyebrow: 'ਥਰਡ-ਪਾਰਟੀ ਲੌਜਿਸਟਿਕਸ ਟ੍ਰੈਕਿੰਗ',
     track_pageTitle: 'ਫ਼ਸਲ ਦੀ ਖੇਪ ਅਤੇ ਡਿਲੀਵਰੀ ਟ੍ਰੈਕਿੰਗ',
     track_pageSubtitle: 'ਕੌਮੀ ਲੌਜਿਸਟਿਕਸ ਭਾਈਵਾਲਾਂ ਦੁਆਰਾ ਤੁਹਾਡੀ ਫ਼ਸਲ ਦੀ ਸੁਰੱਖਿਅਤ ਡਿਲੀਵਰੀ ਦਾ ਲਾਈਵ ਈ-ਕਾਮਰਸ ਟ੍ਰੈਕਿੰਗ।',
@@ -897,6 +901,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     status_paymentRef: 'রেফারেন্স নম্বর',
 
     nav_trackOrder: 'অর্ডার ট্র্যাক করুন',
+    nav_buyerReviews: 'ক্রেতা পর্যালোচনা',
     track_eyebrow: 'থার্ড-পার্টি লজিস্টিক ট্র্যাকিং',
     track_pageTitle: 'ফসল চালান ও ডেলিভারি ট্র্যাকিং',
     track_pageSubtitle: 'জাতীয় লজিস্টিক অংশীদারদের মাধ্যমে আপনার ফসলের নিরাপদ ডেলিভারির রিয়েল-টাইম ই-কমার্স ট্র্যাকিং।',
@@ -1084,6 +1089,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     status_paymentRef: 'संदर्भ क्रमांक',
 
     nav_trackOrder: 'ऑर्डर ट्रॅक करा',
+    nav_buyerReviews: 'खरेदीदार पुनरावलोकने',
     track_eyebrow: 'थर्ड-पार्टी लॉजिस्टिक्स ट्रॅकिंग',
     track_pageTitle: 'पीक पाठवणी व वितरण ट्रॅकिंग',
     track_pageSubtitle: 'राष्ट्रीय लॉजिस्टिक्स वाहकांद्वारे आपल्या पिकाच्या सुरक्षित वितरणाचे ई-कॉमर्स प्रमाणे लाईव्ह ट्रॅकिंग.',
@@ -1271,6 +1277,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     status_paymentRef: 'రిఫరెన్స్ సంఖ్య',
 
     nav_trackOrder: 'ఆర్డర్ ట్రాక్ చేయండి',
+    nav_buyerReviews: 'కొనుగోలుదారు సమీక్షలు',
     track_eyebrow: 'థర్డ్-పార్టీ లాజిస్టిక్స్ ట్రాకింగ్',
     track_pageTitle: 'పంట రవాణా & డెలివరీ ట్రాకింగ్',
     track_pageSubtitle: 'జాతీయ లాజిస్టిక్స్ భాగస్వాముల ద్వారా మీ పంట సురక్షిత డెలివరీ యొక్క లైవ్ ఈ-కామర్స్ ట్రాకింగ్.',
@@ -1458,6 +1465,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     status_paymentRef: 'குறிப்பு எண்',
 
     nav_trackOrder: 'ஆர்டரை கண்காணிக்கவும்',
+    nav_buyerReviews: 'வாங்குபவர் மதிப்புரைகள்',
     track_eyebrow: 'மூன்றாம் தரப்பு தளவாட கண்காணிப்பு',
     track_pageTitle: 'பயிர் சரக்கு & விநியோக கண்காணிப்பு',
     track_pageSubtitle: 'தேசிய தளவாட நிறுவனங்கள் மூலம் உங்கள் பயிர் பாதுகாப்பான விநியோகத்திற்கான நேரடி இ-காமர்ஸ் கண்காணிப்பு.',

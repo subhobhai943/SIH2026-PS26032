@@ -12,6 +12,7 @@ import {
   IconShieldCheck,
   IconPrinter,
   IconCheck,
+  IconStar,
 } from '@/components/icons';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
 import { TranslationKey } from '@/lib/i18n/translations';
@@ -532,6 +533,69 @@ export default function StatusPage() {
                       <div className="font-mono font-bold text-neutral-700">Mandi Secretary / Authorized Officer</div>
                       <div className="text-[10px] text-neutral-400">Digitally Verified & Stamped</div>
                     </div>
+                  </div>
+                </div>
+              </Card>
+
+              {/* 3. Buyer Quality Ratings & Market Reputation Card */}
+              <Card className="p-6 shadow-md border-amber-200/70 bg-gradient-to-br from-white to-amber-50/40 no-print">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500 text-white shadow-md shadow-amber-500/20">
+                      <IconStar className="h-6 w-6 fill-white" filled />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-bold text-neutral-900 text-base">
+                          Verified Buyer Feedback & Produce Reputation
+                        </h3>
+                        <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-bold text-emerald-800">
+                          Star Producer
+                        </span>
+                      </div>
+                      <p className="text-xs text-neutral-600 mt-0.5">
+                        Procurement quality score from FCI officers, roller flour millers, and bulk grain aggregators.
+                      </p>
+                    </div>
+                  </div>
+
+                  <a
+                    href="/reviews"
+                    className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 text-xs font-bold transition shadow-sm"
+                  >
+                    <span>View Buyer Reviews (समीक्षाएं)</span>
+                    <span>➔</span>
+                  </a>
+                </div>
+
+                <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="rounded-xl bg-white p-3 border border-amber-100 shadow-sm">
+                    <span className="text-[11px] text-neutral-500 block">Average Rating</span>
+                    <div className="mt-1 flex items-baseline gap-1">
+                      <span className="text-xl font-black text-amber-900">4.9</span>
+                      <span className="text-xs text-amber-500">★★★★★</span>
+                    </div>
+                    <span className="text-[10px] text-neutral-400">Verified lot grade</span>
+                  </div>
+
+                  <div className="rounded-xl bg-white p-3 border border-amber-100 shadow-sm">
+                    <span className="text-[11px] text-neutral-500 block">Purity & Cleanliness</span>
+                    <span className="mt-1 text-xl font-black text-emerald-700 block">Grade A</span>
+                    <span className="text-[10px] text-neutral-400">Zero chaff / weevil</span>
+                  </div>
+
+                  <div className="rounded-xl bg-white p-3 border border-amber-100 shadow-sm">
+                    <span className="text-[11px] text-neutral-500 block">Moisture Compliance</span>
+                    <span className="mt-1 text-xl font-black text-brand-800 block">&lt; 11.2%</span>
+                    <span className="text-[10px] text-neutral-400">Optimal buffer silo</span>
+                  </div>
+
+                  <div className="rounded-xl bg-white p-3 border border-amber-100 shadow-sm">
+                    <span className="text-[11px] text-neutral-500 block">Market Standing</span>
+                    <span className="mt-1 text-xs font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded inline-block">
+                      Top 5% Tier
+                    </span>
+                    <span className="text-[10px] text-neutral-400 block mt-1">Priority mandi bidding</span>
                   </div>
                 </div>
               </Card>

@@ -1,7 +1,7 @@
 'use client';
 
 import { Card } from '@/components/ui';
-import { IconArrowRight, IconBell, IconCalendar, IconPhone, IconQueue, IconStatus, IconTruck } from '@/components/icons';
+import { IconArrowRight, IconBell, IconCalendar, IconPhone, IconQueue, IconStatus, IconTruck, IconStar } from '@/components/icons';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
 
 export default function HomePage() {
@@ -61,6 +61,13 @@ export default function HomePage() {
             >
               <IconTruck className="h-4 w-4" />
               {t('nav_trackOrder')}
+            </a>
+            <a
+              href="/reviews"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-400/20 px-6 py-3 text-sm font-bold text-amber-200 ring-1 ring-inset ring-amber-400/50 transition hover:bg-amber-400/30 active:scale-[0.99]"
+            >
+              <IconStar className="h-4 w-4 fill-amber-300" filled />
+              <span>Buyer Reviews</span>
             </a>
           </div>
         </div>
@@ -123,6 +130,94 @@ export default function HomePage() {
               </Card>
             </a>
           ))}
+        </div>
+      </section>
+
+      {/* Verified Buyer Reviews & Producer Reputation Spotlight */}
+      <section className="rounded-3xl border border-amber-200/80 bg-gradient-to-b from-amber-50/40 to-white p-6 sm:p-10 shadow-sm">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <div>
+            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full mb-1.5">
+              <IconStar className="h-3.5 w-3.5 fill-amber-700" filled />
+              <span>Grain Quality & Buyer Satisfaction · मंडी समीक्षा</span>
+            </div>
+            <h2 className="text-2xl font-bold tracking-tight text-neutral-900">
+              Verified Buyer Reviews & Farmer Produce Ratings
+            </h2>
+            <p className="mt-1 text-sm text-neutral-600">
+              Institutional purchasers (FCI, ITC, roller flour millers) submit direct laboratory & weighment quality ratings.
+            </p>
+          </div>
+
+          <a
+            href="/reviews"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-700 hover:bg-brand-800 text-white px-5 py-2.5 text-sm font-bold shadow transition shrink-0"
+          >
+            <span>Explore All Buyer Reviews</span>
+            <IconArrowRight className="h-4 w-4 stroke-[2.5]" />
+          </a>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-3">
+          <div className="rounded-2xl bg-white p-5 border border-neutral-200 shadow-sm flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-neutral-800">Vikramaditya Roy</span>
+                <span className="text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                  ★ 5.0
+                </span>
+              </div>
+              <p className="text-[11px] text-neutral-500 mt-0.5">Chief Quality Officer · Food Corporation of India (FCI)</p>
+              <div className="mt-2 text-xs font-semibold text-brand-700">Lot: 40 Qtl Sharbati Wheat (Gurpreet Singh)</div>
+              <p className="mt-2 text-xs text-neutral-600 leading-relaxed">
+                &ldquo;Moisture measured at 10.4%, well below standard ceiling. Zero foreign matter during lab testing. Prompt delivery right on time.&rdquo;
+              </p>
+            </div>
+            <div className="mt-3 pt-2 border-t border-neutral-100 flex flex-wrap gap-1">
+              <span className="text-[10px] font-semibold text-neutral-600 bg-neutral-100 px-2 py-0.5 rounded">✓ Low Moisture</span>
+              <span className="text-[10px] font-semibold text-neutral-600 bg-neutral-100 px-2 py-0.5 rounded">✓ Grade A Grain</span>
+            </div>
+          </div>
+
+          <div className="rounded-2xl bg-white p-5 border border-neutral-200 shadow-sm flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-neutral-800">Rajesh Singhania</span>
+                <span className="text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                  ★ 5.0
+                </span>
+              </div>
+              <p className="text-[11px] text-neutral-500 mt-0.5">VP Raw Material · Shivalik Modern Roller Flour Mills</p>
+              <div className="mt-2 text-xs font-semibold text-brand-700">Lot: 65 Qtl Wheat</div>
+              <p className="mt-2 text-xs text-neutral-600 leading-relaxed">
+                &ldquo;High hectolitre test weight (&gt;79 kg/hL) and very uniform grain kernel size. Ideal for whole-wheat chakki atta milling.&rdquo;
+              </p>
+            </div>
+            <div className="mt-3 pt-2 border-t border-neutral-100 flex flex-wrap gap-1">
+              <span className="text-[10px] font-semibold text-neutral-600 bg-neutral-100 px-2 py-0.5 rounded">✓ High Test Weight</span>
+              <span className="text-[10px] font-semibold text-neutral-600 bg-neutral-100 px-2 py-0.5 rounded">✓ Uniform Kernel</span>
+            </div>
+          </div>
+
+          <div className="rounded-2xl bg-white p-5 border border-neutral-200 shadow-sm flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-neutral-800">Anil Kumar Agarwal</span>
+                <span className="text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                  ★ 4.9
+                </span>
+              </div>
+              <p className="text-[11px] text-neutral-500 mt-0.5">Procurement Director · Kuber Agro Rice Export Ltd.</p>
+              <div className="mt-2 text-xs font-semibold text-brand-700">Lot: 35 Qtl 1509 Basmati Paddy (Ram Lal Sharma)</div>
+              <p className="mt-2 text-xs text-neutral-600 leading-relaxed">
+                &ldquo;Moisture checked at 13.1%, broken grain percentage below 2.5%. Lot was well sun-dried and free from straw chaff.&rdquo;
+              </p>
+            </div>
+            <div className="mt-3 pt-2 border-t border-neutral-100 flex flex-wrap gap-1">
+              <span className="text-[10px] font-semibold text-neutral-600 bg-neutral-100 px-2 py-0.5 rounded">✓ Export Quality</span>
+              <span className="text-[10px] font-semibold text-neutral-600 bg-neutral-100 px-2 py-0.5 rounded">✓ Clean Lot</span>
+            </div>
+          </div>
         </div>
       </section>
 

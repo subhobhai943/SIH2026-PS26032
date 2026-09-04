@@ -12,6 +12,7 @@ import queueRoutes from './routes/queueRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import shipmentRoutes from './routes/shipmentRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
+import reviewRoutes from './routes/reviewRoutes.js';
 
 export function createApp() {
   const app = express();
@@ -39,6 +40,7 @@ export function createApp() {
   app.use('/api/admin', adminRoutes);
   app.use('/api/shipments', shipmentRoutes);
   app.use('/api/upload', uploadRoutes);
+  app.use('/api/reviews', reviewRoutes);
 
   app.use(notFoundHandler);
   app.use(errorHandler);
