@@ -144,6 +144,7 @@ export type TranslationKey =
   | 'track_status'
   | 'track_estDelivery'
   | 'track_origin'
+  | 'track_currentLocation'
   | 'track_destination'
   | 'track_logisticsPartner'
   | 'track_carrier'
@@ -306,6 +307,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     track_status: 'Current Transit Status',
     track_estDelivery: 'Estimated Warehouse Delivery',
     track_origin: 'Origin Mandi Hub',
+    track_currentLocation: 'Current Transit Location',
     track_destination: 'Destination Central Godown',
     track_logisticsPartner: '3rd-Party Logistics Carrier',
     track_carrier: 'Carrier',
@@ -467,6 +469,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     track_status: 'वर्तमान स्थिति',
     track_estDelivery: 'गोदाम पहुंचने का अनुमानित समय',
     track_origin: 'प्रस्थान मंडी केंद्र',
+    track_currentLocation: 'वर्तमान ट्रांजिट स्थान',
     track_destination: 'गंतव्य केंद्रीय गोदाम',
     track_logisticsPartner: 'थर्ड-पार्टी लॉजिस्टिक्स पार्टनर',
     track_carrier: 'कैरियर',
@@ -628,6 +631,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     track_status: 'ਮੌਜੂਦਾ ਸਥਿਤੀ',
     track_estDelivery: 'ਗੋਦਾਮ ਪਹੁੰਚਣ ਦਾ ਅੰਦਾਜ਼ਨ ਸਮਾਂ',
     track_origin: 'ਰਵਾਨਗੀ ਮੰਡੀ ਕੇਂਦਰ',
+    track_currentLocation: 'ਮੌਜੂਦਾ ਟ੍ਰਾਂਜਿਟ ਸਥਾਨ',
     track_destination: 'ਮੰਜ਼ਿਲ ਕੇਂਦਰੀ ਗੋਦਾਮ',
     track_logisticsPartner: 'ਥਰਡ-ਪਾਰਟੀ ਲੌਜਿਸਟਿਕਸ ਪਾਰਟਨਰ',
     track_carrier: 'ਕੈਰੀਅਰ',
@@ -789,6 +793,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     track_status: 'বর্তমান ট্রানজিট অবস্থা',
     track_estDelivery: 'গুদামে পৌঁছানোর আনুমানিক সময়',
     track_origin: 'উৎপত্তি মান্ডি কেন্দ্র',
+    track_currentLocation: 'বর্তমান ট্রানজিট অবস্থান',
     track_destination: 'গন্তব্য কেন্দ্রীয় গুদাম',
     track_logisticsPartner: 'থার্ড-পার্টি লজিস্টিক পার্টনার',
     track_carrier: 'ক্যারিয়ার',
@@ -950,6 +955,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     track_status: 'सध्याची स्थिती',
     track_estDelivery: 'गोदामात पोहोचण्याची अंदाजे वेळ',
     track_origin: 'प्रस्थान मंडी केंद्र',
+    track_currentLocation: 'सध्याचे ट्रान्झिट स्थान',
     track_destination: 'गंतव्य केंद्रीय गोदाम',
     track_logisticsPartner: 'थर्ड-पार्टी लॉजिस्टिक्स पार्टनर',
     track_carrier: 'कॅरियर',
@@ -1111,6 +1117,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     track_status: 'ప్రస్తుత ట్రాన్సిట్ స్థితి',
     track_estDelivery: 'గోదాముకు చేరుకునే అంచనా సమయం',
     track_origin: 'ప్రారంభ మండి కేంద్రం',
+    track_currentLocation: 'ప్రస్తుత ట్రాన్సిట్ ప్రదేశం',
     track_destination: 'గమ్యస్థాన కేంద్ర గోదాము',
     track_logisticsPartner: 'థర్డ్-పార్టీ లాజిస్టిక్స్ భాగస్వామి',
     track_carrier: 'క్యారియర్',
@@ -1272,6 +1279,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     track_status: 'தற்போதைய நிலை',
     track_estDelivery: 'கிடங்குக்கு வந்துசேரும் உத்தேச நேரம்',
     track_origin: 'தொடக்க மண்டி மையம்',
+    track_currentLocation: 'தற்போதைய போக்குவரத்து இடம்',
     track_destination: 'இலக்கு மத்திய கிடங்கு',
     track_logisticsPartner: 'மூன்றாம் தரப்பு தளவாட நிறுவனம்',
     track_carrier: 'கேரியர்',
