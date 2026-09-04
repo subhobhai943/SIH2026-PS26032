@@ -198,63 +198,69 @@ export default function HomePage() {
         </div>
 
         <div className="grid gap-3 sm:gap-4 md:grid-cols-3">
-          <div className="review-card rounded-2xl bg-white dark:bg-neutral-900 p-4 sm:p-5 border border-neutral-200 dark:border-neutral-800 shadow-sm flex flex-col justify-between">
+          <div className="review-card rounded-2xl bg-white dark:bg-neutral-900 p-4 sm:p-5 border border-neutral-300 dark:border-neutral-800 shadow-sm flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-neutral-800 dark:text-neutral-200">Vikramaditya Roy</span>
-                <span className="text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/50 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-800">
+                <span className="text-sm font-extrabold text-neutral-950 dark:text-neutral-50">Vikramaditya Roy</span>
+                <span className="text-xs font-black text-amber-950 dark:text-amber-200 bg-amber-100 dark:bg-amber-950/60 px-2 py-0.5 rounded border border-amber-300 dark:border-amber-700">
                   ★ 5.0
                 </span>
               </div>
-              <p className="text-[10px] sm:text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">Quality Officer · FCI</p>
-              <div className="mt-2 text-[11px] sm:text-xs font-semibold text-brand-700 dark:text-brand-400">Lot: 40 Qtl Sharbati Wheat</div>
-              <p className="mt-1.5 sm:mt-2 text-[11px] sm:text-xs text-neutral-600 dark:text-neutral-300 leading-relaxed">
+              <p className="text-xs text-neutral-700 dark:text-neutral-300 font-semibold mt-1">Quality Officer · FCI</p>
+              <div className="mt-2 inline-block text-xs font-bold text-brand-900 dark:text-brand-300 bg-brand-50 dark:bg-brand-950/50 px-2.5 py-1 rounded-md border border-brand-200 dark:border-brand-800">
+                Lot: 40 Qtl Sharbati Wheat
+              </div>
+              <p className="mt-2.5 text-xs sm:text-sm text-neutral-900 dark:text-neutral-100 leading-relaxed font-medium">
                 &ldquo;Moisture at 10.4%, well below ceiling. Zero foreign matter. Prompt delivery.&rdquo;
               </p>
             </div>
-            <div className="mt-2.5 sm:mt-3 pt-2 border-t border-neutral-100 dark:border-neutral-800 flex flex-wrap gap-1">
-              <span className="text-[10px] font-semibold text-neutral-600 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded">✓ Low Moisture</span>
-              <span className="text-[10px] font-semibold text-neutral-600 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded">✓ Grade A</span>
+            <div className="mt-3.5 pt-2.5 border-t border-neutral-200 dark:border-neutral-800 flex flex-wrap gap-1.5">
+              <span className="text-xs font-bold text-neutral-900 dark:text-neutral-100 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded border border-neutral-300 dark:border-neutral-700">✓ Low Moisture</span>
+              <span className="text-xs font-bold text-neutral-900 dark:text-neutral-100 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded border border-neutral-300 dark:border-neutral-700">✓ Grade A</span>
             </div>
           </div>
 
-          <div className="review-card rounded-2xl bg-white dark:bg-neutral-900 p-4 sm:p-5 border border-neutral-200 dark:border-neutral-800 shadow-sm flex flex-col justify-between">
+          <div className="review-card rounded-2xl bg-white dark:bg-neutral-900 p-4 sm:p-5 border border-neutral-300 dark:border-neutral-800 shadow-sm flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-neutral-800 dark:text-neutral-200">Rajesh Singhania</span>
-                <span className="text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/50 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-800">
+                <span className="text-sm font-extrabold text-neutral-950 dark:text-neutral-50">Rajesh Singhania</span>
+                <span className="text-xs font-black text-amber-950 dark:text-amber-200 bg-amber-100 dark:bg-amber-950/60 px-2 py-0.5 rounded border border-amber-300 dark:border-amber-700">
                   ★ 5.0
                 </span>
               </div>
-              <p className="text-[10px] sm:text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">VP · Shivalik Flour Mills</p>
-              <div className="mt-2 text-[11px] sm:text-xs font-semibold text-brand-700 dark:text-brand-400">Lot: 65 Qtl Wheat</div>
-              <p className="mt-1.5 sm:mt-2 text-[11px] sm:text-xs text-neutral-600 dark:text-neutral-300 leading-relaxed">
+              <p className="text-xs text-neutral-700 dark:text-neutral-300 font-semibold mt-1">VP · Shivalik Flour Mills</p>
+              <div className="mt-2 inline-block text-xs font-bold text-brand-900 dark:text-brand-300 bg-brand-50 dark:bg-brand-950/50 px-2.5 py-1 rounded-md border border-brand-200 dark:border-brand-800">
+                Lot: 65 Qtl Wheat
+              </div>
+              <p className="mt-2.5 text-xs sm:text-sm text-neutral-900 dark:text-neutral-100 leading-relaxed font-medium">
                 &ldquo;High test weight (&gt;79 kg/hL) and uniform grain kernel. Ideal for chakki atta.&rdquo;
               </p>
             </div>
-            <div className="mt-2.5 sm:mt-3 pt-2 border-t border-neutral-100 dark:border-neutral-800 flex flex-wrap gap-1">
-              <span className="text-[10px] font-semibold text-neutral-600 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded">✓ High Test Weight</span>
-              <span className="text-[10px] font-semibold text-neutral-600 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded">✓ Uniform Kernel</span>
+            <div className="mt-3.5 pt-2.5 border-t border-neutral-200 dark:border-neutral-800 flex flex-wrap gap-1.5">
+              <span className="text-xs font-bold text-neutral-900 dark:text-neutral-100 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded border border-neutral-300 dark:border-neutral-700">✓ High Test Weight</span>
+              <span className="text-xs font-bold text-neutral-900 dark:text-neutral-100 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded border border-neutral-300 dark:border-neutral-700">✓ Uniform Kernel</span>
             </div>
           </div>
 
-          <div className="review-card rounded-2xl bg-white dark:bg-neutral-900 p-4 sm:p-5 border border-neutral-200 dark:border-neutral-800 shadow-sm flex flex-col justify-between">
+          <div className="review-card rounded-2xl bg-white dark:bg-neutral-900 p-4 sm:p-5 border border-neutral-300 dark:border-neutral-800 shadow-sm flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-neutral-800 dark:text-neutral-200">Anil Kumar Agarwal</span>
-                <span className="text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/50 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-800">
+                <span className="text-sm font-extrabold text-neutral-950 dark:text-neutral-50">Anil Kumar Agarwal</span>
+                <span className="text-xs font-black text-amber-950 dark:text-amber-200 bg-amber-100 dark:bg-amber-950/60 px-2 py-0.5 rounded border border-amber-300 dark:border-amber-700">
                   ★ 4.9
                 </span>
               </div>
-              <p className="text-[10px] sm:text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">Director · Kuber Agro Rice Export</p>
-              <div className="mt-2 text-[11px] sm:text-xs font-semibold text-brand-700 dark:text-brand-400">Lot: 35 Qtl Basmati Paddy</div>
-              <p className="mt-1.5 sm:mt-2 text-[11px] sm:text-xs text-neutral-600 dark:text-neutral-300 leading-relaxed">
+              <p className="text-xs text-neutral-700 dark:text-neutral-300 font-semibold mt-1">Director · Kuber Agro Rice Export</p>
+              <div className="mt-2 inline-block text-xs font-bold text-brand-900 dark:text-brand-300 bg-brand-50 dark:bg-brand-950/50 px-2.5 py-1 rounded-md border border-brand-200 dark:border-brand-800">
+                Lot: 35 Qtl Basmati Paddy
+              </div>
+              <p className="mt-2.5 text-xs sm:text-sm text-neutral-900 dark:text-neutral-100 leading-relaxed font-medium">
                 &ldquo;Moisture at 13.1%, broken grain below 2.5%. Well sun-dried and free from chaff.&rdquo;
               </p>
             </div>
-            <div className="mt-2.5 sm:mt-3 pt-2 border-t border-neutral-100 dark:border-neutral-800 flex flex-wrap gap-1">
-              <span className="text-[10px] font-semibold text-neutral-600 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded">✓ Export Quality</span>
-              <span className="text-[10px] font-semibold text-neutral-600 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded">✓ Clean Lot</span>
+            <div className="mt-3.5 pt-2.5 border-t border-neutral-200 dark:border-neutral-800 flex flex-wrap gap-1.5">
+              <span className="text-xs font-bold text-neutral-900 dark:text-neutral-100 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded border border-neutral-300 dark:border-neutral-700">✓ Export Quality</span>
+              <span className="text-xs font-bold text-neutral-900 dark:text-neutral-100 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded border border-neutral-300 dark:border-neutral-700">✓ Clean Lot</span>
             </div>
           </div>
         </div>

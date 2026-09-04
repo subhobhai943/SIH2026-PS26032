@@ -403,7 +403,7 @@ export default function ReviewsPage() {
               className={`rounded-xl px-4 py-2 text-sm font-bold transition ${
                 activeTab === 'reviews'
                   ? 'bg-brand-700 text-white shadow-sm'
-                  : 'bg-white dark:bg-neutral-900 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-800'
+                  : 'bg-white dark:bg-neutral-900 text-neutral-800 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 shadow-2xs'
               }`}
             >
               Buyer Reviews & Feedback ({filteredReviews.length})
@@ -413,7 +413,7 @@ export default function ReviewsPage() {
               className={`rounded-xl px-4 py-2 text-sm font-bold transition ${
                 activeTab === 'farmers'
                   ? 'bg-brand-700 text-white shadow-sm'
-                  : 'bg-white dark:bg-neutral-900 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-800'
+                  : 'bg-white dark:bg-neutral-900 text-neutral-800 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 shadow-2xs'
               }`}
             >
               Farmers Reputation Directory ({farmers.length})
@@ -422,25 +422,25 @@ export default function ReviewsPage() {
         </div>
 
         {/* Filter Bar */}
-        <div className="mb-6 rounded-2xl bg-white dark:bg-neutral-900 p-4 shadow-sm border border-neutral-200/80 dark:border-neutral-800 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="mb-6 rounded-2xl bg-white dark:bg-neutral-900 p-4 shadow-sm border border-neutral-300 dark:border-neutral-800 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="w-full md:w-80">
             <input
               type="text"
               placeholder="Search by buyer, farmer, company, tag..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3.5 py-2 text-sm text-neutral-800 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-500 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+              className="w-full rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3.5 py-2 text-sm font-medium text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-500 dark:placeholder:text-neutral-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
             />
           </div>
 
           <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
             {/* Crop Filter */}
             <div className="flex items-center gap-1.5">
-              <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">Crop:</span>
+              <span className="text-xs font-bold text-neutral-800 dark:text-neutral-200">Crop:</span>
               <select
                 value={selectedCrop}
                 onChange={(e) => setSelectedCrop(e.target.value)}
-                className="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 px-3 py-1.5 text-xs font-semibold text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+                className="rounded-xl border border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 px-3 py-1.5 text-xs font-bold text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
               >
                 <option value="all">All Crops (सभी फसलें)</option>
                 <option value="Wheat">Wheat (गेहूं)</option>
@@ -452,11 +452,11 @@ export default function ReviewsPage() {
 
             {/* Rating Filter */}
             <div className="flex items-center gap-1.5">
-              <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">Min Rating:</span>
+              <span className="text-xs font-bold text-neutral-800 dark:text-neutral-200">Min Rating:</span>
               <select
                 value={minRating}
                 onChange={(e) => setMinRating(Number(e.target.value))}
-                className="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 px-3 py-1.5 text-xs font-semibold text-neutral-700 dark:text-neutral-200 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+                className="rounded-xl border border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800 px-3 py-1.5 text-xs font-bold text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
               >
                 <option value={0}>All Stars (सभी)</option>
                 <option value={5}>5 Stars Only (★★★★★)</option>
@@ -490,35 +490,35 @@ export default function ReviewsPage() {
                 return (
                   <div
                     key={rev._id}
-                    className="review-card-item rounded-2xl bg-white dark:bg-neutral-900 p-5 shadow-sm border border-neutral-200/90 dark:border-neutral-800 transition hover:shadow-md"
+                    className="review-card-item rounded-2xl bg-white dark:bg-neutral-900 p-5 sm:p-6 shadow-sm border border-neutral-300 dark:border-neutral-800 transition hover:shadow-md"
                   >
                     <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                       {/* Buyer Identity */}
-                      <div className="flex items-start gap-3">
-                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-50 dark:bg-brand-950/60 border border-brand-100 dark:border-brand-800 text-brand-700 dark:text-brand-300 font-black text-sm">
+                      <div className="flex items-start gap-3.5">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-100 dark:bg-brand-950/70 border border-brand-300 dark:border-brand-800 text-brand-900 dark:text-brand-300 font-black text-sm shadow-2xs">
                           {rev.buyerCompany?.slice(0, 2).toUpperCase() || 'BY'}
                         </div>
                         <div>
                           <div className="flex items-center gap-2 flex-wrap">
-                            <h3 className="text-sm font-bold text-neutral-900 dark:text-neutral-100">{rev.buyerName}</h3>
-                            <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                              <IconCheck className="h-3 w-3" />
+                            <h3 className="text-base font-extrabold text-neutral-950 dark:text-neutral-50 tracking-tight">{rev.buyerName}</h3>
+                            <span className="inline-flex items-center gap-1 rounded-md bg-emerald-100 dark:bg-emerald-950/70 px-2 py-0.5 text-[11px] font-extrabold text-emerald-900 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-800">
+                              <IconCheck className="h-3.5 w-3.5" />
                               <span>Verified Buyer</span>
                             </span>
                           </div>
-                          <p className="text-xs text-neutral-600 dark:text-neutral-300 font-medium flex items-center gap-1 mt-0.5">
-                            <IconBuilding className="h-3.5 w-3.5 text-neutral-400" />
+                          <p className="text-xs sm:text-sm text-neutral-900 dark:text-neutral-200 font-bold flex items-center gap-1.5 mt-1">
+                            <IconBuilding className="h-4 w-4 text-brand-700 dark:text-brand-400 shrink-0" />
                             <span>{rev.buyerCompany}</span>
                             {rev.buyerRole && (
                               <>
-                                <span className="text-neutral-300 dark:text-neutral-600">·</span>
-                                <span className="text-neutral-500 dark:text-neutral-400">{rev.buyerRole}</span>
+                                <span className="text-neutral-400 dark:text-neutral-500">·</span>
+                                <span className="text-neutral-700 dark:text-neutral-300 font-semibold">{rev.buyerRole}</span>
                               </>
                             )}
                           </p>
                           {rev.buyerCity && (
-                            <p className="text-[11px] text-neutral-400 dark:text-neutral-500 flex items-center gap-1 mt-0.5">
-                              <IconMapPin className="h-3 w-3" />
+                            <p className="text-xs text-neutral-700 dark:text-neutral-300 font-semibold flex items-center gap-1 mt-1">
+                              <IconMapPin className="h-3.5 w-3.5 text-neutral-600 dark:text-neutral-400" />
                               <span>{rev.buyerCity}</span>
                             </p>
                           )}
@@ -527,7 +527,7 @@ export default function ReviewsPage() {
 
                       {/* Rating and Lot Specs */}
                       <div className="flex sm:flex-col items-end justify-between sm:justify-start gap-1">
-                        <div className="flex items-center gap-1 bg-amber-50 dark:bg-amber-950/50 px-2.5 py-1 rounded-lg border border-amber-200 dark:border-amber-800">
+                        <div className="flex items-center gap-1.5 bg-amber-100 dark:bg-amber-950/60 px-3 py-1 rounded-lg border border-amber-300 dark:border-amber-700 shadow-2xs">
                           <div className="flex text-amber-500">
                             {[1, 2, 3, 4, 5].map((star) => (
                               <IconStar
@@ -537,12 +537,12 @@ export default function ReviewsPage() {
                               />
                             ))}
                           </div>
-                          <span className="text-xs font-black text-amber-900 dark:text-amber-200 ml-1">
+                          <span className="text-xs sm:text-sm font-black text-amber-950 dark:text-amber-200 ml-1">
                             {rev.rating.toFixed(1)}
                           </span>
                         </div>
 
-                        <span className="text-[11px] font-semibold text-neutral-500 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded-md mt-1">
+                        <span className="text-xs font-bold text-neutral-900 dark:text-neutral-100 bg-neutral-100 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 px-2.5 py-1 rounded-md mt-1.5 shadow-2xs">
                           {rev.lotQuantityQtl ? `${rev.lotQuantityQtl} Qtl · ` : ''}
                           {rev.crop} Lot
                         </span>
@@ -551,29 +551,29 @@ export default function ReviewsPage() {
 
                     {/* Farmer Tagged Profile Banner */}
                     {farmer && (
-                      <div className="mt-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl bg-neutral-50/80 dark:bg-neutral-800/60 p-3 border border-neutral-100/90 dark:border-neutral-800 shadow-2xs">
+                      <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl bg-neutral-100/90 dark:bg-neutral-800/80 p-3.5 border border-neutral-300 dark:border-neutral-700 shadow-2xs">
                         <div className="flex items-center gap-3 min-w-0">
                           {farmer.photoUrl ? (
                             <img
                               src={farmer.photoUrl}
                               alt={farmer.name}
-                              className="h-11 w-11 shrink-0 rounded-full object-cover border-2 border-brand-500 shadow-sm ring-2 ring-brand-100/50 dark:ring-brand-900/50"
+                              className="h-12 w-12 shrink-0 rounded-full object-cover border-2 border-brand-600 shadow-sm ring-2 ring-brand-200 dark:ring-brand-900/50"
                             />
                           ) : (
-                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-900 text-brand-800 dark:text-brand-200 font-bold text-sm border-2 border-brand-200 dark:border-brand-700">
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand-200 dark:bg-brand-900 text-brand-950 dark:text-brand-200 font-extrabold text-sm border-2 border-brand-300 dark:border-brand-700">
                               {farmer.name?.charAt(0) || 'F'}
                             </div>
                           )}
                           <div className="min-w-0">
-                            <div className="flex items-center gap-1.5 flex-wrap">
-                              <span className="text-xs font-bold text-neutral-900 dark:text-neutral-100">{farmer.name}</span>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-sm font-extrabold text-neutral-950 dark:text-neutral-50">{farmer.name}</span>
                               {farmer.badge && (
-                                <span className="rounded-md bg-amber-100 dark:bg-amber-950/60 px-1.5 py-0.5 text-[9px] font-bold text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                                <span className="rounded-md bg-amber-100 dark:bg-amber-950/60 px-2 py-0.5 text-[10px] font-extrabold text-amber-950 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
                                   {farmer.badge}
                                 </span>
                               )}
                             </div>
-                            <p className="text-[11px] text-neutral-500 dark:text-neutral-400 truncate">
+                            <p className="text-xs text-neutral-700 dark:text-neutral-300 font-semibold truncate mt-0.5">
                               {farmer.village ? `${farmer.village}, ` : ''}{farmer.district || 'Mandi Yard'} · {farmer.state || 'India'}
                             </p>
                           </div>
@@ -582,55 +582,57 @@ export default function ReviewsPage() {
                         <button
                           type="button"
                           onClick={() => openFarmerDetails(farmer)}
-                          className="self-end sm:self-auto shrink-0 text-[11px] font-bold text-brand-700 dark:text-brand-300 hover:text-brand-900 dark:hover:text-brand-100 bg-white dark:bg-neutral-800 hover:bg-brand-50 dark:hover:bg-neutral-700 px-3 py-1.5 rounded-xl border border-neutral-200/90 dark:border-neutral-700 shadow-xs transition flex items-center gap-1"
+                          className="self-end sm:self-auto shrink-0 text-xs font-bold text-brand-900 dark:text-brand-300 hover:text-brand-950 dark:hover:text-white bg-white dark:bg-neutral-800 hover:bg-neutral-50 px-3.5 py-1.5 rounded-xl border border-neutral-300 dark:border-neutral-600 shadow-xs transition flex items-center gap-1.5"
                         >
                           <span>Farmer Profile & Lots</span>
-                          <span>→</span>
+                          <span className="font-black">→</span>
                         </button>
                       </div>
                     )}
 
-                    {/* Review Body */}
-                    <p className="mt-3 text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed font-normal">
-                      &ldquo;{rev.comment}&rdquo;
-                    </p>
+                    {/* Review Body (High-contrast quote card) */}
+                    <div className="mt-4 rounded-xl border-l-4 border-amber-500 bg-amber-50/70 dark:bg-neutral-800/70 p-3.5 sm:p-4 border-t border-r border-b border-amber-200 dark:border-neutral-700 shadow-2xs">
+                      <p className="text-sm sm:text-base text-neutral-950 dark:text-neutral-50 leading-relaxed font-semibold">
+                        &ldquo;{rev.comment}&rdquo;
+                      </p>
+                    </div>
 
                     {/* Crop Produce Lot Inspection Media */}
                     {rev.cropImageUrl && (
-                      <div className="mt-3.5 flex flex-col sm:flex-row gap-3.5 rounded-2xl bg-amber-50/30 dark:bg-amber-950/20 p-3 border border-amber-200/60 dark:border-amber-900/40 shadow-2xs">
-                        <div className="relative shrink-0 overflow-hidden rounded-xl border border-amber-200/80 dark:border-amber-800/80 shadow-xs">
+                      <div className="mt-4 flex flex-col sm:flex-row gap-3.5 rounded-2xl bg-amber-50/80 dark:bg-amber-950/30 p-3.5 border border-amber-300 dark:border-amber-800 shadow-2xs">
+                        <div className="relative shrink-0 overflow-hidden rounded-xl border border-amber-300 dark:border-amber-700 shadow-xs">
                           <img
                             src={rev.cropImageUrl}
                             alt={`${rev.crop} Crop Lot Sample`}
-                            className="h-40 sm:h-28 w-full sm:w-36 object-cover transition duration-300 hover:scale-105"
+                            className="h-44 sm:h-32 w-full sm:w-40 object-cover transition duration-300 hover:scale-105"
                           />
-                          <div className="absolute top-1.5 left-1.5 rounded bg-black/60 backdrop-blur-xs px-1.5 py-0.5 text-[9px] font-bold text-white uppercase tracking-wider">
+                          <div className="absolute top-1.5 left-1.5 rounded bg-black/75 backdrop-blur-xs px-2 py-0.5 text-[9px] font-bold text-white uppercase tracking-wider">
                             Harvest Sample
                           </div>
                         </div>
                         <div className="flex flex-col justify-between py-0.5 min-w-0">
                           <div>
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span className="text-xs font-bold text-neutral-900 dark:text-neutral-100">
+                              <span className="text-sm font-extrabold text-neutral-950 dark:text-neutral-50">
                                 🌾 {rev.crop} Procurement Inspection Lot
                               </span>
-                              <span className="rounded bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                                S3 Cloud Media Verified
+                              <span className="rounded bg-emerald-100 dark:bg-emerald-950/60 px-2 py-0.5 text-[11px] font-extrabold text-emerald-900 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
+                                Cloud Media Verified
                               </span>
                             </div>
-                            <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-relaxed">
+                            <p className="text-xs sm:text-sm text-neutral-800 dark:text-neutral-200 mt-1 leading-relaxed font-medium">
                               Physical grain lot sampled at weighbridge gate. Grain moisture, test weight, and foreign matter verified within FAQ limits.
                             </p>
                           </div>
-                          <div className="mt-2 flex items-center gap-3 text-[11px] text-neutral-600 dark:text-neutral-300 flex-wrap">
-                            <span className="font-bold text-brand-800 dark:text-brand-300 bg-brand-50 dark:bg-brand-950/60 px-2 py-0.5 rounded border border-brand-100 dark:border-brand-800">
+                          <div className="mt-2.5 flex items-center gap-3 text-xs text-neutral-800 dark:text-neutral-200 flex-wrap">
+                            <span className="font-extrabold text-brand-950 dark:text-brand-200 bg-white dark:bg-brand-950/70 px-2.5 py-1 rounded-md border border-brand-300 dark:border-brand-700 shadow-2xs">
                               ⚖️ {rev.lotQuantityQtl || 30} Qtl Lot
                             </span>
-                            <span className="text-emerald-700 dark:text-emerald-400 font-semibold flex items-center gap-0.5">
-                              <IconCheck className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
+                            <span className="text-emerald-900 dark:text-emerald-300 font-bold flex items-center gap-1">
+                              <IconCheck className="h-3.5 w-3.5 text-emerald-700 dark:text-emerald-400" />
                               <span>100% Traceable</span>
                             </span>
-                            <span className="text-neutral-400 dark:text-neutral-500">
+                            <span className="text-neutral-700 dark:text-neutral-300 font-semibold">
                               Direct from {farmer?.name || 'Farmer Producer'}
                             </span>
                           </div>
@@ -640,11 +642,11 @@ export default function ReviewsPage() {
 
                     {/* Quality Tags Chips */}
                     {rev.tags && rev.tags.length > 0 && (
-                      <div className="mt-3 flex flex-wrap gap-1.5">
+                      <div className="mt-3.5 flex flex-wrap gap-1.5">
                         {rev.tags.map((tag) => (
                           <span
                             key={tag}
-                            className="inline-flex items-center rounded-lg bg-neutral-100 dark:bg-neutral-800 px-2 py-1 text-[11px] font-semibold text-neutral-700 dark:text-neutral-300"
+                            className="inline-flex items-center rounded-lg bg-neutral-100 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 px-2.5 py-1 text-xs font-bold text-neutral-900 dark:text-neutral-100 shadow-2xs"
                           >
                             ✓ {tag}
                           </span>
@@ -653,7 +655,7 @@ export default function ReviewsPage() {
                     )}
 
                     {/* Footer / Helpful Button */}
-                    <div className="mt-4 pt-3 border-t border-neutral-100 dark:border-neutral-800 flex items-center justify-between text-xs text-neutral-400 dark:text-neutral-500">
+                    <div className="mt-4 pt-3 border-t border-neutral-200 dark:border-neutral-800 flex items-center justify-between text-xs text-neutral-700 dark:text-neutral-300 font-semibold">
                       <span>
                         Procured & reviewed on{' '}
                         {new Date(rev.createdAt).toLocaleDateString('en-IN', {
@@ -667,10 +669,10 @@ export default function ReviewsPage() {
                         type="button"
                         onClick={() => handleMarkHelpful(rev._id)}
                         disabled={hasVoted}
-                        className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold transition ${
+                        className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition ${
                           hasVoted
-                            ? 'bg-brand-50 dark:bg-brand-950/60 text-brand-700 dark:text-brand-300 cursor-default'
-                            : 'bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-600 dark:text-neutral-300'
+                            ? 'bg-brand-100 dark:bg-brand-950/60 text-brand-950 dark:text-brand-300 border border-brand-300 dark:border-brand-700 cursor-default'
+                            : 'bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-900 dark:text-neutral-100 border border-neutral-300 dark:border-neutral-700 shadow-2xs'
                         }`}
                       >
                         <IconThumbUp className="h-3.5 w-3.5" />
@@ -688,7 +690,7 @@ export default function ReviewsPage() {
             {farmers.map((farmer) => (
               <div
                 key={farmer._id}
-                className="farmer-card-item rounded-2xl bg-white dark:bg-neutral-900 p-5 shadow-sm border border-neutral-200/90 dark:border-neutral-800 flex flex-col justify-between"
+                className="farmer-card-item rounded-2xl bg-white dark:bg-neutral-900 p-5 sm:p-6 shadow-sm border border-neutral-300 dark:border-neutral-800 flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-start justify-between">
@@ -697,16 +699,16 @@ export default function ReviewsPage() {
                         <img
                           src={farmer.photoUrl}
                           alt={farmer.name}
-                          className="h-12 w-12 shrink-0 rounded-full object-cover border-2 border-brand-500 shadow-sm"
+                          className="h-13 w-13 shrink-0 rounded-full object-cover border-2 border-brand-600 shadow-sm"
                         />
                       ) : (
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-900 text-brand-800 dark:text-brand-200 font-bold text-base border-2 border-brand-200 dark:border-brand-700">
+                        <div className="flex h-13 w-13 shrink-0 items-center justify-center rounded-full bg-brand-200 dark:bg-brand-900 text-brand-950 dark:text-brand-200 font-extrabold text-base border-2 border-brand-300 dark:border-brand-700">
                           {farmer.name?.charAt(0) || 'F'}
                         </div>
                       )}
                       <div>
-                        <h3 className="text-base font-bold text-neutral-900 dark:text-neutral-100">{farmer.name}</h3>
-                        <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                        <h3 className="text-base font-extrabold text-neutral-950 dark:text-neutral-50">{farmer.name}</h3>
+                        <p className="text-xs text-neutral-700 dark:text-neutral-300 font-semibold mt-0.5">
                           {farmer.village ? `${farmer.village}, ` : ''}
                           {farmer.district || 'Patiala'}, {farmer.state || 'Punjab'}
                         </p>
@@ -714,30 +716,30 @@ export default function ReviewsPage() {
                     </div>
 
                     <div className="text-right">
-                      <div className="flex items-center gap-1 bg-amber-50 dark:bg-amber-950/50 px-2 py-0.5 rounded-lg border border-amber-200 dark:border-amber-800">
+                      <div className="flex items-center gap-1.5 bg-amber-100 dark:bg-amber-950/60 px-2.5 py-1 rounded-lg border border-amber-300 dark:border-amber-700 shadow-2xs">
                         <IconStar className="h-3.5 w-3.5 text-amber-500 fill-amber-500" filled />
-                        <span className="text-xs font-black text-amber-900 dark:text-amber-200">
+                        <span className="text-xs sm:text-sm font-black text-amber-950 dark:text-amber-200">
                           {farmer.averageRating?.toFixed(1) || '5.0'}
                         </span>
                       </div>
-                      <span className="text-[10px] text-neutral-400 dark:text-neutral-500 block mt-0.5">
+                      <span className="text-xs font-bold text-neutral-700 dark:text-neutral-300 block mt-1">
                         {farmer.totalReviews || 0} reviews
                       </span>
                     </div>
                   </div>
 
-                  <div className="mt-3">
-                    <span className="inline-block rounded-md bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                  <div className="mt-3.5">
+                    <span className="inline-block rounded-md bg-emerald-100 dark:bg-emerald-950/60 px-2.5 py-1 text-[11px] font-extrabold text-emerald-900 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
                       {farmer.badge || 'Verified Producer'}
                     </span>
                   </div>
 
                   {farmer.crops && farmer.crops.length > 0 && (
-                    <div className="mt-3 flex flex-wrap gap-1">
+                    <div className="mt-3.5 flex flex-wrap gap-1.5">
                       {farmer.crops.map((c) => (
                         <span
                           key={c}
-                          className="rounded bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 text-[10px] font-semibold text-neutral-600 dark:text-neutral-300"
+                          className="rounded-md bg-neutral-100 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 px-2.5 py-1 text-xs font-bold text-neutral-900 dark:text-neutral-100"
                         >
                           🌾 {c}
                         </span>
@@ -746,11 +748,11 @@ export default function ReviewsPage() {
                   )}
                 </div>
 
-                <div className="mt-5 pt-3 border-t border-neutral-100 dark:border-neutral-800 flex items-center gap-2">
+                <div className="mt-5 pt-3.5 border-t border-neutral-200 dark:border-neutral-800 flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => openFarmerDetails(farmer)}
-                    className="flex-1 rounded-xl bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-800 dark:text-neutral-200 px-3 py-2 text-xs font-bold transition text-center"
+                    className="flex-1 rounded-xl bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-900 dark:text-neutral-100 border border-neutral-300 dark:border-neutral-700 px-3 py-2.5 text-xs font-bold transition text-center shadow-2xs"
                   >
                     View All Reviews
                   </button>
@@ -762,7 +764,7 @@ export default function ReviewsPage() {
                       setFormError(null);
                       setIsModalOpen(true);
                     }}
-                    className="flex-1 rounded-xl bg-brand-700 hover:bg-brand-800 text-white px-3 py-2 text-xs font-bold transition text-center"
+                    className="flex-1 rounded-xl bg-brand-700 hover:bg-brand-800 text-white px-3 py-2.5 text-xs font-bold transition text-center shadow-md"
                   >
                     + Review Produce
                   </button>
@@ -781,53 +783,53 @@ export default function ReviewsPage() {
         >
           <div
             ref={reviewModalCardRef}
-            className="relative w-full sm:max-w-xl rounded-t-3xl sm:rounded-3xl bg-white dark:bg-neutral-900 p-4 sm:p-6 shadow-2xl border border-neutral-100 dark:border-neutral-800 max-h-[90vh] overflow-y-auto text-neutral-900 dark:text-neutral-100"
+            className="relative w-full sm:max-w-xl rounded-t-3xl sm:rounded-3xl bg-white dark:bg-neutral-900 p-5 sm:p-7 shadow-2xl border border-neutral-300 dark:border-neutral-800 max-h-[90vh] overflow-y-auto text-neutral-950 dark:text-neutral-50"
           >
             <button
               onClick={handleCloseReviewModal}
-              className="rounded-full p-2 text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-600 dark:hover:text-neutral-300 absolute right-4 top-4"
+              className="rounded-full p-2 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-950 dark:hover:text-white absolute right-4 top-4 border border-neutral-200 dark:border-neutral-700"
             >
               <IconClose className="h-5 w-5" />
             </button>
 
-            <div className="flex items-center gap-2 text-brand-700 dark:text-brand-400 text-xs font-bold uppercase tracking-wider">
+            <div className="flex items-center gap-2 text-brand-800 dark:text-brand-300 text-xs font-black uppercase tracking-wider">
               <IconShieldCheck className="h-4 w-4" />
               <span>Official Buyer Assessment Form</span>
             </div>
-            <h2 className="text-xl font-black text-neutral-900 dark:text-neutral-100 mt-1">
+            <h2 className="text-xl sm:text-2xl font-black text-neutral-950 dark:text-neutral-50 mt-1">
               Submit Farmer Produce Review
             </h2>
-            <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+            <p className="text-xs sm:text-sm text-neutral-700 dark:text-neutral-300 font-medium mt-0.5">
               Your feedback is verified and directly reflects on the farmer&apos;s mandi trust score.
             </p>
 
             {submitSuccess ? (
-              <div className="my-8 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 p-6 text-center border border-emerald-200 dark:border-emerald-800">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900 text-emerald-600 dark:text-emerald-300">
+              <div className="my-8 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 p-6 text-center border border-emerald-300 dark:border-emerald-800">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300">
                   <IconCheck className="h-6 w-6" />
                 </div>
-                <h3 className="mt-3 text-base font-bold text-emerald-900 dark:text-emerald-200">Review Published!</h3>
-                <p className="text-xs text-emerald-700 dark:text-emerald-400 mt-1">
+                <h3 className="mt-3 text-base font-extrabold text-emerald-950 dark:text-emerald-200">Review Published!</h3>
+                <p className="text-xs sm:text-sm text-emerald-800 dark:text-emerald-400 mt-1 font-semibold">
                   Thank you! The farmer&apos;s reputation badge has been updated.
                 </p>
               </div>
             ) : (
               <form onSubmit={handleSubmitReview} className="mt-5 space-y-4">
                 {formError && (
-                  <div className="rounded-xl bg-red-50 dark:bg-red-950/50 p-3 text-xs font-medium text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800">
+                  <div className="rounded-xl bg-red-50 dark:bg-red-950/50 p-3 text-xs font-bold text-red-800 dark:text-red-300 border border-red-300 dark:border-red-800">
                     {formError}
                   </div>
                 )}
 
                 {/* Farmer Select */}
                 <div>
-                  <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-1">
+                  <label className="block text-xs font-extrabold text-neutral-900 dark:text-neutral-100 mb-1">
                     Select Farmer (किसान का चयन करें) *
                   </label>
                   <select
                     value={selectedFarmerId}
                     onChange={(e) => setSelectedFarmerId(e.target.value)}
-                    className="w-full rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 p-2.5 text-xs font-semibold text-neutral-800 dark:text-neutral-100 focus:border-brand-500 focus:outline-none"
+                    className="w-full rounded-xl border border-neutral-400 dark:border-neutral-600 bg-white dark:bg-neutral-800 p-2.5 text-xs sm:text-sm font-bold text-neutral-950 dark:text-neutral-50 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                     required
                   >
                     {farmers.map((f) => (
@@ -840,23 +842,23 @@ export default function ReviewsPage() {
 
                 {/* Rating Star Picker */}
                 <div>
-                  <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-1">
+                  <label className="block text-xs font-extrabold text-neutral-900 dark:text-neutral-100 mb-1">
                     Produce & Lot Rating (गुणवत्ता रेटिंग) *
                   </label>
-                  <div className="flex items-center gap-2">
-                    <div className="flex gap-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex gap-1 bg-amber-50 dark:bg-amber-950/50 p-1.5 rounded-xl border border-amber-200 dark:border-amber-800">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <button
                           key={star}
                           type="button"
                           onClick={() => setRating(star)}
-                          className="p-1 text-amber-400 hover:scale-110 transition"
+                          className="p-1 text-amber-500 hover:scale-110 transition"
                         >
                           <IconStar className="h-7 w-7" filled={star <= rating} />
                         </button>
                       ))}
                     </div>
-                    <span className="text-xs font-bold text-neutral-700 dark:text-neutral-300 ml-2">
+                    <span className="text-xs sm:text-sm font-extrabold text-neutral-900 dark:text-neutral-100 ml-2">
                       {rating === 5 && '⭐⭐⭐⭐⭐ 5.0 - Outstanding Grade A'}
                       {rating === 4 && '⭐⭐⭐⭐ 4.0 - Very Good'}
                       {rating === 3 && '⭐⭐⭐ 3.0 - Standard Mandi FAQ'}
@@ -869,7 +871,7 @@ export default function ReviewsPage() {
                 {/* Crop & Quantity */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-1">Crop *</label>
+                    <label className="block text-xs font-extrabold text-neutral-900 dark:text-neutral-100 mb-1">Crop *</label>
                     <select
                       value={crop}
                       onChange={(e) => {
@@ -878,7 +880,7 @@ export default function ReviewsPage() {
                         const matched = DEFAULT_CROP_IMAGES[newCrop.toLowerCase()];
                         if (matched) setCropImageUrl(matched);
                       }}
-                      className="w-full rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-100 p-2 text-xs font-semibold"
+                      className="w-full rounded-xl border border-neutral-400 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-950 dark:text-neutral-50 p-2.5 text-xs sm:text-sm font-bold focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                     >
                       <option value="Wheat">Wheat (गेहूं)</option>
                       <option value="Paddy">Paddy (धान)</option>
@@ -888,7 +890,7 @@ export default function ReviewsPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-1">
+                    <label className="block text-xs font-extrabold text-neutral-900 dark:text-neutral-100 mb-1">
                       Lot Size (Quintals)
                     </label>
                     <input
@@ -896,40 +898,40 @@ export default function ReviewsPage() {
                       min={1}
                       value={lotQuantityQtl}
                       onChange={(e) => setLotQuantityQtl(Number(e.target.value))}
-                      className="w-full rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-100 p-2 text-xs font-semibold"
+                      className="w-full rounded-xl border border-neutral-400 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-950 dark:text-neutral-50 p-2.5 text-xs sm:text-sm font-bold focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                     />
                   </div>
                 </div>
 
                 {/* Crop Produce Image Preview */}
                 <div>
-                  <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-1">
-                    Verified Crop Produce Image (AWS S3 Cloud Storage)
+                  <label className="block text-xs font-extrabold text-neutral-900 dark:text-neutral-100 mb-1">
+                    Verified Crop Produce Image (Cloud Storage)
                   </label>
-                  <div className="flex items-center gap-3 rounded-2xl bg-neutral-50 dark:bg-neutral-800/70 p-2.5 border border-neutral-200 dark:border-neutral-700">
+                  <div className="flex items-center gap-3 rounded-2xl bg-neutral-100/90 dark:bg-neutral-800/70 p-3 border border-neutral-300 dark:border-neutral-700">
                     <img
                       src={cropImageUrl || DEFAULT_CROP_IMAGES.wheat}
                       alt={crop}
-                      className="h-14 w-20 rounded-xl object-cover border border-neutral-200 dark:border-neutral-700 shadow-xs shrink-0"
+                      className="h-16 w-24 rounded-xl object-cover border border-neutral-300 dark:border-neutral-700 shadow-xs shrink-0"
                     />
                     <div className="min-w-0 flex-1">
-                      <p className="text-xs font-bold text-neutral-800 dark:text-neutral-200 flex items-center gap-1">
+                      <p className="text-xs sm:text-sm font-extrabold text-neutral-950 dark:text-neutral-100 flex items-center gap-1.5">
                         <span>🌾 {crop} Harvest Sample</span>
-                        <span className="text-emerald-700 dark:text-emerald-400 font-medium text-[10px]">• S3 Synced</span>
+                        <span className="text-emerald-800 dark:text-emerald-300 font-bold text-xs">• Verified</span>
                       </p>
-                      <p className="text-[10px] text-neutral-400 dark:text-neutral-500 mt-0.5 truncate">
+                      <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-0.5 truncate font-medium">
                         {cropImageUrl}
                       </p>
-                      <div className="flex items-center gap-1.5 mt-1.5">
+                      <div className="flex items-center gap-1.5 mt-2 flex-wrap">
                         {Object.keys(DEFAULT_CROP_IMAGES).map((cKey) => (
                           <button
                             key={cKey}
                             type="button"
                             onClick={() => setCropImageUrl(DEFAULT_CROP_IMAGES[cKey])}
-                            className={`rounded-md px-2 py-0.5 text-[10px] font-bold capitalize transition ${
+                            className={`rounded-md px-2.5 py-1 text-xs font-bold capitalize transition border ${
                               cropImageUrl === DEFAULT_CROP_IMAGES[cKey]
-                                ? 'bg-brand-700 text-white shadow-xs'
-                                : 'bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-300 dark:hover:bg-neutral-600'
+                                ? 'bg-brand-700 text-white border-brand-700 shadow-xs'
+                                : 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 border-neutral-300 dark:border-neutral-600 hover:bg-neutral-100'
                             }`}
                           >
                             {cKey}
@@ -943,7 +945,7 @@ export default function ReviewsPage() {
                 {/* Buyer Details */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-1">
+                    <label className="block text-xs font-extrabold text-neutral-900 dark:text-neutral-100 mb-1">
                       Your Name (खरीदार का नाम) *
                     </label>
                     <input
@@ -951,12 +953,12 @@ export default function ReviewsPage() {
                       placeholder="e.g. Vikramaditya Roy"
                       value={buyerName}
                       onChange={(e) => setBuyerName(e.target.value)}
-                      className="w-full rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-100 p-2 text-xs"
+                      className="w-full rounded-xl border border-neutral-400 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-950 dark:text-neutral-50 p-2.5 text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-1">
+                    <label className="block text-xs font-extrabold text-neutral-900 dark:text-neutral-100 mb-1">
                       Company / Mill Name *
                     </label>
                     <input
@@ -964,7 +966,7 @@ export default function ReviewsPage() {
                       placeholder="e.g. Food Corporation of India / Flour Mill"
                       value={buyerCompany}
                       onChange={(e) => setBuyerCompany(e.target.value)}
-                      className="w-full rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-100 p-2 text-xs"
+                      className="w-full rounded-xl border border-neutral-400 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-950 dark:text-neutral-50 p-2.5 text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                       required
                     />
                   </div>
@@ -972,7 +974,7 @@ export default function ReviewsPage() {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-1">
+                    <label className="block text-xs font-extrabold text-neutral-900 dark:text-neutral-100 mb-1">
                       Designation / Role
                     </label>
                     <input
@@ -980,11 +982,11 @@ export default function ReviewsPage() {
                       placeholder="e.g. Chief Quality Officer"
                       value={buyerRole}
                       onChange={(e) => setBuyerRole(e.target.value)}
-                      className="w-full rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-100 p-2 text-xs"
+                      className="w-full rounded-xl border border-neutral-400 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-950 dark:text-neutral-50 p-2.5 text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-1">
+                    <label className="block text-xs font-extrabold text-neutral-900 dark:text-neutral-100 mb-1">
                       Mandi / City Location
                     </label>
                     <input
@@ -992,14 +994,14 @@ export default function ReviewsPage() {
                       placeholder="e.g. Patiala Mandi, Punjab"
                       value={buyerCity}
                       onChange={(e) => setBuyerCity(e.target.value)}
-                      className="w-full rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-100 p-2 text-xs"
+                      className="w-full rounded-xl border border-neutral-400 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-950 dark:text-neutral-50 p-2.5 text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                     />
                   </div>
                 </div>
 
                 {/* Quality Tags (Toggle chips) */}
                 <div>
-                  <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-1.5">
+                  <label className="block text-xs font-extrabold text-neutral-900 dark:text-neutral-100 mb-1.5">
                     Quality Highlights & Tags
                   </label>
                   <div className="flex flex-wrap gap-1.5">
@@ -1010,10 +1012,10 @@ export default function ReviewsPage() {
                           key={tag}
                           type="button"
                           onClick={() => toggleTag(tag)}
-                          className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition ${
+                          className={`rounded-lg px-2.5 py-1.5 text-xs font-bold transition border ${
                             isSelected
-                              ? 'bg-brand-700 text-white shadow-sm'
-                              : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700'
+                              ? 'bg-brand-700 text-white border-brand-700 shadow-sm'
+                              : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 border-neutral-300 dark:border-neutral-700 hover:bg-neutral-200 dark:hover:bg-neutral-700'
                           }`}
                         >
                           {isSelected ? '✓ ' : '+ '}
@@ -1026,7 +1028,7 @@ export default function ReviewsPage() {
 
                 {/* Review Comment */}
                 <div>
-                  <label className="block text-xs font-bold text-neutral-700 dark:text-neutral-300 mb-1">
+                  <label className="block text-xs font-extrabold text-neutral-900 dark:text-neutral-100 mb-1">
                     Buyer Remarks & Quality Assessment *
                   </label>
                   <textarea
@@ -1034,10 +1036,10 @@ export default function ReviewsPage() {
                     placeholder="Describe grain purity, moisture level, hectolitre weight test results, weighment punctuality, packaging condition..."
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
-                    className="w-full rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-100 p-2.5 text-xs leading-relaxed focus:border-brand-500 focus:outline-none"
+                    className="w-full rounded-xl border border-neutral-400 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-950 dark:text-neutral-50 p-3 text-xs sm:text-sm font-medium leading-relaxed focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                     required
                   />
-                  <span className="text-[10px] text-neutral-400 dark:text-neutral-500 block text-right">
+                  <span className="text-xs text-neutral-700 dark:text-neutral-300 font-semibold block text-right mt-1">
                     {comment.length}/1000 characters
                   </span>
                 </div>
@@ -1047,14 +1049,14 @@ export default function ReviewsPage() {
                   <button
                     type="button"
                     onClick={handleCloseReviewModal}
-                    className="w-1/3 rounded-xl border border-neutral-300 dark:border-neutral-700 py-2.5 text-xs font-bold text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                    className="w-1/3 rounded-xl border border-neutral-400 dark:border-neutral-600 py-2.5 text-xs sm:text-sm font-bold text-neutral-800 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="w-2/3 rounded-xl bg-brand-700 py-2.5 text-xs font-bold text-white hover:bg-brand-800 shadow-md transition disabled:opacity-60 flex items-center justify-center gap-2"
+                    className="w-2/3 rounded-xl bg-brand-700 py-2.5 text-xs sm:text-sm font-bold text-white hover:bg-brand-800 shadow-md transition disabled:opacity-60 flex items-center justify-center gap-2"
                   >
                     {submitting ? (
                       <>
@@ -1075,48 +1077,48 @@ export default function ReviewsPage() {
       {/* Farmer Reviews Detail Modal */}
       {viewingFarmer && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
-          <div className="relative w-full sm:max-w-2xl rounded-t-3xl sm:rounded-3xl bg-white dark:bg-neutral-900 p-4 sm:p-6 shadow-2xl border border-neutral-100 dark:border-neutral-800 max-h-[85vh] overflow-y-auto">
+          <div className="relative w-full sm:max-w-2xl rounded-t-3xl sm:rounded-3xl bg-white dark:bg-neutral-900 p-5 sm:p-7 shadow-2xl border border-neutral-300 dark:border-neutral-800 max-h-[85vh] overflow-y-auto">
             <button
               onClick={() => setViewingFarmer(null)}
-              className="absolute right-4 top-4 rounded-full p-2 text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-600 dark:hover:text-neutral-300"
+              className="absolute right-4 top-4 rounded-full p-2 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:text-neutral-950 dark:hover:text-white border border-neutral-200 dark:border-neutral-700"
             >
               <IconClose className="h-5 w-5" />
             </button>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3.5">
               {viewingFarmer.photoUrl ? (
                 <img
                   src={viewingFarmer.photoUrl}
                   alt={viewingFarmer.name}
-                  className="h-16 w-16 shrink-0 rounded-full object-cover border-2 border-brand-500 shadow-md ring-2 ring-brand-100 dark:ring-brand-900"
+                  className="h-16 w-16 shrink-0 rounded-full object-cover border-2 border-brand-600 shadow-md ring-2 ring-brand-200 dark:ring-brand-900"
                 />
               ) : (
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-900 text-brand-800 dark:text-brand-200 font-bold text-xl border-2 border-brand-200 dark:border-brand-700">
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-200 dark:bg-brand-900 text-brand-950 dark:text-brand-200 font-extrabold text-xl border-2 border-brand-300 dark:border-brand-700">
                   {viewingFarmer.name?.charAt(0) || 'F'}
                 </div>
               )}
               <div>
-                <h2 className="text-xl font-black text-neutral-900 dark:text-neutral-100">{viewingFarmer.name}</h2>
-                <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                <h2 className="text-xl sm:text-2xl font-black text-neutral-950 dark:text-neutral-50">{viewingFarmer.name}</h2>
+                <p className="text-xs sm:text-sm text-neutral-700 dark:text-neutral-300 font-semibold mt-0.5">
                   {viewingFarmer.village ? `${viewingFarmer.village}, ` : ''}
                   {viewingFarmer.district}, {viewingFarmer.state}
                 </p>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="rounded bg-amber-100 dark:bg-amber-950/60 px-2 py-0.5 text-[10px] font-bold text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                  <span className="rounded bg-amber-100 dark:bg-amber-950/60 px-2 py-0.5 text-[10px] font-extrabold text-amber-950 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
                     {viewingFarmer.badge}
                   </span>
-                  <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
+                  <span className="text-xs font-black text-amber-800 dark:text-amber-400">
                     ★ {viewingFarmer.averageRating?.toFixed(1)} / 5.0
                   </span>
-                  <span className="text-xs text-neutral-400 dark:text-neutral-500">
+                  <span className="text-xs text-neutral-700 dark:text-neutral-300 font-bold">
                     ({viewingFarmer.totalReviews} buyer ratings)
                   </span>
                 </div>
               </div>
             </div>
 
-            <div className="mt-6 border-t border-neutral-200 dark:border-neutral-800 pt-4">
-              <h3 className="text-xs font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wider mb-3">
+            <div className="mt-6 border-t border-neutral-300 dark:border-neutral-800 pt-4">
+              <h3 className="text-xs font-black text-neutral-900 dark:text-neutral-100 uppercase tracking-wider mb-3">
                 Verified Buyer Feedback & Comments
               </h3>
 
@@ -1125,50 +1127,50 @@ export default function ReviewsPage() {
                   <IconSpinner className="mx-auto h-6 w-6 text-brand-600 dark:text-brand-400" />
                 </div>
               ) : farmerReviewsModal.length === 0 ? (
-                <p className="text-xs text-neutral-400 dark:text-neutral-500 italic py-4">No reviews recorded yet.</p>
+                <p className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 italic py-4">No reviews recorded yet.</p>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-3.5">
                   {farmerReviewsModal.map((r) => (
                     <div
                       key={r._id}
-                      className="rounded-xl bg-neutral-50 dark:bg-neutral-800/60 p-4 border border-neutral-200/70 dark:border-neutral-700/60"
+                      className="rounded-xl bg-neutral-50 dark:bg-neutral-800/60 p-4 border border-neutral-300 dark:border-neutral-700 shadow-2xs"
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-neutral-800 dark:text-neutral-200">{r.buyerName}</span>
-                          <span className="text-[11px] text-neutral-500 dark:text-neutral-400">({r.buyerCompany})</span>
+                          <span className="text-xs sm:text-sm font-extrabold text-neutral-950 dark:text-neutral-50">{r.buyerName}</span>
+                          <span className="text-xs text-neutral-700 dark:text-neutral-300 font-bold">({r.buyerCompany})</span>
                         </div>
-                        <span className="text-xs font-black text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/50 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-800">
+                        <span className="text-xs font-black text-amber-950 dark:text-amber-200 bg-amber-100 dark:bg-amber-950/60 px-2 py-0.5 rounded border border-amber-300 dark:border-amber-700">
                           ★ {r.rating.toFixed(1)}
                         </span>
                       </div>
-                      <p className="mt-2 text-xs text-neutral-700 dark:text-neutral-300 leading-relaxed font-normal">
+                      <p className="mt-2 text-xs sm:text-sm text-neutral-950 dark:text-neutral-50 leading-relaxed font-semibold">
                         &ldquo;{r.comment}&rdquo;
                       </p>
                       {r.cropImageUrl && (
-                        <div className="mt-2.5 flex items-center gap-2.5 rounded-xl bg-amber-50/60 dark:bg-amber-950/30 p-2 border border-amber-200/60 dark:border-amber-900/40">
+                        <div className="mt-2.5 flex items-center gap-2.5 rounded-xl bg-amber-50/80 dark:bg-amber-950/30 p-2.5 border border-amber-300 dark:border-amber-800">
                           <img
                             src={r.cropImageUrl}
                             alt={`${r.crop} sample`}
-                            className="h-12 w-16 shrink-0 rounded-lg object-cover border border-neutral-200 dark:border-neutral-700"
+                            className="h-14 w-20 shrink-0 rounded-lg object-cover border border-amber-300 dark:border-neutral-700"
                           />
-                          <div className="text-[11px] text-neutral-600 dark:text-neutral-300 min-w-0">
-                            <div className="font-bold text-neutral-800 dark:text-neutral-200 flex items-center gap-1">
+                          <div className="text-xs text-neutral-800 dark:text-neutral-200 min-w-0 font-medium">
+                            <div className="font-extrabold text-neutral-950 dark:text-neutral-50 flex items-center gap-1">
                               <span>🌾 {r.crop} Lot Sample</span>
-                              <span className="text-emerald-700 dark:text-emerald-400 font-semibold">• S3 Media</span>
+                              <span className="text-emerald-800 dark:text-emerald-300 font-bold text-[10px]">• Verified</span>
                             </div>
-                            <div className="text-[10px] text-neutral-500 dark:text-neutral-400">
+                            <div className="text-[11px] text-neutral-700 dark:text-neutral-300 font-semibold mt-0.5">
                               {r.lotQuantityQtl ? `${r.lotQuantityQtl} Qtl · ` : ''}Weighbridge Inspected
                             </div>
                           </div>
                         </div>
                       )}
                       {r.tags && r.tags.length > 0 && (
-                        <div className="mt-2 flex flex-wrap gap-1">
+                        <div className="mt-2.5 flex flex-wrap gap-1">
                           {r.tags.map((tg) => (
                             <span
                               key={tg}
-                              className="rounded bg-white dark:bg-neutral-800 px-2 py-0.5 text-[10px] font-semibold text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-700"
+                              className="rounded-md bg-white dark:bg-neutral-800 px-2.5 py-0.5 text-xs font-bold text-neutral-900 dark:text-neutral-100 border border-neutral-300 dark:border-neutral-700"
                             >
                               ✓ {tg}
                             </span>
