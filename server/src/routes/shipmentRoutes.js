@@ -1,13 +1,13 @@
 import { Router } from 'express';
-import { requireStaff } from '../middleware/auth.js';
+import { requireFarmer, requireStaff } from '../middleware/auth.js';
 import * as shipmentController from '../controllers/shipmentController.js';
 
 const router = Router();
 
-// Public tracking
-router.get('/track/:query', shipmentController.trackShipment);
-router.get('/booking/:queueEntryId', shipmentController.getShipmentByBooking);
-router.get('/recent', shipmentController.listRecentShipments);
+// Farmer authenticated tracking routes
+router.get('/my-shipments', requireFarmer, shipmentController.myShipments);
+router.get('/track/:query', requireFarmer, shipmentController.trackShipment);
+router.get('/booking/:queueEntryId', requireFarmer, shipmentController.getShipmentByBooking);
 
 // Staff / Admin logistics management
 router.patch('/:id', requireStaff(), shipmentController.adminUpdateShipment);

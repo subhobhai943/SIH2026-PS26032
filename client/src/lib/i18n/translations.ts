@@ -166,6 +166,15 @@ export type TranslationKey =
   | 'track_viewWaybill'
   | 'status_trackDeliveryBtn'
 
+  | 'track_authRequired'
+  | 'track_authRequiredDesc'
+  | 'track_signInBtn'
+  | 'track_noConsignments'
+  | 'track_bookSlotPrompt'
+  | 'track_selectConsignment'
+  | 'track_dbtGuarantee'
+  | 'track_dbtNotice'
+  | 'track_gatePass'
   // Footer
   | 'footer_copyright'
   | 'footer_ministry';
@@ -328,6 +337,15 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     track_callDriver: 'Call Driver',
     track_viewWaybill: 'E-Waybill & Gate Pass',
     status_trackDeliveryBtn: 'Track 3rd-Party Delivery 🚚',
+    track_authRequired: 'Farmer Authentication Required',
+    track_authRequiredDesc: 'To protect your grain records, weighbridge slips, and 20% DBT advance payment details, please sign in with your registered mobile number.',
+    track_signInBtn: 'Sign In with Mobile OTP',
+    track_noConsignments: 'No active procurement consignments found for your registered account.',
+    track_bookSlotPrompt: 'Book a Mandi slot to schedule produce drop-off and automated 3rd-party logistics transport.',
+    track_selectConsignment: 'Select a consignment to view transit dossier and live checkpoints',
+    track_dbtGuarantee: '20% Direct Benefit Transfer (DBT) Advance Guarantee',
+    track_dbtNotice: '20% safety advance has been released upfront to your registered bank account under the procurement protection policy.',
+    track_gatePass: 'e-Procurement Gate Pass & Logistics Note',
 
     footer_copyright: 'Farmer Procurement Queue Management Platform',
     footer_ministry: 'SIH 2026 · PS26032 · Ministry of Consumer Affairs, Food & Public Distribution',
@@ -490,6 +508,15 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     track_callDriver: 'ड्राइवर को कॉल करें',
     track_viewWaybill: 'ई-वेबिल व गेट पास',
     status_trackDeliveryBtn: 'डिलीवरी ट्रैक करें 🚚',
+    track_authRequired: 'किसान सत्यापन आवश्यक है',
+    track_authRequiredDesc: 'अपनी फसल विवरण, तौल पर्ची और 20% DBT अग्रिम भुगतान की सुरक्षा हेतु कृपया अपने पंजीकृत मोबाइल नंबर से लॉगिन करें।',
+    track_signInBtn: 'मोबाइल OTP से लॉगिन करें',
+    track_noConsignments: 'आपके पंजीकृत खाते में कोई सक्रिय खरीद खेप नहीं मिली।',
+    track_bookSlotPrompt: 'मंडी में फसल लाने और लॉजिस्टिक्स वाहन आवंटन के लिए खरीद स्लॉट बुक करें।',
+    track_selectConsignment: 'खेप विवरण व लाइव ट्रांजिट देखने हेतु चयन करें',
+    track_dbtGuarantee: '20% प्रत्यक्ष लाभ अंतरण (DBT) अग्रिम सुरक्षा गारंटी',
+    track_dbtNotice: 'क्रय सुरक्षा नीति के अंतर्गत 20% अग्रिम राशि सीधे आपके बैंक खाते में अंतरित की जा चुकी है।',
+    track_gatePass: 'ई-खरीद गेट पास व परिवहन चालान',
 
     footer_copyright: 'किसान खरीद कतार प्रबंधन मंच',
     footer_ministry: 'SIH 2026 · PS26032 · उपभोक्ता मामले, खाद्य और सार्वजनिक वितरण मंत्रालय',
@@ -652,6 +679,15 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     track_callDriver: 'ਡਰਾਈਵਰ ਨੂੰ ਕਾਲ ਕਰੋ',
     track_viewWaybill: 'ਈ-ਵੇਅਬਿਲ ਅਤੇ ਗੇਟ ਪਾਸ',
     status_trackDeliveryBtn: 'ਡਿਲੀਵਰੀ ਟ੍ਰੈਕ ਕਰੋ 🚚',
+    track_authRequired: 'ਕਿਸਾਨ ਪ੍ਰਮਾਣੀਕਰਣ ਲੋੜੀਂਦਾ ਹੈ',
+    track_authRequiredDesc: 'ਆਪਣੀ ਫ਼ਸਲ ਦੇ ਵੇਰਵਿਆਂ, ਤੋਲ ਪਰਚੀ ਅਤੇ 20% DBT ਪੇਸ਼ਗੀ ਭੁਗਤਾਨ ਦੀ ਸੁਰੱਖਿਆ ਲਈ ਕਿਰਪਾ ਕਰਕੇ ਆਪਣੇ ਰਜਿਸਟਰਡ ਮੋਬਾਈਲ ਨੰਬਰ ਨਾਲ ਲੌਗਇਨ ਕਰੋ।',
+    track_signInBtn: 'ਮੋਬਾਈਲ OTP ਨਾਲ ਲੌਗਇਨ ਕਰੋ',
+    track_noConsignments: 'ਤੁਹਾਡੇ ਖਾਤੇ ਵਿੱਚ ਕੋਈ ਸਰਗਰਮ ਖ਼ਰੀਦ ਖੇਪ ਨਹੀਂ ਮਿਲੀ।',
+    track_bookSlotPrompt: 'ਮੰਡੀ ਵਿੱਚ ਫ਼ਸਲ ਲਿਆਉਣ ਅਤੇ ਟਰਾਂਸਪੋਰਟ ਪ੍ਰਬੰਧ ਲਈ ਸਲਾਟ ਬੁੱਕ ਕਰੋ।',
+    track_selectConsignment: 'ਵੇਰਵੇ ਅਤੇ ਲਾਈਵ ਟਰਾਂਜ਼ਿਟ ਦੇਖਣ ਲਈ ਖੇਪ ਚੁਣੋ',
+    track_dbtGuarantee: '20% ਸਿੱਧਾ ਲਾਭ ਤਬਾਦਲਾ (DBT) ਪੇਸ਼ਗੀ ਗਾਰੰਟੀ',
+    track_dbtNotice: '20% ਸੁਰੱਖਿਆ ਪੇਸ਼ਗੀ ਰਕਮ ਸਿੱਧੀ ਤੁਹਾਡੇ ਬੈਂਕ ਖਾਤੇ ਵਿੱਚ ਜਮ੍ਹਾਂ ਕਰ ਦਿੱਤੀ ਗਈ ਹੈ।',
+    track_gatePass: 'ਈ-ਖ਼ਰੀਦ ਗੇਟ ਪਾਸ ਅਤੇ ਟਰਾਂਸਪੋਰਟ ਚਲਾਨ',
 
     footer_copyright: 'ਕਿਸਾਨ ਖਰੀਦ ਕਤਾਰ ਪ੍ਰਬੰਧਨ ਪਲੇਟਫਾਰਮ',
     footer_ministry: 'SIH 2026 · PS26032 · ਖਪਤਕਾਰ ਮਾਮਲੇ, ਖੁਰਾਕ ਅਤੇ ਜਨਤਕ ਵੰਡ ਮੰਤਰਾਲਾ',
@@ -814,6 +850,15 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     track_callDriver: 'চালককে কল করুন',
     track_viewWaybill: 'ই-ওয়েবিল ও গেট পাস',
     status_trackDeliveryBtn: 'ডেলিভারি ট্র্যাক করুন 🚚',
+    track_authRequired: 'কৃষক প্রমাণীকরণ আবশ্যক',
+    track_authRequiredDesc: 'আপনার ফসলের বিবরণ, ওজন রশিদ এবং ২০% DBT অগ্রিম অর্থপ্রদানের সুরক্ষার জন্য অনুগ্রহ করে নিবন্ধিত মোবাইল নম্বর দিয়ে সাইন ইন করুন।',
+    track_signInBtn: 'মোবাইল ওটিপি দিয়ে সাইন ইন করুন',
+    track_noConsignments: 'আপনার অ্যাকাউন্টে কোনো সক্রিয় ক্রয়ের চালান পাওয়া যায়নি।',
+    track_bookSlotPrompt: 'মান্ডিতে ফসল আনার ও পরিবহন বরাদ্দের জন্য একটি স্লট বুক করুন।',
+    track_selectConsignment: 'চালানের বিবরণ ও লাইভ ট্রানজিট দেখতে নির্বাচন করুন',
+    track_dbtGuarantee: '২০% প্রত্যক্ষ সুবিধা হস্তান্তর (DBT) অগ্রিম গ্যারান্টি',
+    track_dbtNotice: 'ক্রয় সুরক্ষা নীতির অধীনে ২০% অগ্রিম অর্থ সরাসরি আপনার নিবন্ধিত ব্যাংক অ্যাকাউন্টে জমা হয়েছে।',
+    track_gatePass: 'ই-ক্রয় গেট পাস ও লজিস্টিক চালান',
 
     footer_copyright: 'কৃষক সংগ্রহ কিউ ব্যবস্থাপনা প্ল্যাটফর্ম',
     footer_ministry: 'SIH 2026 · PS26032 · উপভোক্তা বিষয়ক, খাদ্য ও গণবন্টন মন্ত্রক',
@@ -976,6 +1021,15 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     track_callDriver: 'चालकाला कॉल करा',
     track_viewWaybill: 'ई-वेबिल व गेट पास',
     status_trackDeliveryBtn: 'डिलिव्हरी ट्रॅक करा 🚚',
+    track_authRequired: 'शेतकरी प्रमाणीकरण आवश्यक आहे',
+    track_authRequiredDesc: 'आपल्या पिकाचा तपशील, वजन पावती आणि २०% DBT आगाऊ देयकाच्या सुरक्षेसाठी कृपया नोंदणीकृत मोबाईल क्रमांकाने लॉगिन करा.',
+    track_signInBtn: 'मोबाईल OTP द्वारे लॉगिन करा',
+    track_noConsignments: 'आपल्या नोंदणीकृत खात्यात कोणतीही सक्रिय खरेदी खेप आढळली नाही.',
+    track_bookSlotPrompt: 'मंडईत पीक आणण्यासाठी आणि लॉजिस्टिक्स वाटपासाठी खरेदी स्लॉट बुक करा.',
+    track_selectConsignment: 'तपशील व लाईव्ह ट्रान्झिट पाहण्यासाठी खेप निवडा',
+    track_dbtGuarantee: '२०% थेट लाभ हस्तांतरण (DBT) आगाऊ सुरक्षा हमी',
+    track_dbtNotice: 'खरेदी सुरक्षा धोरणांतर्गत २०% आगाऊ रक्कम थेट आपल्या बँक खात्यात जमा झाली आहे.',
+    track_gatePass: 'ई-खरेदी गेट पास व वाहतूक पावती',
 
     footer_copyright: 'शेतकरी खरेदी रांग व्यवस्थापन व्यासपीठ',
     footer_ministry: 'SIH 2026 · PS26032 · ग्राहक व्यवहार, अन्न आणि सार्वजनिक वितरण मंत्रालय',
@@ -1138,6 +1192,15 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     track_callDriver: 'డ్రైవర్‌కు కాల్ చేయండి',
     track_viewWaybill: 'ఈ-వేబిల్ & గేట్ పాస్',
     status_trackDeliveryBtn: 'డెలివరీ ట్రాక్ చేయండి 🚚',
+    track_authRequired: 'రైతు ప్రమాణీకరణ అవసరం',
+    track_authRequiredDesc: 'మీ పంట వివరాలు, తూకం రశీదు మరియు 20% DBT ముందస్తు చెల్లింపు భద్రత కోసం దయచేసి రిజిస్టర్డ్ మొబైల్ నంబర్‌తో లాగిన్ అవ్వండి.',
+    track_signInBtn: 'మొబైల్ OTP తో లాగిన్ అవ్వండి',
+    track_noConsignments: 'మీ ఖాతాలో ఎటువంటి క్రియాశీల సేకరణ రవాణాలు కనుగొనబడలేదు.',
+    track_bookSlotPrompt: 'మండికి పంటను తీసుకురావడానికి మరియు రవాణా కేటాయింపు కోసం స్లాట్ బుక్ చేయండి.',
+    track_selectConsignment: 'వివరాలు మరియు లైవ్ ట్రాన్సిట్ చూడటానికి రవాణాను ఎంచుకోండి',
+    track_dbtGuarantee: '20% ప్రత్యక్ష ప్రయోజన బదిలీ (DBT) ముందస్తు హామీ',
+    track_dbtNotice: 'సేకరణ భద్రతా విధానం ప్రకారం 20% ముందస్తు మొత్తం నేరుగా మీ బ్యాంక్ ఖాతాలో జమ చేయబడింది.',
+    track_gatePass: 'ఈ-సేకరణ గేట్ పాస్ & రవాణా నోట్',
 
     footer_copyright: 'రైతు సేకరణ క్యూ నిర్వహణ వేదిక',
     footer_ministry: 'SIH 2026 · PS26032 · వినియోగదారుల వ్యవహారాలు, ఆహార మరియు ప్రజా పంపిణీ మంత్రిత్వ శాఖ',
@@ -1300,6 +1363,15 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     track_callDriver: 'ஓட்டுநரை அழைக்கவும்',
     track_viewWaybill: 'இ-வேபில் & கேட் பாஸ்',
     status_trackDeliveryBtn: 'விநியோகத்தை கண்காணிக்கவும் 🚚',
+    track_authRequired: 'விவசாயி சரிபார்ப்பு தேவைப்படுகிறது',
+    track_authRequiredDesc: 'உங்கள் பயிர் விவரங்கள், எடைச் சீட்டு மற்றும் 20% DBT முன்பண விவரங்களின் பாதுகாப்பிற்காக உங்கள் பதிவுசெய்த மொபைல் எண்ணுடன் உள்நுழையவும்.',
+    track_signInBtn: 'மொபைல் OTP மூலம் உள்நுழையவும்',
+    track_noConsignments: 'உங்கள் கணக்கில் செயலில் உள்ள கொள்முதல் சரக்குகள் எதுவும் இல்லை.',
+    track_bookSlotPrompt: 'மண்டிக்கு பயிர்களை கொண்டுவரவும் தளவாட வாகன ஒதுக்கீட்டிற்கும் ஒரு நேரத்தை முன்பதிவு செய்யவும்.',
+    track_selectConsignment: 'விவரங்கள் மற்றும் நேரடி போக்குவரத்தைக் காண சரக்கைத் தேர்ந்தெடுக்கவும்',
+    track_dbtGuarantee: '20% நேரடி பயன் பரிமாற்றம் (DBT) முன்பண உத்தரவாதம்',
+    track_dbtNotice: 'கொள்முதல் பாதுகாப்பு கொள்கையின்படி 20% முன்பணம் நேரடியாக உங்கள் வங்கிக் கணக்கில் செலுத்தப்பட்டுள்ளது.',
+    track_gatePass: 'மின்-கொள்முதல் நுழைவுச் சீட்டு & போக்குவரத்து குறிப்பு',
 
     footer_copyright: 'விவசாயிகள் கொள்முதல் வரிசை மேலாண்மை தளம்',
     footer_ministry: 'SIH 2026 · PS26032 · நுகர்வோர் விவகாரங்கள், உணவு மற்றும் பொது விநியோக அமைச்சகம்',

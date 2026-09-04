@@ -4,11 +4,13 @@ import { useState, useRef, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
 import { SUPPORTED_LANGUAGES, LanguageCode } from '@/lib/i18n/languages';
+import { getToken, clearToken } from '@/lib/api';
 import { IconClose, IconGlobe, IconMenu, IconWheat, IconCheck } from './icons';
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const [langMenuOpen, setLangMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const pathname = usePathname();
   const { language, setLanguage, openLanguageSelector, t } = useTranslation();
   const langDropdownRef = useRef<HTMLDivElement>(null);
@@ -16,6 +18,8 @@ export function SiteHeader() {
   const currentLang = SUPPORTED_LANGUAGES.find((l) => l.code === language) || SUPPORTED_LANGUAGES[0];
 
   useEffect(() => {
+    setIsLoggedIn(Boolean(getToken()));
+
     function handleClickOutside(event: MouseEvent) {
       if (langDropdownRef.current && !langDropdownRef.current.contains(event.target as Node)) {
         setLangMenuOpen(false);
@@ -33,19 +37,38 @@ export function SiteHeader() {
   ];
 
   return (
-    <header className="sticky top-0 z-40 border-b border-neutral-200/80 bg-white/90 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
-        <a href="/" className="flex items-center gap-2 text-neutral-900">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-600 text-white shadow-sm">
-            <IconWheat className="h-5 w-5" />
-          </span>
-          <span className="text-sm font-bold leading-tight sm:text-base">
-            {t('nav_appName')}
-            <span className="block text-[10px] font-medium text-neutral-400">
-              {t('nav_appSubtitle')}
+    <div className="sticky top-0 z-40 bg-white shadow-sm">
+      {/* Official Government of India Top Banner */}
+      <div className="bg-neutral-900 text-neutral-300 text-[11px] font-medium border-b border-neutral-800">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-1 sm:px-6">
+          <div className="flex items-center gap-2">
+            <span className="inline-block h-2 w-2 rounded-full bg-emerald-500"></span>
+            <span className="font-semibold text-neutral-100">भारत सरकार | Government of India</span>
+            <span className="hidden md:inline text-neutral-500">·</span>
+            <span className="hidden md:inline text-neutral-300">Ministry of Consumer Affairs, Food & Public Distribution</span>
+          </div>
+          <div className="flex items-center gap-3 text-[10px]">
+            <span className="rounded bg-neutral-800 px-2 py-0.5 font-mono text-neutral-300">
+              SIH2026 · PS26032
             </span>
-          </span>
-        </a>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Navigation */}
+      <header className="border-b border-neutral-200/80 bg-white/95 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2.5 sm:px-6">
+          <a href="/" className="flex items-center gap-2.5 text-neutral-900">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-700 text-white shadow-sm">
+              <IconWheat className="h-5 w-5" />
+            </span>
+            <span className="text-sm font-bold leading-tight sm:text-base">
+              {t('nav_appName')}
+              <span className="block text-[10px] font-medium text-neutral-500">
+                Department of Food & Public Distribution
+              </span>
+            </span>
+          </a>
 
         {/* Desktop Nav */}
         <div className="hidden items-center gap-3 sm:flex">
@@ -128,6 +151,28 @@ export function SiteHeader() {
               </div>
             )}
           </div>
+
+          {/* Desktop Auth Status */}
+          {isLoggedIn ? (
+            <button
+              type="button"
+              onClick={() => {
+                clearToken();
+                setIsLoggedIn(false);
+                window.location.href = '/';
+              }}
+              className="rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-xs font-semibold text-neutral-600 hover:bg-neutral-100 hover:text-red-600 transition"
+            >
+              Sign Out
+            </button>
+          ) : (
+            <a
+              href="/register"
+              className="rounded-xl bg-brand-700 px-3.5 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-brand-800 transition"
+            >
+              {t('nav_loginRegister')}
+            </a>
+          )}
         </div>
 
         {/* Mobile controls */}
@@ -169,7 +214,7 @@ export function SiteHeader() {
               {link.label}
             </a>
           ))}
-          <div className="my-2 border-t border-neutral-100 pt-2">
+          <div className="my-2 border-t border-neutral-100 pt-2 space-y-2">
             <button
               onClick={() => {
                 setOpen(false);
@@ -183,9 +228,31 @@ export function SiteHeader() {
               </span>
               <span>{currentLang.name} ➔</span>
             </button>
+
+            {isLoggedIn ? (
+              <button
+                type="button"
+                onClick={() => {
+                  clearToken();
+                  setIsLoggedIn(false);
+                  window.location.href = '/';
+                }}
+                className="w-full text-left rounded-lg px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50"
+              >
+                Sign Out
+              </button>
+            ) : (
+              <a
+                href="/register"
+                className="block w-full text-center rounded-xl bg-brand-700 px-3 py-2 text-xs font-bold text-white"
+              >
+                {t('nav_loginRegister')}
+              </a>
+            )}
           </div>
         </nav>
       )}
     </header>
-  );
+  </div>
+);
 }

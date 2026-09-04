@@ -158,26 +158,52 @@ export async function ensureShipmentForQueue(queueEntryId) {
 }
 
 /**
+ * GET /api/shipments/my-shipments
+ * Requires farmer authentication.
+ * Returns only the logged-in farmer's shipments.
+ */
+export const myShipments = asyncHandler(async (req, res) => {
+  const farmerId = req.farmer._id;
+
+  // Ensure shipments exist for all bookings of this farmer
+  const farmerQueues = await Queue.find({ farmer: farmerId }).sort({ createdAt: -1 });
+  for (const q of farmerQueues) {
+    await ensureShipmentForQueue(q._id);
+  }
+
+  const shipments = await Shipment.find({ farmer: farmerId })
+    .sort({ createdAt: -1 })
+    .populate('center', 'name code address district state contactPhone')
+    .populate('farmer', 'name phone village district state')
+    .populate('procurement');
+
+  res.json({ ok: true, data: shipments });
+});
+
+/**
  * GET /api/shipments/track/:query
- * Public order/shipment tracker by Tracking Number, Order ID, or Token number.
+ * Requires farmer authentication.
+ * Only allows tracking if the shipment belongs to the authenticated farmer.
  */
 export const trackShipment = asyncHandler(async (req, res) => {
   const query = String(req.params.query || '').trim();
   if (!query) throw ApiError.badRequest('Tracking number, Order ID, or Token is required');
 
-  // Case-insensitive regex for trackingNumber or orderId
+  const farmerId = req.farmer._id;
   const queryRegex = new RegExp(`^${query}$`, 'i');
+
   let shipment = await Shipment.findOne({
+    farmer: farmerId,
     $or: [{ trackingNumber: queryRegex }, { orderId: queryRegex }],
   })
     .populate('center', 'name code address district state contactPhone')
     .populate('farmer', 'name phone village district state')
     .populate('procurement');
 
-  // If not found by direct ID, check if query matches a Token number (e.g. 1, 2, 102)
+  // If not found by direct ID, check if query matches a Token number (e.g. 1, 2, 102) for this farmer
   if (!shipment && /^\d+$/.test(query)) {
     const tokenNum = parseInt(query, 10);
-    const queueEntry = await Queue.findOne({ token: tokenNum }).sort({ createdAt: -1 });
+    const queueEntry = await Queue.findOne({ farmer: farmerId, token: tokenNum }).sort({ createdAt: -1 });
     if (queueEntry) {
       shipment = await ensureShipmentForQueue(queueEntry._id);
     }
@@ -186,6 +212,7 @@ export const trackShipment = asyncHandler(async (req, res) => {
   // If still not found, check if query is an ObjectId
   if (!shipment && query.match(/^[0-9a-fA-F]{24}$/)) {
     shipment = await Shipment.findOne({
+      farmer: farmerId,
       $or: [{ _id: query }, { queueEntry: query }],
     })
       .populate('center', 'name code address district state contactPhone')
@@ -193,12 +220,15 @@ export const trackShipment = asyncHandler(async (req, res) => {
       .populate('procurement');
 
     if (!shipment) {
-      shipment = await ensureShipmentForQueue(query);
+      const qEntry = await Queue.findOne({ _id: query, farmer: farmerId });
+      if (qEntry) {
+        shipment = await ensureShipmentForQueue(qEntry._id);
+      }
     }
   }
 
   if (!shipment) {
-    throw ApiError.notFound(`No shipment found matching '${query}'`);
+    throw ApiError.notFound(`No consignment found for your account matching '${query}'`);
   }
 
   res.json({ ok: true, data: shipment });
@@ -206,36 +236,17 @@ export const trackShipment = asyncHandler(async (req, res) => {
 
 /**
  * GET /api/shipments/booking/:queueEntryId
- * Retrieve or create shipment for a specific farmer booking
+ * Requires farmer authentication.
+ * Verifies booking ownership.
  */
 export const getShipmentByBooking = asyncHandler(async (req, res) => {
   const { queueEntryId } = req.params;
-  const shipment = await ensureShipmentForQueue(queueEntryId);
-  if (!shipment) throw ApiError.notFound('Booking not found');
+  const entry = await Queue.findOne({ _id: queueEntryId, farmer: req.farmer._id });
+  if (!entry) throw ApiError.notFound('Booking not found under your account');
+
+  const shipment = await ensureShipmentForQueue(entry._id);
+  if (!shipment) throw ApiError.notFound('Shipment not found');
   res.json({ ok: true, data: shipment });
-});
-
-/**
- * GET /api/shipments/recent
- * Returns recent active shipments for live tracking overview
- */
-export const listRecentShipments = asyncHandler(async (_req, res) => {
-  // If no shipments exist yet, try to create some from recent queue entries
-  const count = await Shipment.countDocuments();
-  if (count < 3) {
-    const entries = await Queue.find({}).sort({ createdAt: -1 }).limit(5);
-    for (const e of entries) {
-      await ensureShipmentForQueue(e._id);
-    }
-  }
-
-  const shipments = await Shipment.find({})
-    .sort({ updatedAt: -1 })
-    .limit(10)
-    .populate('center', 'name code district')
-    .populate('farmer', 'name village');
-
-  res.json({ ok: true, data: shipments });
 });
 
 /**

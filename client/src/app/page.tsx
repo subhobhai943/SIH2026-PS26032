@@ -44,7 +44,7 @@ export default function HomePage() {
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row flex-wrap">
             <a
               href="/register"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-bold text-brand-700 shadow-lg transition hover:bg-brand-50 active:scale-[0.99]"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-bold text-brand-800 shadow-lg transition hover:bg-brand-50 active:scale-[0.99]"
             >
               {t('home_getStarted')} <IconArrowRight className="h-4 w-4" />
             </a>
@@ -56,44 +56,49 @@ export default function HomePage() {
             </a>
             <a
               href="/tracking"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-400 px-6 py-3 text-sm font-bold text-neutral-950 shadow-lg transition hover:bg-amber-300 active:scale-[0.99]"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/10 px-6 py-3 text-sm font-bold text-white ring-1 ring-inset ring-white/40 transition hover:bg-white/20 active:scale-[0.99]"
             >
-              <IconTruck className="h-4 w-4 text-neutral-950" />
+              <IconTruck className="h-4 w-4" />
               {t('nav_trackOrder')}
             </a>
           </div>
         </div>
       </section>
 
-      {/* 3rd-Party Logistics & Tracking Callout Banner */}
-      <Card className="p-5 sm:p-6 bg-gradient-to-r from-neutral-900 via-neutral-800 to-neutral-900 text-white shadow-lg border-neutral-700">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-5">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-brand-500/20 text-brand-400 border border-brand-500/30 flex items-center justify-center shrink-0">
-              <IconTruck className="h-7 w-7" />
+      {/* Official Government Procurement Framework Banner */}
+      <Card className="p-6 sm:p-8 bg-white border-neutral-200 shadow-sm">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="space-y-2 max-w-2xl">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="rounded-md bg-brand-50 px-2.5 py-0.5 text-xs font-bold text-brand-800 border border-brand-200">
+                Government Procurement Mandate
+              </span>
+              <span className="text-xs text-neutral-500 font-medium">
+                Ministry of Consumer Affairs, Food & Public Distribution
+              </span>
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-amber-400 bg-amber-400/10 px-2.5 py-0.5 rounded-full border border-amber-400/20">
-                  New Feature
-                </span>
-                <span className="text-xs text-neutral-400">Delhivery · BlackBuck · TCI · Rivigo</span>
-              </div>
-              <h3 className="text-lg font-bold text-white mt-1">
-                {t('track_pageTitle')} & 20% Advance Guarantee
-              </h3>
-              <p className="text-xs text-neutral-300 mt-0.5 max-w-xl">
-                {t('track_pageSubtitle')}
-              </p>
+            <h3 className="text-xl font-bold text-neutral-900 tracking-tight">
+              20% DBT Safety Advance Guarantee & Mandated Logistics Transport
+            </h3>
+            <p className="text-xs text-neutral-600 leading-relaxed">
+              Under Problem Statement PS26032, this platform resolves long Mandi waiting hours, eliminates schedule uncertainty, and secures farmer income. Authorized 3rd-party logistics agencies transport procured grain directly to FCI and Central Warehousing Corporation (CWC) buffer depots.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 shrink-0">
+            <div className="rounded-xl bg-neutral-50 p-3 border border-neutral-200 text-center">
+              <div className="text-lg font-extrabold text-brand-700">20% DBT</div>
+              <div className="text-[11px] font-medium text-neutral-500 mt-0.5">Upfront Advance</div>
+            </div>
+            <div className="rounded-xl bg-neutral-50 p-3 border border-neutral-200 text-center">
+              <div className="text-lg font-extrabold text-neutral-800">100% Digital</div>
+              <div className="text-[11px] font-medium text-neutral-500 mt-0.5">Token Scheduling</div>
+            </div>
+            <div className="rounded-xl bg-neutral-50 p-3 border border-neutral-200 text-center col-span-2 sm:col-span-1">
+              <div className="text-lg font-extrabold text-emerald-700">GPS Sealed</div>
+              <div className="text-[11px] font-medium text-neutral-500 mt-0.5">Buffer Transport</div>
             </div>
           </div>
-          <a
-            href="/tracking"
-            className="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-5 py-2.5 text-xs font-bold text-white shadow-md transition hover:bg-brand-500 shrink-0"
-          >
-            <span>{t('track_btnTrackNow')}</span>
-            <IconArrowRight className="h-3.5 w-3.5" />
-          </a>
         </div>
       </Card>
 
