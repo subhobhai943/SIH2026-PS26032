@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
+import gsap from 'gsap';
 import { api } from '@/lib/api';
 import { Alert, Button, Card, EmptyState, PageHeader, Spinner, TextField } from '@/components/ui';
 import {
@@ -14,6 +15,7 @@ import {
 } from '@/components/icons';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
 import { compressImage } from '@/lib/imageUtils';
+import { prefersReducedMotion } from '@/lib/animations';
 
 type Center = { _id: string; name: string; code: string; district: string; state: string; crops: string[] };
 type Slot = { id: string; startTime: string; endTime: string; available: number; capacity: number };
@@ -38,12 +40,27 @@ export default function BookingPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const calcCardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (slots.length > 0 && !prefersReducedMotion()) {
+      gsap.from('.slot-button', {
+        scale: 0.9,
+        opacity: 0,
+        stagger: 0.035,
+        duration: 0.35,
+        ease: 'back.out(1.4)',
+        clearProps: 'transform,opacity',
+      });
+    }
+  }, [slots]);
 
   // Crop photo upload states
   const [cropPhotoPreview, setCropPhotoPreview] = useState<string | null>(null);
   const [cropPhotoUrl, setCropPhotoUrl] = useState<string>('');
   const [uploadingCropPhoto, setUploadingCropPhoto] = useState(false);
   const cropFileInputRef = useRef<HTMLInputElement>(null);
+
 
   useEffect(() => {
     api.get<Center[]>('/centers').then(setCenters).catch((e) => setError(e.message));
@@ -214,7 +231,7 @@ export default function BookingPage() {
                         key={slot.id}
                         disabled={full}
                         onClick={() => setSelectedSlot(slot)}
-                        className={`min-h-[58px] rounded-xl border px-3 py-2.5 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-40 ${
+                        className={`slot-button min-h-[58px] rounded-xl border px-3 py-2.5 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-40 ${
                           active
                             ? 'border-brand-600 bg-brand-600 text-white shadow'
                             : full
@@ -363,7 +380,7 @@ export default function BookingPage() {
           />
 
           {/* Transparent MSP & 20% DBT Advance Breakdown */}
-          <div className="space-y-2 rounded-xl bg-neutral-50 p-3.5 text-xs border border-neutral-200">
+          <div ref={calcCardRef} className="space-y-2 rounded-xl bg-neutral-50 p-3.5 text-xs border border-neutral-200">
             <div className="flex items-center justify-between text-neutral-600">
               <span>{t('book_cropMspRate')}:</span>
               <span className="font-bold text-neutral-900">₹{currentMsp} / Quintal</span>

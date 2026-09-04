@@ -1,7 +1,9 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import gsap from 'gsap';
 import { api } from '@/lib/api';
+import { prefersReducedMotion, animateModalEnter, animateModalExit } from '@/lib/animations';
 import {
   IconStar,
   IconThumbUp,
@@ -97,6 +99,51 @@ export default function ReviewsPage() {
 
   // Helpful click tracking
   const [votedReviews, setVotedReviews] = useState<Record<string, boolean>>({});
+
+  const reviewModalBackdropRef = useRef<HTMLDivElement>(null);
+  const reviewModalCardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isModalOpen && reviewModalBackdropRef.current && reviewModalCardRef.current) {
+      const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+      animateModalEnter(reviewModalBackdropRef.current, reviewModalCardRef.current, isMobile);
+    }
+  }, [isModalOpen]);
+
+  const handleCloseReviewModal = () => {
+    if (prefersReducedMotion()) {
+      setIsModalOpen(false);
+      return;
+    }
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+    animateModalExit(reviewModalBackdropRef.current, reviewModalCardRef.current, isMobile, () => {
+      setIsModalOpen(false);
+    });
+  };
+
+  useEffect(() => {
+    if (!loading && !prefersReducedMotion()) {
+      if (activeTab === 'reviews') {
+        gsap.from('.review-card-item', {
+          y: 16,
+          opacity: 0,
+          stagger: 0.04,
+          duration: 0.35,
+          ease: 'power2.out',
+          clearProps: 'transform,opacity',
+        });
+      } else {
+        gsap.from('.farmer-card-item', {
+          scale: 0.94,
+          opacity: 0,
+          stagger: 0.04,
+          duration: 0.35,
+          ease: 'back.out(1.4)',
+          clearProps: 'transform,opacity',
+        });
+      }
+    }
+  }, [activeTab, loading]);
 
   useEffect(() => {
     loadData();
@@ -407,7 +454,7 @@ export default function ReviewsPage() {
                 return (
                   <div
                     key={rev._id}
-                    className="rounded-2xl bg-white p-5 shadow-sm border border-neutral-200/90 transition hover:shadow-md"
+                    className="review-card-item rounded-2xl bg-white p-5 shadow-sm border border-neutral-200/90 transition hover:shadow-md"
                   >
                     <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                       {/* Buyer Identity */}
@@ -541,7 +588,7 @@ export default function ReviewsPage() {
             {farmers.map((farmer) => (
               <div
                 key={farmer._id}
-                className="rounded-2xl bg-white p-5 shadow-sm border border-neutral-200/90 flex flex-col justify-between"
+                className="farmer-card-item rounded-2xl bg-white p-5 shadow-sm border border-neutral-200/90 flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-start justify-between">
@@ -620,11 +667,17 @@ export default function ReviewsPage() {
 
       {/* Write Review Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
-          <div className="relative w-full sm:max-w-xl rounded-t-3xl sm:rounded-3xl bg-white p-4 sm:p-6 shadow-2xl border border-neutral-100 max-h-[90vh] overflow-y-auto">
+        <div
+          ref={reviewModalBackdropRef}
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm"
+        >
+          <div
+            ref={reviewModalCardRef}
+            className="relative w-full sm:max-w-xl rounded-t-3xl sm:rounded-3xl bg-white p-4 sm:p-6 shadow-2xl border border-neutral-100 max-h-[90vh] overflow-y-auto"
+          >
             <button
-              onClick={() => setIsModalOpen(false)}
-              className="absolute right-4 top-4 rounded-full p-2 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600"
+              onClick={handleCloseReviewModal}
+              className="rounded-full p-2 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600 absolute right-4 top-4"
             >
               <IconClose className="h-5 w-5" />
             </button>
@@ -841,7 +894,7 @@ export default function ReviewsPage() {
                 <div className="pt-2 flex gap-3">
                   <button
                     type="button"
-                    onClick={() => setIsModalOpen(false)}
+                    onClick={handleCloseReviewModal}
                     className="w-1/3 rounded-xl border border-neutral-300 py-2.5 text-xs font-bold text-neutral-600 hover:bg-neutral-100"
                   >
                     Cancel

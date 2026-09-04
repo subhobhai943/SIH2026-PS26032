@@ -1,11 +1,13 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import gsap from 'gsap';
 import { api, setToken } from '@/lib/api';
 import { Alert, Button, Card, PageHeader, TextField } from '@/components/ui';
 import { IconPhone, IconStatus, IconCamera, IconUpload, IconUser, IconCheck } from '@/components/icons';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
 import { compressImage } from '@/lib/imageUtils';
+import { prefersReducedMotion } from '@/lib/animations';
 import {
   isFirebaseConfigured,
   getFirebaseAuth,
@@ -31,6 +33,18 @@ export default function RegisterPage() {
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const stepCardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (stepCardRef.current && !prefersReducedMotion()) {
+      gsap.fromTo(
+        stepCardRef.current,
+        { opacity: 0, x: 20 },
+        { opacity: 1, x: 0, duration: 0.35, ease: 'power2.out', clearProps: 'transform,opacity' }
+      );
+    }
+  }, [step]);
+
 
   // Farmer profile data
   const [profile, setProfile] = useState({
@@ -248,7 +262,8 @@ export default function RegisterPage() {
         </div>
       </div>
 
-      <Card className="p-4 sm:p-6">
+      <div ref={stepCardRef}>
+        <Card className="p-4 sm:p-6">
         {error && (
           <div className="mb-4">
             <Alert>{error}</Alert>
@@ -542,7 +557,8 @@ export default function RegisterPage() {
             </div>
           </div>
         )}
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 }

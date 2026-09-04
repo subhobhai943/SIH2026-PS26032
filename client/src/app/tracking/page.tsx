@@ -1,9 +1,11 @@
 'use client';
 
-import { Suspense, useState, useEffect } from 'react';
+import { Suspense, useState, useEffect, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import gsap from 'gsap';
 import { getToken, api } from '@/lib/api';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
+import { prefersReducedMotion } from '@/lib/animations';
 import { Card, PageHeader, StatusBadge, Button, Alert, EmptyState } from '@/components/ui';
 import {
   IconTruck,
@@ -93,6 +95,25 @@ function TrackingContent() {
   const [selectedShipment, setSelectedShipment] = useState<ShipmentData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const trackingDetailsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (selectedShipment && trackingDetailsRef.current && !prefersReducedMotion()) {
+      gsap.fromTo(
+        trackingDetailsRef.current,
+        { opacity: 0, y: 16 },
+        { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out', clearProps: 'transform,opacity' }
+      );
+      gsap.from('.checkpoint-item', {
+        opacity: 0,
+        x: -8,
+        stagger: 0.04,
+        duration: 0.3,
+        ease: 'power2.out',
+        clearProps: 'transform,opacity',
+      });
+    }
+  }, [selectedShipment?._id]);
 
   useEffect(() => {
     const token = getToken();
@@ -285,7 +306,7 @@ function TrackingContent() {
           </div>
 
           {/* Right Column: Detailed Consignment Dossier & Live Checkpoints */}
-          <div className="lg:col-span-2 space-y-5">
+          <div ref={trackingDetailsRef} className="lg:col-span-2 space-y-5">
             {/* Consignment Header Card */}
             <Card className="p-5 sm:p-6 bg-white shadow-sm border-neutral-200 space-y-5">
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 border-b border-neutral-100 pb-4">
@@ -481,7 +502,7 @@ function TrackingContent() {
                     const isLatest = idx === 0;
 
                     return (
-                      <li key={idx} className="relative flex gap-3 pb-5 last:pb-1">
+                      <li key={idx} className="checkpoint-item relative flex gap-3 pb-5 last:pb-1">
                         {idx < selectedShipment.checkpoints.length - 1 && (
                           <span className="absolute left-3 top-6 h-full w-0.5 -translate-x-1/2 bg-neutral-200" />
                         )}

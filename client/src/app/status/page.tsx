@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import gsap from 'gsap';
 import { api } from '@/lib/api';
 import { Alert, Card, EmptyState, PageHeader, StatusBadge } from '@/components/ui';
 import {
@@ -16,6 +17,7 @@ import {
 } from '@/components/icons';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
 import { TranslationKey } from '@/lib/i18n/translations';
+import { prefersReducedMotion } from '@/lib/animations';
 
 type Booking = {
   _id: string;
@@ -76,6 +78,28 @@ export default function StatusPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [selected, setSelected] = useState<StatusDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const detailsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (selected && !prefersReducedMotion()) {
+      if (detailsRef.current) {
+        gsap.fromTo(
+          detailsRef.current,
+          { opacity: 0, y: 16 },
+          { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out', clearProps: 'transform,opacity' }
+        );
+      }
+      gsap.from('.timeline-stage', {
+        opacity: 0,
+        x: -8,
+        stagger: 0.04,
+        duration: 0.3,
+        ease: 'power2.out',
+        clearProps: 'transform,opacity',
+      });
+    }
+  }, [selected?.booking._id]);
+
 
   useEffect(() => {
     api
@@ -204,7 +228,7 @@ export default function StatusPage() {
 
         {/* Right column: Status Timeline & Official DBT Payment Confirmation Voucher */}
         {selected && (
-          <div className="space-y-6 lg:col-span-8">
+          <div ref={detailsRef} className="space-y-6 lg:col-span-8">
             {/* 1. Procurement Lifecycle Stepper */}
             <Card className="p-4 sm:p-6 shadow-md no-print">
               <div className="flex flex-wrap items-center justify-between gap-2 mb-5">
@@ -226,7 +250,7 @@ export default function StatusPage() {
                   const stageLabel = stageKey ? t(stageKey) : s.stage;
 
                   return (
-                    <li key={s.stage} className="relative flex gap-3 pb-6 last:pb-0">
+                    <li key={s.stage} className="timeline-stage relative flex gap-3 pb-6 last:pb-0">
                       {i < selected.stages.length - 1 && (
                         <span
                           className={`absolute left-3 top-6 h-full w-0.5 -translate-x-1/2 ${

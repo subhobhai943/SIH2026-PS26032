@@ -1,12 +1,35 @@
 'use client';
 
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
+import gsap from 'gsap';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
 import { SUPPORTED_LANGUAGES, LanguageCode } from '@/lib/i18n/languages';
+import { animateModalEnter, animateModalExit, prefersReducedMotion } from '@/lib/animations';
 import { IconCheck, IconClose, IconGlobe } from './icons';
 
 export function LanguageModal() {
   const { language, setLanguage, showModal, closeLanguageModal, t } = useTranslation();
+  const backdropRef = useRef<HTMLDivElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
+  const [closing, setClosing] = useState(false);
+
+  useEffect(() => {
+    if (showModal && backdropRef.current && modalRef.current) {
+      const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+      animateModalEnter(backdropRef.current, modalRef.current, isMobile);
+      if (!prefersReducedMotion()) {
+        gsap.from('.lang-card', {
+          y: 16,
+          opacity: 0,
+          stagger: 0.03,
+          duration: 0.35,
+          ease: 'power2.out',
+          delay: 0.08,
+          clearProps: 'transform,opacity',
+        });
+      }
+    }
+  }, [showModal]);
 
   if (!showModal) return null;
 
@@ -14,20 +37,34 @@ export function LanguageModal() {
     setLanguage(code);
   };
 
-  const handleConfirm = () => {
-    closeLanguageModal();
+  const handleClose = () => {
+    if (closing) return;
+    if (prefersReducedMotion()) {
+      closeLanguageModal();
+      return;
+    }
+    setClosing(true);
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+    animateModalExit(backdropRef.current, modalRef.current, isMobile, () => {
+      closeLanguageModal();
+      setClosing(false);
+    });
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-neutral-900/60 backdrop-blur-sm transition-opacity"
-        onClick={closeLanguageModal}
+        ref={backdropRef}
+        className="fixed inset-0 bg-neutral-900/60 backdrop-blur-sm"
+        onClick={handleClose}
       />
 
       {/* Modal Dialog — bottom sheet on mobile, centered card on desktop */}
-      <div className="relative w-full sm:max-w-xl max-h-[90vh] sm:max-h-[85vh] overflow-hidden rounded-t-3xl sm:rounded-3xl bg-white shadow-2xl ring-1 ring-neutral-900/5 animate-in fade-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200 flex flex-col">
+      <div
+        ref={modalRef}
+        className="relative w-full sm:max-w-xl max-h-[90vh] sm:max-h-[85vh] overflow-hidden rounded-t-3xl sm:rounded-3xl bg-white shadow-2xl ring-1 ring-neutral-900/5 flex flex-col will-change-transform"
+      >
         {/* Decorative header bar */}
         <div className="bg-gradient-to-r from-brand-600 via-emerald-600 to-teal-600 px-4 py-4 sm:px-6 sm:py-5 text-white shrink-0">
           {/* Mobile drag handle indicator */}
@@ -47,7 +84,8 @@ export function LanguageModal() {
               </div>
             </div>
             <button
-              onClick={closeLanguageModal}
+              type="button"
+              onClick={handleClose}
               className="rounded-full p-2 text-white/80 hover:bg-white/10 hover:text-white shrink-0"
               aria-label="Close"
             >
@@ -69,7 +107,7 @@ export function LanguageModal() {
                 <button
                   key={lang.code}
                   onClick={() => handleSelect(lang.code)}
-                  className={`group relative flex items-center justify-between rounded-xl sm:rounded-2xl border p-3 sm:p-3.5 text-left transition active:scale-[0.98] ${
+                  className={`lang-card group relative flex items-center justify-between rounded-xl sm:rounded-2xl border p-3 sm:p-3.5 text-left transition duration-150 active:scale-[0.98] ${
                     isSelected
                       ? 'border-brand-600 bg-brand-50/70 shadow-sm ring-2 ring-brand-600/20'
                       : 'border-neutral-200 bg-white hover:border-brand-300 hover:bg-neutral-50'
@@ -107,7 +145,7 @@ export function LanguageModal() {
         <div className="shrink-0 border-t border-neutral-100 p-4 sm:p-6 sm:pt-4 bg-white safe-bottom">
           <button
             type="button"
-            onClick={handleConfirm}
+            onClick={handleClose}
             className="w-full inline-flex items-center justify-center rounded-xl bg-brand-600 px-6 py-3.5 sm:py-3 text-sm font-bold text-white shadow-md transition hover:bg-brand-700 active:scale-[0.99]"
           >
             {t('modal_continue')}
@@ -117,3 +155,4 @@ export function LanguageModal() {
     </div>
   );
 }
+

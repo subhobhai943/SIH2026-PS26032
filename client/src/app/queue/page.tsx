@@ -1,11 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import gsap from 'gsap';
 import { api } from '@/lib/api';
 import { getSocket } from '@/lib/socket';
 import { Alert, Card, EmptyState, PageHeader, StatTile, StatusBadge } from '@/components/ui';
 import { IconClock, IconMapPin, IconQueue } from '@/components/icons';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
+import { prefersReducedMotion } from '@/lib/animations';
 
 type Center = { _id: string; name: string; district: string };
 type BoardEntry = {
@@ -33,6 +35,29 @@ export default function QueuePage() {
   const [board, setBoard] = useState<Board | null>(null);
   const [connected, setConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const boardRef = useRef<HTMLDivElement>(null);
+  const servingBadgeRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (board && !prefersReducedMotion()) {
+      if (servingBadgeRef.current) {
+        gsap.fromTo(
+          servingBadgeRef.current,
+          { scale: 0.88, opacity: 0.8 },
+          { scale: 1, opacity: 1, duration: 0.45, ease: 'back.out(1.8)' }
+        );
+      }
+      gsap.from('.queue-row', {
+        opacity: 0,
+        x: -10,
+        stagger: 0.035,
+        duration: 0.3,
+        ease: 'power2.out',
+        clearProps: 'transform,opacity',
+      });
+    }
+  }, [board?.nowServing?.token, board?.waiting.length]);
+
 
   useEffect(() => {
     api.get<Center[]>('/centers').then(setCenters).catch((e) => setError(e.message));
@@ -96,7 +121,7 @@ export default function QueuePage() {
       )}
 
       {board && (
-        <div className="space-y-5">
+        <div ref={boardRef} className="space-y-5">
           <Card className="flex flex-col items-center gap-4 bg-gradient-to-br from-brand-600 to-brand-700 p-5 sm:p-8 text-center text-white sm:flex-row sm:justify-between sm:text-left shadow-lg">
             <div className="flex items-center gap-2 text-sm text-brand-50">
               <IconMapPin className="h-4 w-4" /> {board.center.name} · {board.date}
@@ -104,7 +129,10 @@ export default function QueuePage() {
             <div className="flex items-center gap-4">
               <div className="relative">
                 {board.nowServing && <span className="absolute inset-0 rounded-full bg-white/40 animate-pulse-ring" />}
-                <div className="relative rounded-full bg-white/15 px-6 py-3 ring-1 ring-inset ring-white/30 backdrop-blur-md">
+                <div
+                  ref={servingBadgeRef}
+                  className="relative rounded-full bg-white/15 px-6 py-3 ring-1 ring-inset ring-white/30 backdrop-blur-md"
+                >
                   <div className="text-[11px] font-semibold uppercase tracking-wide text-brand-100">
                     {t('queue_nowServing')}
                   </div>
@@ -147,7 +175,7 @@ export default function QueuePage() {
                   </thead>
                   <tbody>
                     {board.waiting.map((entry) => (
-                      <tr key={entry.token} className="border-t border-neutral-100 hover:bg-neutral-50/50">
+                      <tr key={entry.token} className="queue-row border-t border-neutral-100 hover:bg-neutral-50/50">
                         <td className="px-5 py-3 font-semibold text-neutral-900">#{entry.token}</td>
                         <td className="px-5 py-3">
                           {entry.farmerName} <span className="text-neutral-400">· {entry.village || '—'}</span>

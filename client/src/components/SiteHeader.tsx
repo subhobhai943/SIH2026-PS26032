@@ -2,9 +2,11 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
+import gsap from 'gsap';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
 import { SUPPORTED_LANGUAGES, LanguageCode } from '@/lib/i18n/languages';
 import { getToken, clearToken } from '@/lib/api';
+import { prefersReducedMotion } from '@/lib/animations';
 import { IconClose, IconGlobe, IconMenu, IconWheat, IconCheck } from './icons';
 
 export function SiteHeader() {
@@ -14,6 +16,8 @@ export function SiteHeader() {
   const pathname = usePathname();
   const { language, setLanguage, openLanguageSelector, t } = useTranslation();
   const langDropdownRef = useRef<HTMLDivElement>(null);
+  const langDropdownMenuRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLElement>(null);
 
   const currentLang = SUPPORTED_LANGUAGES.find((l) => l.code === language) || SUPPORTED_LANGUAGES[0];
 
@@ -28,6 +32,34 @@ export function SiteHeader() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (open && mobileMenuRef.current && !prefersReducedMotion()) {
+      gsap.fromTo(
+        mobileMenuRef.current,
+        { opacity: 0, y: -8 },
+        { opacity: 1, y: 0, duration: 0.25, ease: 'power2.out' }
+      );
+      gsap.from('.mobile-nav-link', {
+        x: -10,
+        opacity: 0,
+        stagger: 0.035,
+        duration: 0.22,
+        ease: 'power2.out',
+      });
+    }
+  }, [open]);
+
+  useEffect(() => {
+    if (langMenuOpen && langDropdownMenuRef.current && !prefersReducedMotion()) {
+      gsap.fromTo(
+        langDropdownMenuRef.current,
+        { opacity: 0, scale: 0.95, y: -6 },
+        { opacity: 1, scale: 1, y: 0, duration: 0.2, ease: 'back.out(1.5)' }
+      );
+    }
+  }, [langMenuOpen]);
+
 
   const navLinks = [
     { href: '/booking', label: t('nav_bookSlot') },
@@ -104,7 +136,10 @@ export function SiteHeader() {
             </button>
 
             {langMenuOpen && (
-              <div className="absolute right-0 mt-2 w-56 overflow-hidden rounded-2xl border border-neutral-100 bg-white p-1.5 shadow-xl ring-1 ring-black/5 animate-in fade-in zoom-in-95">
+              <div
+                ref={langDropdownMenuRef}
+                className="absolute right-0 mt-2 w-56 overflow-hidden rounded-2xl border border-neutral-100 bg-white p-1.5 shadow-xl ring-1 ring-black/5"
+              >
                 <div className="px-3 py-2 border-b border-neutral-100">
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
                     {t('nav_selectLanguage')}
@@ -200,13 +235,13 @@ export function SiteHeader() {
 
       {/* Mobile menu — full-width slide-down */}
       {open && (
-        <nav className="border-t border-neutral-200 bg-white px-3 py-2 md:hidden safe-bottom">
+        <nav ref={mobileMenuRef} className="border-t border-neutral-200 bg-white px-3 py-2 md:hidden safe-bottom">
           {navLinks.map((link) => (
             <a
               key={link.href}
               href={link.href}
               onClick={() => setOpen(false)}
-              className={`block rounded-lg px-3 py-3 text-sm font-medium ${
+              className={`mobile-nav-link block rounded-lg px-3 py-3 text-sm font-medium ${
                 pathname === link.href
                   ? 'bg-brand-50 text-brand-700'
                   : 'text-neutral-600 hover:bg-neutral-100'
@@ -221,7 +256,7 @@ export function SiteHeader() {
                 setOpen(false);
                 openLanguageSelector();
               }}
-              className="flex w-full items-center justify-between rounded-lg px-3 py-3 text-xs font-semibold text-neutral-700 hover:bg-neutral-100"
+              className="mobile-nav-link flex w-full items-center justify-between rounded-lg px-3 py-3 text-xs font-semibold text-neutral-700 hover:bg-neutral-100"
             >
               <span className="flex items-center gap-2">
                 <IconGlobe className="h-4 w-4 text-brand-600" />
@@ -238,14 +273,14 @@ export function SiteHeader() {
                   setIsLoggedIn(false);
                   window.location.href = '/';
                 }}
-                className="w-full text-left rounded-lg px-3 py-3 text-xs font-semibold text-red-600 hover:bg-red-50"
+                className="mobile-nav-link w-full text-left rounded-lg px-3 py-3 text-xs font-semibold text-red-600 hover:bg-red-50"
               >
                 Sign Out
               </button>
             ) : (
               <a
                 href="/register"
-                className="block w-full text-center rounded-xl bg-brand-700 px-3 py-3 text-xs font-bold text-white"
+                className="mobile-nav-link block w-full text-center rounded-xl bg-brand-700 px-3 py-3 text-xs font-bold text-white"
               >
                 {t('nav_loginRegister')}
               </a>
