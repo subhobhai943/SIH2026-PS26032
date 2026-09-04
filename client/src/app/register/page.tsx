@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { api, setToken } from '@/lib/api';
 import { Alert, Button, Card, PageHeader, TextField } from '@/components/ui';
 import { IconPhone, IconStatus } from '@/components/icons';
+import { useTranslation } from '@/lib/i18n/LanguageContext';
 import {
   isFirebaseConfigured,
   getFirebaseAuth,
@@ -22,6 +23,7 @@ type Step = 'phone' | 'otp' | 'profile' | 'done';
 const STEP_ORDER: Step[] = ['phone', 'otp', 'profile', 'done'];
 
 export default function RegisterPage() {
+  const { t } = useTranslation();
   const [step, setStep] = useState<Step>('phone');
   const [phone, setPhone] = useState('');
   const [code, setCode] = useState('');
@@ -114,7 +116,11 @@ export default function RegisterPage() {
 
   return (
     <div className="mx-auto max-w-md">
-      <PageHeader eyebrow="Farmer account" title="Register or sign in" subtitle="Verified by mobile OTP — no password to remember." />
+      <PageHeader
+        eyebrow={t('reg_eyebrow')}
+        title={t('reg_title')}
+        subtitle={t('reg_subtitle')}
+      />
 
       <div className="mb-6 flex items-center gap-2">
         {STEP_ORDER.slice(0, 3).map((s, i) => (
@@ -133,7 +139,7 @@ export default function RegisterPage() {
           <form onSubmit={requestOtp} className="space-y-4">
             <div className="flex items-center gap-2 text-brand-600">
               <IconPhone className="h-5 w-5" />
-              <span className="text-sm font-semibold text-neutral-700">Mobile number</span>
+              <span className="text-sm font-semibold text-neutral-700">{t('reg_mobileNumber')}</span>
             </div>
             <TextField
               required
@@ -146,7 +152,7 @@ export default function RegisterPage() {
             />
             <div id="recaptcha-container" />
             <Button type="submit" loading={loading} className="w-full">
-              Send OTP
+              {loading ? t('reg_sending') : t('reg_sendOtp')}
             </Button>
           </form>
         )}
@@ -154,7 +160,7 @@ export default function RegisterPage() {
         {step === 'otp' && (
           <form onSubmit={verifyOtp} className="space-y-4">
             <p className="text-sm text-neutral-600">
-              Enter the 6-digit code sent to <span className="font-semibold text-neutral-900">+91 {phone}</span>.
+              {t('reg_otpDesc')} <span className="font-semibold text-neutral-900">+91 {phone}</span>.
             </p>
             <TextField
               required
@@ -167,49 +173,49 @@ export default function RegisterPage() {
               className="text-center text-lg tracking-[0.5em]"
             />
             <Button type="submit" loading={loading} className="w-full">
-              Verify &amp; Continue
+              {loading ? t('reg_verifying') : t('reg_verifyContinue')}
             </Button>
             <button
               type="button"
               onClick={() => setStep('phone')}
               className="w-full text-center text-xs font-medium text-neutral-400 hover:text-neutral-600"
             >
-              Wrong number? Go back
+              {t('reg_wrongNumber')}
             </button>
           </form>
         )}
 
         {step === 'profile' && (
           <form onSubmit={saveProfile} className="space-y-4">
-            <p className="text-sm text-neutral-600">Tell us a bit about yourself to finish setting up your account.</p>
+            <p className="text-sm text-neutral-600">{t('reg_profilePrompt')}</p>
             <TextField
-              label="Full name"
+              label={t('reg_fullName')}
               required
               value={profile.name}
               onChange={(e) => setProfile((p) => ({ ...p, name: e.target.value }))}
             />
             <TextField
-              label="Village"
+              label={t('reg_village')}
               required
               value={profile.village}
               onChange={(e) => setProfile((p) => ({ ...p, village: e.target.value }))}
             />
             <div className="grid grid-cols-2 gap-3">
               <TextField
-                label="District"
+                label={t('reg_district')}
                 required
                 value={profile.district}
                 onChange={(e) => setProfile((p) => ({ ...p, district: e.target.value }))}
               />
               <TextField
-                label="State"
+                label={t('reg_state')}
                 required
                 value={profile.state}
                 onChange={(e) => setProfile((p) => ({ ...p, state: e.target.value }))}
               />
             </div>
             <Button type="submit" loading={loading} className="w-full">
-              Save Profile
+              {loading ? t('reg_saving') : t('reg_saveProfile')}
             </Button>
           </form>
         )}
@@ -220,11 +226,11 @@ export default function RegisterPage() {
               <IconStatus className="h-7 w-7" />
             </span>
             <div>
-              <p className="font-semibold text-neutral-900">You're all set!</p>
-              <p className="text-sm text-neutral-500">Your account is ready — go ahead and book your first slot.</p>
+              <p className="font-semibold text-neutral-900">{t('reg_allSet')}</p>
+              <p className="text-sm text-neutral-500">{t('reg_accountReady')}</p>
             </div>
             <Button onClick={() => (window.location.href = '/booking')} className="w-full">
-              Book a Procurement Slot
+              {t('reg_bookFirstSlot')}
             </Button>
           </div>
         )}

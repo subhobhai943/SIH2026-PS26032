@@ -129,3 +129,20 @@ export function IconAlert({ className = base }: IconProps) {
     </svg>
   );
 }
+
+export function IconGlobe({ className = base }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className={className}>
+      <circle cx="12" cy="12" r="9" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3.6 9h16.8M3.6 15h16.8M12 3a14 14 0 0 0-3 9 14 14 0 0 0 3 9 14 14 0 0 0 3-9 14 14 0 0 0-3-9Z" />
+    </svg>
+  );
+}
+
+export function IconCheck({ className = base }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+    </svg>
+  );
+}

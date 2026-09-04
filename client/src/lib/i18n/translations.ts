@@ -1,0 +1,962 @@
+import { LanguageCode } from './languages';
+
+export type TranslationKey =
+  // Header / Nav
+  | 'nav_appName'
+  | 'nav_appSubtitle'
+  | 'nav_bookSlot'
+  | 'nav_liveQueue'
+  | 'nav_myStatus'
+  | 'nav_loginRegister'
+  | 'nav_changeLanguage'
+  | 'nav_selectLanguage'
+
+  // Language Modal
+  | 'modal_welcome'
+  | 'modal_selectLanguage'
+  | 'modal_selectSubtitle'
+  | 'modal_continue'
+
+  // Home Page
+  | 'home_tag'
+  | 'home_heroTitle'
+  | 'home_heroDesc'
+  | 'home_getStarted'
+  | 'home_viewLiveQueue'
+  | 'home_howItWorks'
+  | 'home_fourSteps'
+  | 'home_step1Title'
+  | 'home_step1Desc'
+  | 'home_step2Title'
+  | 'home_step2Desc'
+  | 'home_step3Title'
+  | 'home_step3Desc'
+  | 'home_step4Title'
+  | 'home_step4Desc'
+  | 'home_builtForTag'
+  | 'home_builtForHeading'
+  | 'home_builtForDesc'
+  | 'home_smsAlertNote'
+  | 'home_feat1Label'
+  | 'home_feat1Desc'
+  | 'home_feat2Label'
+  | 'home_feat2Desc'
+  | 'home_feat3Label'
+  | 'home_feat3Desc'
+  | 'home_feat4Label'
+  | 'home_feat4Desc'
+
+  // Register / Login Page
+  | 'reg_eyebrow'
+  | 'reg_title'
+  | 'reg_subtitle'
+  | 'reg_mobileNumber'
+  | 'reg_sendOtp'
+  | 'reg_sending'
+  | 'reg_enterOtp'
+  | 'reg_otpDesc'
+  | 'reg_verifyContinue'
+  | 'reg_verifying'
+  | 'reg_wrongNumber'
+  | 'reg_profilePrompt'
+  | 'reg_fullName'
+  | 'reg_village'
+  | 'reg_district'
+  | 'reg_state'
+  | 'reg_saveProfile'
+  | 'reg_saving'
+  | 'reg_allSet'
+  | 'reg_accountReady'
+  | 'reg_bookFirstSlot'
+
+  // Booking Page
+  | 'book_eyebrow'
+  | 'book_title'
+  | 'book_subtitle'
+  | 'book_selectCenter'
+  | 'book_chooseDate'
+  | 'book_selectDate'
+  | 'book_produceDetails'
+  | 'book_chooseCenterPrompt'
+  | 'book_crop'
+  | 'book_quantity'
+  | 'book_btn'
+  | 'book_booking'
+  | 'book_available'
+  | 'book_noSlots'
+  | 'book_success'
+  | 'book_tokenNumber'
+  | 'book_cropWheat'
+  | 'book_cropPaddy'
+  | 'book_cropMaize'
+
+  // Queue Page
+  | 'queue_eyebrow'
+  | 'queue_title'
+  | 'queue_subtitle'
+  | 'queue_selectCenterPrompt'
+  | 'queue_nowServing'
+  | 'queue_waiting'
+  | 'queue_completed'
+  | 'queue_total'
+  | 'queue_token'
+  | 'queue_farmer'
+  | 'queue_status'
+  | 'queue_estWait'
+  | 'queue_noOneWaiting'
+  | 'queue_liveConnected'
+
+  // Status Page
+  | 'status_eyebrow'
+  | 'status_title'
+  | 'status_subtitle'
+  | 'status_noBookings'
+  | 'status_selectBookingPrompt'
+  | 'status_timeline'
+  | 'status_stageBooked'
+  | 'status_stageArrived'
+  | 'status_stageWeighed'
+  | 'status_stageApproved'
+  | 'status_stagePaid'
+  | 'status_produceDetails'
+  | 'status_quantity'
+  | 'status_amount'
+
+  // Footer
+  | 'footer_copyright'
+  | 'footer_ministry';
+
+export const translations: Record<LanguageCode, Record<TranslationKey, string>> = {
+  en: {
+    nav_appName: 'Procurement Queue',
+    nav_appSubtitle: 'SIH 2026 · PS26032',
+    nav_bookSlot: 'Book a Slot',
+    nav_liveQueue: 'Live Queue',
+    nav_myStatus: 'My Status',
+    nav_loginRegister: 'Register / Sign In',
+    nav_changeLanguage: 'Language',
+    nav_selectLanguage: 'Choose Language',
+
+    modal_welcome: 'Welcome / स्वागत है / ਜੀ ਆਇਆਂ ਨੂੰ',
+    modal_selectLanguage: 'Select your preferred language',
+    modal_selectSubtitle: 'You can change this anytime from the top bar.',
+    modal_continue: 'Continue',
+
+    home_tag: 'Smart India Hackathon 2026 · PS26032',
+    home_heroTitle: 'No more waiting in the sun for your turn at the mandi.',
+    home_heroDesc: 'Book your procurement slot, track your live queue position, and follow your payment status — all from your phone, in your own time.',
+    home_getStarted: 'Get Started',
+    home_viewLiveQueue: 'View Live Queue',
+    home_howItWorks: 'How it works',
+    home_fourSteps: 'Four steps, start to finish',
+    home_step1Title: 'Register',
+    home_step1Desc: 'Verify your phone number with a one-time OTP — no app install needed.',
+    home_step2Title: 'Book a Slot',
+    home_step2Desc: 'Pick a nearby procurement centre and a convenient time window.',
+    home_step3Title: 'Track the Queue',
+    home_step3Desc: 'See your live position and estimated wait — no need to stand in line.',
+    home_step4Title: 'Check Status',
+    home_step4Desc: 'Follow your produce from arrival to payment, stage by stage.',
+    home_builtForTag: 'Built for procurement centres',
+    home_builtForHeading: 'Less congestion at the gate, more transparency for farmers.',
+    home_builtForDesc: 'A single platform that lets farmers plan their visit, keeps procurement staff on top of the queue, and gives everyone a clear record of what happened and when.',
+    home_smsAlertNote: 'Farmers get an SMS the moment their turn is close.',
+    home_feat1Label: 'Slot booking',
+    home_feat1Desc: 'Book a time window at any procurement centre in seconds.',
+    home_feat2Label: 'Live queue tracking',
+    home_feat2Desc: 'Real-time position and wait-time estimates over Socket.io.',
+    home_feat3Label: 'SMS notifications',
+    home_feat3Desc: 'Booking confirmations, turn alerts, and payment updates by SMS.',
+    home_feat4Label: 'Payment tracking',
+    home_feat4Desc: 'Arrived → Weighed → Approved → Paid, visible to the farmer at every step.',
+
+    reg_eyebrow: 'Farmer account',
+    reg_title: 'Register or sign in',
+    reg_subtitle: 'Verified by mobile OTP — no password to remember.',
+    reg_mobileNumber: 'Mobile number',
+    reg_sendOtp: 'Send OTP',
+    reg_sending: 'Sending OTP…',
+    reg_enterOtp: 'Enter 6-digit OTP',
+    reg_otpDesc: 'Enter the 6-digit code sent to',
+    reg_verifyContinue: 'Verify & Continue',
+    reg_verifying: 'Verifying…',
+    reg_wrongNumber: 'Wrong number? Go back',
+    reg_profilePrompt: 'Tell us a bit about yourself to finish setting up your account.',
+    reg_fullName: 'Full name',
+    reg_village: 'Village',
+    reg_district: 'District',
+    reg_state: 'State',
+    reg_saveProfile: 'Save Profile',
+    reg_saving: 'Saving…',
+    reg_allSet: "You're all set!",
+    reg_accountReady: 'Your account is ready — go ahead and book your first slot.',
+    reg_bookFirstSlot: 'Book a Procurement Slot',
+
+    book_eyebrow: 'Procurement slot',
+    book_title: 'Book a visit',
+    book_subtitle: 'Choose a centre, date, and time window. We will issue a queue token.',
+    book_selectCenter: '1. Select Procurement Centre',
+    book_chooseDate: '2. Pick a Date',
+    book_selectDate: 'Date',
+    book_produceDetails: '3. Produce details',
+    book_chooseCenterPrompt: 'Select a procurement centre',
+    book_crop: 'Crop type',
+    book_quantity: 'Estimated quantity (quintals)',
+    book_btn: 'Book Slot',
+    book_booking: 'Booking…',
+    book_available: 'available',
+    book_noSlots: 'No slots available for this date',
+    book_success: 'Booked! Your token is',
+    book_tokenNumber: 'Token #',
+    book_cropWheat: 'Wheat (गेहूं)',
+    book_cropPaddy: 'Paddy / Rice (धान / चावल)',
+    book_cropMaize: 'Maize (मक्का)',
+
+    queue_eyebrow: 'Real-time display',
+    queue_title: 'Live Mandi Queue',
+    queue_subtitle: 'Public board — updates in real time over WebSockets.',
+    queue_selectCenterPrompt: 'Select a procurement centre to view its queue',
+    queue_nowServing: 'Now Serving',
+    queue_waiting: 'Waiting',
+    queue_completed: 'Completed',
+    queue_total: 'Total',
+    queue_token: 'Token',
+    queue_farmer: 'Farmer',
+    queue_status: 'Status',
+    queue_estWait: 'Est. Wait',
+    queue_noOneWaiting: 'No one is waiting in the queue right now.',
+    queue_liveConnected: 'Live updates connected',
+
+    status_eyebrow: 'My account',
+    status_title: 'Procurement status',
+    status_subtitle: 'Track each of your bookings from arrival through payment.',
+    status_noBookings: 'No bookings found for your account yet.',
+    status_selectBookingPrompt: 'Select a booking to view its timeline',
+    status_timeline: 'Procurement Timeline',
+    status_stageBooked: 'Slot Booked',
+    status_stageArrived: 'Arrived at Centre',
+    status_stageWeighed: 'Weighed',
+    status_stageApproved: 'Quality Approved',
+    status_stagePaid: 'Payment Released',
+    status_produceDetails: 'Produce & Payment Info',
+    status_quantity: 'Quantity Weighed',
+    status_amount: 'Amount Released',
+
+    footer_copyright: 'Farmer Procurement Queue Management Platform',
+    footer_ministry: 'SIH 2026 · PS26032 · Ministry of Consumer Affairs, Food & Public Distribution',
+  },
+
+  hi: {
+    nav_appName: 'खरीद कतार पोर्टल',
+    nav_appSubtitle: 'SIH 2026 · PS26032',
+    nav_bookSlot: 'स्लॉट बुक करें',
+    nav_liveQueue: 'लाइव कतार',
+    nav_myStatus: 'मेरी स्थिति',
+    nav_loginRegister: 'पंजीकरण / लॉगिन',
+    nav_changeLanguage: 'भाषा',
+    nav_selectLanguage: 'भाषा चुनें',
+
+    modal_welcome: 'किसान खरीद कतार पोर्टल में स्वागत है',
+    modal_selectLanguage: 'कृपया अपनी पसंदीदा भाषा चुनें',
+    modal_selectSubtitle: 'आप इसे ऊपर दिए गए मेनू से कभी भी बदल सकते हैं।',
+    modal_continue: 'आगे बढ़ें',
+
+    home_tag: 'स्मार्ट इंडिया हैकथॉन 2026 · PS26032',
+    home_heroTitle: 'मंडी में धूप में खड़े रहकर अपनी बारी का इंतजार करने की अब जरूरत नहीं।',
+    home_heroDesc: 'अपनी खरीद का स्लॉट बुक करें, मोबाइल पर लाइव कतार की स्थिति देखें और भुगतान तक हर चरण ट्रैक करें — सब कुछ अपने फोन से।',
+    home_getStarted: 'शुरू करें',
+    home_viewLiveQueue: 'लाइव कतार देखें',
+    home_howItWorks: 'यह कैसे काम करता है',
+    home_fourSteps: 'शुरुआत से अंत तक चार आसान चरण',
+    home_step1Title: 'पंजीकरण',
+    home_step1Desc: 'मोबाइल नंबर और एक बार के OTP से सत्यापन करें — किसी ऐप डाउनलोड की आवश्यकता नहीं।',
+    home_step2Title: 'स्लॉट बुक करें',
+    home_step2Desc: 'अपने नजदीकी खरीद केंद्र और सुविधाजनक समय चुनें।',
+    home_step3Title: 'कतार ट्रैक करें',
+    home_step3Desc: 'अपनी लाइव स्थिति और अनुमानित प्रतीक्षा समय देखें — कतार में खड़े होने की जरूरत नहीं।',
+    home_step4Title: 'स्थिति जांचें',
+    home_step4Desc: 'मंडी पहुंचने से लेकर बैंक खाते में भुगतान आने तक हर कदम ट्रैक करें।',
+    home_builtForTag: 'खरीद केंद्रों और किसानों के लिए निर्मित',
+    home_builtForHeading: 'मंडी गेट पर कम भीड़, किसानों के लिए पूरी पारदर्शिता।',
+    home_builtForDesc: 'एक ऐसा मंच जो किसानों को अपनी यात्रा की योजना बनाने में मदद करता है और कर्मचारियों को कतार का स्पष्ट रिकॉर्ड देता है।',
+    home_smsAlertNote: 'जैसे ही आपकी बारी नजदीक आएगी, आपके फोन पर SMS आ जाएगा।',
+    home_feat1Label: 'स्लॉट बुकिंग',
+    home_feat1Desc: 'कुछ ही सेकंड में किसी भी खरीद केंद्र पर अपना समय बुक करें।',
+    home_feat2Label: 'लाइव कतार ट्रैकिंग',
+    home_feat2Desc: 'कतार में अपनी स्थिति और प्रतीक्षा समय का रीयल-टाइम अपडेट।',
+    home_feat3Label: 'SMS सूचनाएं',
+    home_feat3Desc: 'बुकिंग पुष्टि, बारी आने की चेतावनी और भुगतान की SMS सूचना।',
+    home_feat4Label: 'भुगतान ट्रैकिंग',
+    home_feat4Desc: 'आगमन → तुलाई → गुणवत्ता पास → भुगतान, हर चरण किसान के सामने।',
+
+    reg_eyebrow: 'किसान खाता',
+    reg_title: 'पंजीकरण या लॉगिन',
+    reg_subtitle: 'मोबाइल OTP द्वारा सत्यापित — कोई पासवर्ड याद रखने की जरूरत नहीं।',
+    reg_mobileNumber: 'मोबाइल नंबर',
+    reg_sendOtp: 'OTP भेजें',
+    reg_sending: 'OTP भेजा जा रहा है…',
+    reg_enterOtp: '6 अंकों का OTP दर्ज करें',
+    reg_otpDesc: 'इस नंबर पर भेजा गया 6 अंकों का कोड दर्ज करें:',
+    reg_verifyContinue: 'सत्यापित करें और आगे बढ़ें',
+    reg_verifying: 'सत्यापन हो रहा है…',
+    reg_wrongNumber: 'गलत नंबर? वापस जाएं',
+    reg_profilePrompt: 'अपना खाता पूरा करने के लिए कृपया अपनी जानकारी दें।',
+    reg_fullName: 'पूरा नाम',
+    reg_village: 'गांव',
+    reg_district: 'जिला',
+    reg_state: 'राज्य',
+    reg_saveProfile: 'प्रोफ़ाइल सहेजें',
+    reg_saving: 'सहेजा जा रहा है…',
+    reg_allSet: 'आपका पंजीकरण पूरा हुआ!',
+    reg_accountReady: 'आपका खाता तैयार है — अब अपनी फसल के लिए स्लॉट बुक करें।',
+    reg_bookFirstSlot: 'खरीद स्लॉट बुक करें',
+
+    book_eyebrow: 'खरीद स्लॉट',
+    book_title: 'मंडी यात्रा बुक करें',
+    book_subtitle: 'केंद्र, तिथि और समय चुनें। आपको तुरंत एक कतार टोकन मिलेगा।',
+    book_selectCenter: '1. खरीद केंद्र चुनें',
+    book_chooseDate: '2. तिथि और समय चुनें',
+    book_selectDate: 'तिथि',
+    book_produceDetails: '3. फसल का विवरण',
+    book_chooseCenterPrompt: 'कृपया खरीद केंद्र चुनें',
+    book_crop: 'फसल का प्रकार',
+    book_quantity: 'अनुमानित मात्रा (क्विंटल)',
+    book_btn: 'स्लॉट बुक करें',
+    book_booking: 'बुकिंग हो रही है…',
+    book_available: 'उपलब्ध',
+    book_noSlots: 'इस तिथि के लिए कोई स्लॉट उपलब्ध नहीं है',
+    book_success: 'सफलतापूर्वक बुक हुआ! आपका टोकन नंबर है',
+    book_tokenNumber: 'टोकन #',
+    book_cropWheat: 'गेहूं (Wheat)',
+    book_cropPaddy: 'धान / चावल (Paddy)',
+    book_cropMaize: 'मक्का (Maize)',
+
+    queue_eyebrow: 'रीयल-टाइम डिस्प्ले',
+    queue_title: 'मंडी लाइव कतार बोर्ड',
+    queue_subtitle: 'सार्वजनिक बोर्ड — रीयल-टाइम में लाइव अपडेट होता है।',
+    queue_selectCenterPrompt: 'कतार देखने के लिए खरीद केंद्र चुनें',
+    queue_nowServing: 'वर्तमान टोकन',
+    queue_waiting: 'प्रतीक्षारत',
+    queue_completed: 'पूर्ण',
+    queue_total: 'कुल टोकन',
+    queue_token: 'टोकन',
+    queue_farmer: 'किसान',
+    queue_status: 'स्थिति',
+    queue_estWait: 'अनुमानित समय',
+    queue_noOneWaiting: 'वर्तमान में कतार में कोई प्रतीक्षारत नहीं है।',
+    queue_liveConnected: 'लाइव अपडेट सक्रिय हैं',
+
+    status_eyebrow: 'मेरा खाता',
+    status_title: 'खरीद और भुगतान स्थिति',
+    status_subtitle: 'मंडी पहुंचने से लेकर बैंक में भुगतान आने तक अपनी हर बुकिंग ट्रैक करें।',
+    status_noBookings: 'आपके खाते में अभी तक कोई बुकिंग नहीं मिली है।',
+    status_selectBookingPrompt: 'प्रगति देखने के लिए किसी बुकिंग पर क्लिक करें',
+    status_timeline: 'प्रक्रिया के चरण',
+    status_stageBooked: 'स्लॉट बुक हुआ',
+    status_stageArrived: 'केंद्र पर आगमन',
+    status_stageWeighed: 'फसल तुलाई',
+    status_stageApproved: 'गुणवत्ता स्वीकृत',
+    status_stagePaid: 'भुगतान जारी',
+    status_produceDetails: 'फसल और भुगतान का विवरण',
+    status_quantity: 'तुलाई मात्रा',
+    status_amount: 'जारी की गई राशि',
+
+    footer_copyright: 'किसान खरीद कतार प्रबंधन मंच',
+    footer_ministry: 'SIH 2026 · PS26032 · उपभोक्ता मामले, खाद्य और सार्वजनिक वितरण मंत्रालय',
+  },
+
+  pa: {
+    nav_appName: 'ਖਰੀਦ ਕਤਾਰ ਪੋਰਟਲ',
+    nav_appSubtitle: 'SIH 2026 · PS26032',
+    nav_bookSlot: 'ਸਲਾਟ ਬੁੱਕ ਕਰੋ',
+    nav_liveQueue: 'ਲਾਈਵ ਕਤਾਰ',
+    nav_myStatus: 'ਮੇਰੀ ਸਥਿਤੀ',
+    nav_loginRegister: 'ਰਜਿਸਟਰ / ਲਾਗਇਨ',
+    nav_changeLanguage: 'ਭਾਸ਼ਾ',
+    nav_selectLanguage: 'ਭਾਸ਼ਾ ਚੁਣੋ',
+
+    modal_welcome: 'ਕਿਸਾਨ ਖਰੀਦ ਕਤਾਰ ਪੋਰਟਲ ਵਿੱਚ ਜੀ ਆਇਆਂ ਨੂੰ',
+    modal_selectLanguage: 'ਕਿਰਪਾ ਕਰਕੇ ਆਪਣੀ ਪਸੰਦੀਦਾ ਭਾਸ਼ਾ ਚੁਣੋ',
+    modal_selectSubtitle: 'ਤੁਸੀਂ ਇਸਨੂੰ ਉੱਪਰਲੇ ਮੀਨੂ ਤੋਂ ਕਦੇ ਵੀ ਬਦਲ ਸਕਦੇ ਹੋ।',
+    modal_continue: 'ਅੱਗੇ ਵਧੋ',
+
+    home_tag: 'ਸਮਾਰਟ ਇੰਡੀਆ ਹੈਕਾਥਾਨ 2026 · PS26032',
+    home_heroTitle: 'ਮੰਡੀ ਵਿੱਚ ਧੁੱਪ ਵਿੱਚ ਖੜ੍ਹ ਕੇ ਆਪਣੀ ਵਾਰੀ ਦੀ ਉਡੀਕ ਕਰਨ ਦੀ ਲੋੜ ਨਹੀਂ।',
+    home_heroDesc: 'ਆਪਣੀ ਖਰੀਦ ਦਾ ਸਲਾਟ ਬੁੱਕ ਕਰੋ, ਮੋਬਾਈਲ ਤੇ ਲਾਈਵ ਕਤਾਰ ਦੀ ਸਥਿਤੀ ਦੇਖੋ ਅਤੇ ਭੁਗਤਾਨ ਤੱਕ ਹਰ ਕਦਮ ਟਰੈਕ ਕਰੋ — ਸਭ ਕੁਝ ਆਪਣੇ ਫ਼ੋਨ ਤੋਂ।',
+    home_getStarted: 'ਸ਼ੁਰੂ ਕਰੋ',
+    home_viewLiveQueue: 'ਲਾਈਵ ਕਤਾਰ ਦੇਖੋ',
+    home_howItWorks: 'ਇਹ ਕਿਵੇਂ ਕੰਮ ਕਰਦਾ ਹੈ',
+    home_fourSteps: 'ਸ਼ੁਰੂ ਤੋਂ ਅੰਤ ਤੱਕ ਚਾਰ ਸੌਖੇ ਕਦਮ',
+    home_step1Title: 'ਰਜਿਸਟਰੇਸ਼ਨ',
+    home_step1Desc: 'ਮੋਬਾਈਲ ਨੰਬਰ ਅਤੇ ਇੱਕ ਵਾਰ ਦੇ OTP ਨਾਲ ਤਸਦੀਕ ਕਰੋ — ਕੋਈ ਐਪ ਡਾਊਨਲੋਡ ਕਰਨ ਦੀ ਲੋੜ ਨਹੀਂ।',
+    home_step2Title: 'ਸਲਾਟ ਬੁੱਕ ਕਰੋ',
+    home_step2Desc: 'ਆਪਣੇ ਨੇੜਲੇ ਖਰੀਦ ਕੇਂਦਰ ਅਤੇ ਸੁਵਿਧਾਜਨਕ ਸਮਾਂ ਚੁਣੋ।',
+    home_step3Title: 'ਕਤਾਰ ਟਰੈਕ ਕਰੋ',
+    home_step3Desc: 'ਆਪਣੀ ਲਾਈਵ ਸਥਿਤੀ ਅਤੇ ਅੰਦਾਜ਼ਨ ਉਡੀਕ ਸਮਾਂ ਦੇਖੋ — ਕਤਾਰ ਵਿੱਚ ਖੜ੍ਹੇ ਹੋਣ ਦੀ ਲੋੜ ਨਹੀਂ।',
+    home_step4Title: 'ਸਥਿਤੀ ਜਾਂਚੋ',
+    home_step4Desc: 'ਮੰਡੀ ਪਹੁੰਚਣ ਤੋਂ ਲੈ ਕੇ ਬੈਂਕ ਖਾਤੇ ਵਿੱਚ ਭੁਗਤਾਨ ਆਉਣ ਤੱਕ ਹਰ ਕਦਮ ਟਰੈਕ ਕਰੋ।',
+    home_builtForTag: 'ਖਰੀਦ ਕੇਂਦਰਾਂ ਅਤੇ ਕਿਸਾਨਾਂ ਲਈ ਬਣਾਇਆ ਗਿਆ',
+    home_builtForHeading: 'ਮੰਡੀ ਗੇਟ ਤੇ ਘੱਟ ਭੀੜ, ਕਿਸਾਨਾਂ ਲਈ ਪੂਰੀ ਪਾਰਦਰਸ਼ਤਾ।',
+    home_builtForDesc: 'ਇੱਕ ਅਜਿਹਾ ਪਲੇਟਫਾਰਮ ਜੋ ਕਿਸਾਨਾਂ ਨੂੰ ਆਪਣੀ ਫੇਰੀ ਦੀ ਯੋਜਨਾ ਬਣਾਉਣ ਵਿੱਚ ਮਦਦ ਕਰਦਾ ਹੈ ਅਤੇ ਸਟਾਫ ਨੂੰ ਕਤਾਰ ਦਾ ਸਪੱਸ਼ਟ ਰਿਕਾਰਡ ਦਿੰਦਾ ਹੈ।',
+    home_smsAlertNote: 'ਜਿਵੇਂ ਹੀ ਤੁਹਾਡੀ ਵਾਰੀ ਨੇੜੇ ਆਵੇਗੀ, ਤੁਹਾਡੇ ਫ਼ੋਨ ਤੇ SMS ਆ ਜਾਵੇਗਾ।',
+    home_feat1Label: 'ਸਲਾਟ ਬੁਕਿੰਗ',
+    home_feat1Desc: 'ਕੁਝ ਹੀ ਸਕਿੰਟਾਂ ਵਿੱਚ ਕਿਸੇ ਵੀ ਖਰੀਦ ਕੇਂਦਰ ਤੇ ਆਪਣਾ ਸਮਾਂ ਬੁੱਕ ਕਰੋ।',
+    home_feat2Label: 'ਲਾਈਵ ਕਤਾਰ ਟਰੈਕਿੰਗ',
+    home_feat2Desc: 'ਕਤਾਰ ਵਿੱਚ ਆਪਣੀ ਸਥਿਤੀ ਅਤੇ ਉਡੀਕ ਸਮੇਂ ਦਾ ਰੀਅਲ-ਟਾਈਮ ਅਪਡੇਟ।',
+    home_feat3Label: 'SMS ਸੂਚਨਾਵਾਂ',
+    home_feat3Desc: 'ਬੁਕਿੰਗ ਪੁਸ਼ਟੀ, ਵਾਰੀ ਆਉਣ ਦੀ ਚੇਤਾਵਨੀ ਅਤੇ ਭੁਗਤਾਨ ਦੀ SMS ਸੂਚਨਾ।',
+    home_feat4Label: 'ਭੁਗਤਾਨ ਟਰੈਕਿੰਗ',
+    home_feat4Desc: 'ਪਹੁੰਚ → ਤੁਲਾਈ → ਕੁਆਲਿਟੀ ਪਾਸ → ਭੁਗਤਾਨ, ਹਰ ਕਦਮ ਕਿਸਾਨ ਦੇ ਸਾਹਮਣੇ।',
+
+    reg_eyebrow: 'ਕਿਸਾਨ ਖਾਤਾ',
+    reg_title: 'ਰਜਿਸਟਰ ਜਾਂ ਲਾਗਇਨ',
+    reg_subtitle: 'ਮੋਬਾਈਲ OTP ਦੁਆਰਾ ਤਸਦੀਕ — ਕੋਈ ਪਾਸਵਰਡ ਯਾਦ ਰੱਖਣ ਦੀ ਲੋੜ ਨਹੀਂ।',
+    reg_mobileNumber: 'ਮੋਬਾਈਲ ਨੰਬਰ',
+    reg_sendOtp: 'OTP ਭੇਜੋ',
+    reg_sending: 'OTP ਭੇਜਿਆ ਜਾ ਰਿਹਾ ਹੈ…',
+    reg_enterOtp: '6 ਅੰਕਾਂ ਦਾ OTP ਦਰਜ ਕਰੋ',
+    reg_otpDesc: 'ਇਸ ਨੰਬਰ ਤੇ ਭੇਜਿਆ ਗਿਆ 6 ਅੰਕਾਂ ਦਾ ਕੋਡ ਦਰਜ ਕਰੋ:',
+    reg_verifyContinue: 'ਤਸਦੀਕ ਕਰੋ ਅਤੇ ਅੱਗੇ ਵਧੋ',
+    reg_verifying: 'ਤਸਦੀਕ ਹੋ ਰਹੀ ਹੈ…',
+    reg_wrongNumber: 'ਗਲਤ ਨੰਬਰ? ਵਾਪਸ ਜਾਓ',
+    reg_profilePrompt: 'ਆਪਣਾ ਖਾਤਾ ਪੂਰਾ ਕਰਨ ਲਈ ਕਿਰਪਾ ਕਰਕੇ ਆਪਣੀ ਜਾਣਕਾਰੀ ਦਿਓ।',
+    reg_fullName: 'ਪੂਰਾ ਨਾਮ',
+    reg_village: 'ਪਿੰਡ',
+    reg_district: 'ਜ਼ਿਲ੍ਹਾ',
+    reg_state: 'ਸੂਬਾ',
+    reg_saveProfile: 'ਪ੍ਰੋਫਾਈਲ ਸੁਰੱਖਿਅਤ ਕਰੋ',
+    reg_saving: 'ਸੁਰੱਖਿਅਤ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ…',
+    reg_allSet: 'ਤੁਹਾਡਾ ਖਾਤਾ ਤਿਆਰ ਹੈ!',
+    reg_accountReady: 'ਤੁਹਾਡਾ ਖਾਤਾ ਤਿਆਰ ਹੈ — ਹੁਣ ਆਪਣੀ ਫਸਲ ਲਈ ਸਲਾਟ ਬੁੱਕ ਕਰੋ।',
+    reg_bookFirstSlot: 'ਖਰੀਦ ਸਲਾਟ ਬੁੱਕ ਕਰੋ',
+
+    book_eyebrow: 'ਖਰੀਦ ਸਲਾਟ',
+    book_title: 'ਮੰਡੀ ਫੇਰੀ ਬੁੱਕ ਕਰੋ',
+    book_subtitle: 'ਕੇਂਦਰ, ਮਿਤੀ ਅਤੇ ਸਮਾਂ ਚੁਣੋ। ਤੁਹਾਨੂੰ ਤੁਰੰਤ ਇੱਕ ਕਤਾਰ ਟੋਕਨ ਮਿਲੇਗਾ।',
+    book_selectCenter: '1. ਖਰੀਦ ਕੇਂਦਰ ਚੁਣੋ',
+    book_chooseDate: '2. ਮਿਤੀ ਅਤੇ ਸਮਾਂ ਚੁਣੋ',
+    book_selectDate: 'ਮਿਤੀ',
+    book_produceDetails: '3. ਫਸਲ ਦਾ ਵੇਰਵਾ',
+    book_chooseCenterPrompt: 'ਕਿਰਪਾ ਕਰਕੇ ਖਰੀਦ ਕੇਂਦਰ ਚੁਣੋ',
+    book_crop: 'ਫਸਲ ਦੀ ਕਿਸਮ',
+    book_quantity: 'ਅੰਦਾਜ਼ਨ ਮਾਤਰਾ (ਕੁਇੰਟਲ)',
+    book_btn: 'ਸਲਾਟ ਬੁੱਕ ਕਰੋ',
+    book_booking: 'ਬੁਕਿੰਗ ਹੋ ਰਹੀ ਹੈ…',
+    book_available: 'ਉਪਲਬਧ',
+    book_noSlots: 'ਇਸ ਮਿਤੀ ਲਈ ਕੋਈ ਸਲਾਟ ਉਪਲਬਧ ਨਹੀਂ ਹੈ',
+    book_success: 'ਸਫਲਤਾਪੂਰਵਕ ਬੁੱਕ ਹੋਇਆ! ਤੁਹਾਡਾ ਟੋਕਨ ਨੰਬਰ ਹੈ',
+    book_tokenNumber: 'ਟੋਕਨ #',
+    book_cropWheat: 'ਕਣਕ (Wheat)',
+    book_cropPaddy: 'ਝੋਨਾ / ਚਾਵਲ (Paddy)',
+    book_cropMaize: 'ਮੱਕੀ (Maize)',
+
+    queue_eyebrow: 'ਰੀਅਲ-ਟਾਈਮ ਡਿਸਪਲੇ',
+    queue_title: 'ਮੰਡੀ ਲਾਈਵ ਕਤਾਰ ਬੋਰਡ',
+    queue_subtitle: 'ਜਨਤਕ ਬੋਰਡ — ਰੀਅਲ-ਟਾਈਮ ਵਿੱਚ ਲਾਈਵ ਅਪਡੇਟ ਹੁੰਦਾ ਹੈ।',
+    queue_selectCenterPrompt: 'ਕਤਾਰ ਦੇਖਣ ਲਈ ਖਰੀਦ ਕੇਂਦਰ ਚੁਣੋ',
+    queue_nowServing: 'ਮੌਜੂਦਾ ਟੋਕਨ',
+    queue_waiting: 'ਉਡੀਕ ਰਹੇ',
+    queue_completed: 'ਮੁਕੰਮਲ',
+    queue_total: 'ਕੁੱਲ ਟੋਕਨ',
+    queue_token: 'ਟੋਕਨ',
+    queue_farmer: 'ਕਿਸਾਨ',
+    queue_status: 'ਸਥਿਤੀ',
+    queue_estWait: 'ਅੰਦਾਜ਼ਨ ਸਮਾਂ',
+    queue_noOneWaiting: 'ਇਸ ਵੇਲੇ ਕਤਾਰ ਵਿੱਚ ਕੋਈ ਉਡੀਕ ਨਹੀਂ ਕਰ ਰਿਹਾ।',
+    queue_liveConnected: 'ਲਾਈਵ ਅਪਡੇਟ ਚਾਲੂ ਹਨ',
+
+    status_eyebrow: 'ਮੇਰਾ ਖਾਤਾ',
+    status_title: 'ਖਰੀਦ ਅਤੇ ਭੁਗਤਾਨ ਸਥਿਤੀ',
+    status_subtitle: 'ਮੰਡੀ ਪਹੁੰਚਣ ਤੋਂ ਲੈ ਕੇ ਬੈਂਕ ਵਿੱਚ ਭੁਗਤਾਨ ਆਉਣ ਤੱਕ ਆਪਣੀ ਹਰ ਬੁਕਿੰਗ ਟਰੈਕ ਕਰੋ।',
+    status_noBookings: 'ਤੁਹਾਡੇ ਖਾਤੇ ਵਿੱਚ ਅਜੇ ਕੋਈ ਬੁਕਿੰਗ ਨਹੀਂ ਮਿਲੀ।',
+    status_selectBookingPrompt: 'ਵੇਰਵੇ ਦੇਖਣ ਲਈ ਕਿਸੇ ਬੁਕਿੰਗ ਤੇ ਕਲਿੱਕ ਕਰੋ',
+    status_timeline: 'ਕਾਰਵਾਈ ਦੇ ਕਦਮ',
+    status_stageBooked: 'ਸਲਾਟ ਬੁੱਕ ਹੋਇਆ',
+    status_stageArrived: 'ਕੇਂਦਰ ਤੇ ਪਹੁੰਚੇ',
+    status_stageWeighed: 'ਫਸਲ ਤੁਲਾਈ',
+    status_stageApproved: 'ਗੁਣਵੱਤਾ ਪਾਸ',
+    status_stagePaid: 'ਭੁਗਤਾਨ ਜਾਰੀ',
+    status_produceDetails: 'ਫਸਲ ਅਤੇ ਭੁਗਤਾਨ ਦਾ ਵੇਰਵਾ',
+    status_quantity: 'ਤੋਲੀ ਗਈ ਮਾਤਰਾ',
+    status_amount: 'ਜਾਰੀ ਕੀਤੀ ਰਕਮ',
+
+    footer_copyright: 'ਕਿਸਾਨ ਖਰੀਦ ਕਤਾਰ ਪ੍ਰਬੰਧਨ ਪਲੇਟਫਾਰਮ',
+    footer_ministry: 'SIH 2026 · PS26032 · ਖਪਤਕਾਰ ਮਾਮਲੇ, ਖੁਰਾਕ ਅਤੇ ਜਨਤਕ ਵੰਡ ਮੰਤਰਾਲਾ',
+  },
+
+  bn: {
+    nav_appName: 'সংগ্রহ কিউ পোর্টাল',
+    nav_appSubtitle: 'SIH 2026 · PS26032',
+    nav_bookSlot: 'স্লট বুক করুন',
+    nav_liveQueue: 'লাইভ কিউ',
+    nav_myStatus: 'আমার স্ট্যাটাস',
+    nav_loginRegister: 'নিবন্ধন / সাইন ইন',
+    nav_changeLanguage: 'ভাষা',
+    nav_selectLanguage: 'ভাষা নির্বাচন',
+
+    modal_welcome: 'কৃষক সংগ্রহ কিউ পোর্টালে স্বাগতম',
+    modal_selectLanguage: 'আপনার পছন্দের ভাষা নির্বাচন করুন',
+    modal_selectSubtitle: 'আপনি উপরের মেনু থেকে যেকোনো সময় এটি পরিবর্তন করতে পারেন।',
+    modal_continue: 'চালিয়ে যান',
+
+    home_tag: 'স্মার্ট ইন্ডিয়া হ্যাকাথন ২০২৬ · PS26032',
+    home_heroTitle: 'মন্ডিতে রোদে দাঁড়িয়ে আপনার পালা আসার অপেক্ষা করার দিন শেষ।',
+    home_heroDesc: 'আপনার ফসল বিক্রির স্লট বুক করুন, মোবাইলে লাইভ কিউ পজিশন দেখুন এবং পেমেন্ট পর্যন্ত প্রতিটি ধাপ ট্র্যাক করুন।',
+    home_getStarted: 'শুরু করুন',
+    home_viewLiveQueue: 'লাইভ কিউ দেখুন',
+    home_howItWorks: 'এটি কীভাবে কাজ করে',
+    home_fourSteps: 'শুরু থেকে শেষ পর্যন্ত চারটি সহজ ধাপ',
+    home_step1Title: 'নিবন্ধন',
+    home_step1Desc: 'মোবাইল নম্বর এবং OTP দিয়ে যাচাই করুন — কোনো অ্যাপ ইনস্টলের প্রয়োজন নেই।',
+    home_step2Title: 'স্লট বুক করুন',
+    home_step2Desc: 'আপনার নিকটবর্তী সংগ্রহ কেন্দ্র এবং সুবিধাজনক সময় বেছে নিন।',
+    home_step3Title: 'কিউ ট্র্যাক করুন',
+    home_step3Desc: 'লাইনে না দাঁড়িয়ে লাইভ পজিশন এবং আনুমানিক অপেক্ষার সময় দেখুন।',
+    home_step4Title: 'স্ট্যাটাস দেখুন',
+    home_step4Desc: 'মন্ডিতে পৌঁছানো থেকে শুরু করে ব্যাংক অ্যাকাউন্টে টাকা আসা পর্যন্ত ট্র্যাক করুন।',
+    home_builtForTag: 'সংগ্রহ কেন্দ্র ও কৃষকদের জন্য তৈরি',
+    home_builtForHeading: 'গেটে কম যানজট, কৃষকদের জন্য সম্পূর্ণ স্বচ্ছতা।',
+    home_builtForDesc: 'একটি প্ল্যাটফর্ম যা কৃষকদের ভিজিটের পরিকল্পনা করতে সাহায্য করে এবং কর্মীদের স্বচ্ছ রেকর্ড দেয়।',
+    home_smsAlertNote: 'আপনার পালা কাছাকাছি আসার সাথে সাথে মোবাইলে SMS পাঠানো হবে।',
+    home_feat1Label: 'স্লট বুকিং',
+    home_feat1Desc: 'কয়েক সেকেন্ডের মধ্যে যেকোনো সংগ্রহ কেন্দ্রে সময় বুক করুন।',
+    home_feat2Label: 'লাইভ কিউ ট্র্যাকিং',
+    home_feat2Desc: 'রিয়েল-টাইমে কিউ পজিশন এবং অপেক্ষার সময় জানুন।',
+    home_feat3Label: 'SMS বিজ্ঞপ্তি',
+    home_feat3Desc: 'বুকিং নিশ্চিতকরণ, পালার সতর্কতা এবং পেমেন্ট আপডেট পান SMS-এ।',
+    home_feat4Label: 'পেমেন্ট ট্র্যাকিং',
+    home_feat4Desc: 'আগমণ → ওজন → অনুমোদন → অর্থ প্রদান, প্রতিটি ধাপ কৃষকের চোখের সামনে।',
+
+    reg_eyebrow: 'কৃষক অ্যাকাউন্ট',
+    reg_title: 'নিবন্ধন বা সাইন ইন',
+    reg_subtitle: 'মোবাইল OTP দিয়ে যাচাইকৃত — কোনো পাসওয়ার্ড মনে রাখার ঝামেলা নেই।',
+    reg_mobileNumber: 'মোবাইল নম্বর',
+    reg_sendOtp: 'OTP পাঠান',
+    reg_sending: 'OTP পাঠানো হচ্ছে…',
+    reg_enterOtp: '৬ সংখ্যার OTP লিখুন',
+    reg_otpDesc: 'এই নম্বরে পাঠানো ৬ সংখ্যার কোডটি লিখুন:',
+    reg_verifyContinue: 'যাচাই করুন এবং এগিয়ে যান',
+    reg_verifying: 'যাচাই করা হচ্ছে…',
+    reg_wrongNumber: 'ভুল নম্বর? ফিরে যান',
+    reg_profilePrompt: 'আপনার অ্যাকাউন্ট সম্পূর্ণ করতে কিছু তথ্য দিন।',
+    reg_fullName: 'সম্পূর্ণ নাম',
+    reg_village: 'গ্রাম',
+    reg_district: 'জেলা',
+    reg_state: 'রাজ্য',
+    reg_saveProfile: 'প্রোফাইল সংরক্ষণ করুন',
+    reg_saving: 'সংরক্ষণ করা হচ্ছে…',
+    reg_allSet: 'আপনি প্রস্তুত!',
+    reg_accountReady: 'আপনার অ্যাকাউন্ট প্রস্তুত — আপনার প্রথম স্লট বুক করুন।',
+    reg_bookFirstSlot: 'সংগ্রহের স্লট বুক করুন',
+
+    book_eyebrow: 'সংগ্রহ স্লট',
+    book_title: 'স্লট বুক করুন',
+    book_subtitle: 'কেন্দ্র, তারিখ এবং সময় বেছে নিন। আপনি একটি কিউ টোকেন পাবেন।',
+    book_selectCenter: '১. সংগ্রহ কেন্দ্র নির্বাচন করুন',
+    book_chooseDate: '২. তারিখ ও সময় নির্বাচন করুন',
+    book_selectDate: 'তারিখ',
+    book_produceDetails: '৩. ফসলের বিবরণ',
+    book_chooseCenterPrompt: 'সংগ্রহ কেন্দ্র নির্বাচন করুন',
+    book_crop: 'ফসলের ধরন',
+    book_quantity: 'আনুমানিক পরিমাণ (কুইন্টাল)',
+    book_btn: 'স্লট বুক করুন',
+    book_booking: 'বুকিং হচ্ছে…',
+    book_available: 'উপলব্ধ',
+    book_noSlots: 'এই তারিখে কোনো স্লট উপলব্ধ নেই',
+    book_success: 'সফলভাবে বুক হয়েছে! আপনার টোকেন নম্বর',
+    book_tokenNumber: 'টোকেন #',
+    book_cropWheat: 'গম (Wheat)',
+    book_cropPaddy: 'ধান / চাল (Paddy)',
+    book_cropMaize: 'ভুট্টা (Maize)',
+
+    queue_eyebrow: 'রিয়েল-টাইম ডিসপ্লে',
+    queue_title: 'লাইভ মাণ্ডি কিউ বোর্ড',
+    queue_subtitle: 'পাবলিক বোর্ড — সরাসরি ওয়েবসাইটে আপডেট হয়।',
+    queue_selectCenterPrompt: 'কিউ দেখতে সংগ্রহ কেন্দ্র নির্বাচন করুন',
+    queue_nowServing: 'বর্তমান টোকেন',
+    queue_waiting: 'অপেক্ষারত',
+    queue_completed: 'সম্পন্ন',
+    queue_total: 'মোট টোকেন',
+    queue_token: 'টোকেন',
+    queue_farmer: 'কৃষক',
+    queue_status: 'অবস্থা',
+    queue_estWait: 'আনুমানিক অপেক্ষা',
+    queue_noOneWaiting: 'বর্তমানে কিউতে কেউ অপেক্ষা করছেন না।',
+    queue_liveConnected: 'লাইভ আপডেট সক্রিয়',
+
+    status_eyebrow: 'আমার অ্যাকাউন্ট',
+    status_title: 'সংগ্রহ ও পেমেন্ট স্ট্যাটাস',
+    status_subtitle: 'মন্ডিতে আগমন থেকে ব্যাংকে পেমেন্ট পৌঁছানো পর্যন্ত প্রতিটি বুকিং ট্র্যাক করুন।',
+    status_noBookings: 'আপনার অ্যাকাউন্টে এখনও কোনো বুকিং পাওয়া যায়নি।',
+    status_selectBookingPrompt: 'বিস্তারিত দেখতে একটি বুকিং নির্বাচন করুন',
+    status_timeline: 'প্রক্রিয়ার ধাপসমূহ',
+    status_stageBooked: 'স্লট বুকড',
+    status_stageArrived: 'কেন্দ্রে আগমন',
+    status_stageWeighed: 'ওজন সম্পন্ন',
+    status_stageApproved: 'গুণমান অনুমোদিত',
+    status_stagePaid: 'টাকা পাঠানো হয়েছে',
+    status_produceDetails: 'ফসল এবং পেমেন্টের তথ্য',
+    status_quantity: 'পরিমাপকৃত ওজন',
+    status_amount: 'প্রদেয় অর্থ',
+
+    footer_copyright: 'কৃষক সংগ্রহ কিউ ব্যবস্থাপনা প্ল্যাটফর্ম',
+    footer_ministry: 'SIH 2026 · PS26032 · উপভোক্তা বিষয়ক, খাদ্য ও গণবন্টন মন্ত্রক',
+  },
+
+  mr: {
+    nav_appName: 'खरेदी रांग पोर्टल',
+    nav_appSubtitle: 'SIH 2026 · PS26032',
+    nav_bookSlot: 'स्लॉट बुक करा',
+    nav_liveQueue: 'थेट रांग',
+    nav_myStatus: 'माझी स्थिती',
+    nav_loginRegister: 'नोंदणी / साइन इन',
+    nav_changeLanguage: 'भाषा',
+    nav_selectLanguage: 'भाषा निवडा',
+
+    modal_welcome: 'शेतकरी खरेदी रांग पोर्टलवर आपले स्वागत आहे',
+    modal_selectLanguage: 'कृपया आपली पसंतीची भाषा निवडा',
+    modal_selectSubtitle: 'आपण हे वर दिलेल्या मेनूमधून कधीही बदलू शकता.',
+    modal_continue: 'पुढे जा',
+
+    home_tag: 'स्मार्ट इंडिया हॅकाथॉन २०२६ · PS26032',
+    home_heroTitle: 'मंडीत उन्हात उभे राहून आपल्या पाळीची वाट पाहण्याची आता गरज नाही.',
+    home_heroDesc: 'आपला खरेदीचा स्लॉट बुक करा, मोबाईलवर थेट रांगेची स्थिती पाहा आणि खात्यात पैसे जमा होईपर्यंत प्रत्येक टप्पा ट्रॅक करा.',
+    home_getStarted: 'सुरू करा',
+    home_viewLiveQueue: 'थेट रांग पाहा',
+    home_howItWorks: 'हे कसे कार्य करते',
+    home_fourSteps: 'सुरुवातीपासून शेवटपर्यंत चार सोप्या पायऱ्या',
+    home_step1Title: 'नोंदणी',
+    home_step1Desc: 'मोबाईल क्रमांक आणि एका OTP द्वारे पडताळणी करा — कोणत्याही ॲपची गरज नाही.',
+    home_step2Title: 'स्लॉट बुक करा',
+    home_step2Desc: 'जवळचे खरेदी केंद्र आणि सोयीची वेळ निवडा.',
+    home_step3Title: 'रांग ट्रॅक करा',
+    home_step3Desc: 'आपली थेट स्थिती आणि अंदाजे वेळ पाहा — रांगेत उभे राहण्याची गरज नाही.',
+    home_step4Title: 'स्थिती तपासा',
+    home_step4Desc: 'मंडीत पोहोचण्यापासून बँक खात्यात पैसे येईपर्यंत प्रत्येक टप्पा ट्रॅक करा.',
+    home_builtForTag: 'खरेदी केंद्रे आणि शेतकऱ्यांसाठी निर्मित',
+    home_builtForHeading: 'गेटवर कमी गर्दी, शेतकऱ्यांसाठी पूर्ण पारदर्शकता.',
+    home_builtForDesc: 'एक असा मंच जो शेतकऱ्यांना नियोजनात मदत करतो आणि कर्मचाऱ्यांना रांगेची स्पष्ट माहिती देतो.',
+    home_smsAlertNote: 'आपली पाळी जवळ येताच मोबाईलवर SMS येईल.',
+    home_feat1Label: 'स्लॉट बुकिंग',
+    home_feat1Desc: 'काही सेकंदात कोणत्याही खरेदी केंद्रावर आपली वेळ बुक करा.',
+    home_feat2Label: 'थेट रांग ट्रॅकिंग',
+    home_feat2Desc: 'रांगेतील स्थिती आणि वेळेचे थेट अपडेट्स.',
+    home_feat3Label: 'SMS सूचना',
+    home_feat3Desc: 'बुकिंग पुष्टी, पाळीची सूचना आणि पेमेंटचे SMS अपडेट्स.',
+    home_feat4Label: 'पेमेंट ट्रॅकिंग',
+    home_feat4Desc: 'आगमन → वजन → गुणवत्ता तपासणी → पेमेंट, प्रत्येक टप्पा शेतकऱ्यासमोर.',
+
+    reg_eyebrow: 'शेतकरी खाते',
+    reg_title: 'नोंदणी किंवा साइन इन',
+    reg_subtitle: 'मोबाईल OTP द्वारे पडताळणी — कोणताही पासवर्ड लक्षात ठेवण्याची गरज नाही.',
+    reg_mobileNumber: 'मोबाईल क्रमांक',
+    reg_sendOtp: 'OTP पाठवा',
+    reg_sending: 'OTP पाठवला जात आहे…',
+    reg_enterOtp: '६ अंकी OTP प्रविष्ट करा',
+    reg_otpDesc: 'या क्रमांकावर पाठवलेला ६ अंकी कोड प्रविष्ट करा:',
+    reg_verifyContinue: 'पडताळणी करा आणि पुढे जा',
+    reg_verifying: 'पडताळणी होत आहे…',
+    reg_wrongNumber: 'चुकीचा क्रमांक? मागे जा',
+    reg_profilePrompt: 'आपले खाते पूर्ण करण्यासाठी कृपया आपली माहिती भरा.',
+    reg_fullName: 'पूर्ण नाव',
+    reg_village: 'गाव',
+    reg_district: 'जिल्हा',
+    reg_state: 'राज्य',
+    reg_saveProfile: 'प्रोफाइल सेव्ह करा',
+    reg_saving: 'सेव्ह होत आहे…',
+    reg_allSet: 'आपली नोंदणी पूर्ण झाली!',
+    reg_accountReady: 'आपले खाते तयार आहे — आता खरेदीचा स्लॉट बुक करा.',
+    reg_bookFirstSlot: 'खरेदी स्लॉट बुक करा',
+
+    book_eyebrow: 'खरेदी स्लॉट',
+    book_title: 'मंडी भेट बुक करा',
+    book_subtitle: 'केंद्र, तारीख आणि वेळ निवडा. आपल्याला रांगेचे टोकन मिळेल.',
+    book_selectCenter: '१. खरेदी केंद्र निवडा',
+    book_chooseDate: '२. तारीख आणि वेळ निवडा',
+    book_selectDate: 'तारीख',
+    book_produceDetails: '३. पिकाचा तपशील',
+    book_chooseCenterPrompt: 'कृपया खरेदी केंद्र निवडा',
+    book_crop: 'पिकाचा प्रकार',
+    book_quantity: 'अंदाजे प्रमाण (क्विंटल)',
+    book_btn: 'स्लॉट बुक करा',
+    book_booking: 'बुकिंग सुरू आहे…',
+    book_available: 'उपलब्ध',
+    book_noSlots: 'या तारखेसाठी कोणताही स्लॉट उपलब्ध नाही',
+    book_success: 'यशस्वीरीत्या बुक झाले! आपला टोकन क्रमांक आहे',
+    book_tokenNumber: 'टोकन #',
+    book_cropWheat: 'गहू (Wheat)',
+    book_cropPaddy: 'भात / तांदूळ (Paddy)',
+    book_cropMaize: 'मका (Maize)',
+
+    queue_eyebrow: 'थेट डिस्प्ले',
+    queue_title: 'थेट मंडी रांग बोर्ड',
+    queue_subtitle: 'सार्वजनिक बोर्ड — थेट अपडेट होतो.',
+    queue_selectCenterPrompt: 'रांग पाहण्यासाठी खरेदी केंद्र निवडा',
+    queue_nowServing: 'सध्याचा टोकन',
+    queue_waiting: 'प्रतीक्षेत',
+    queue_completed: 'पूर्ण झालेले',
+    queue_total: 'एकूण टोकन',
+    queue_token: 'टोकन',
+    queue_farmer: 'शेतकरी',
+    queue_status: 'स्थिती',
+    queue_estWait: 'अंदाजे वेळ',
+    queue_noOneWaiting: 'सध्या रांगेत कोणीही प्रतीक्षेत नाही.',
+    queue_liveConnected: 'थेट अपडेट्स सुरू आहेत',
+
+    status_eyebrow: 'माझे खाते',
+    status_title: 'खरेदी आणि पेमेंट स्थिती',
+    status_subtitle: 'मंडीत पोहोचल्यापासून पेमेंट मिळेपर्यंत प्रत्येक बुकिंग ट्रॅक करा.',
+    status_noBookings: 'आपल्या खात्यावर अद्याप कोणतीही बुकिंग नाही.',
+    status_selectBookingPrompt: 'तपशील पाहण्यासाठी बुकिंग निवडा',
+    status_timeline: 'प्रक्रियेचे टप्पे',
+    status_stageBooked: 'स्लॉट बुक केला',
+    status_stageArrived: 'केंद्रावर आगमन',
+    status_stageWeighed: 'वजन केले',
+    status_stageApproved: 'गुणवत्ता मंजूर',
+    status_stagePaid: 'पेमेंट जमा झाले',
+    status_produceDetails: 'पीक आणि पेमेंट तपशील',
+    status_quantity: 'मोजलेले वजन',
+    status_amount: 'दिलेली रक्कम',
+
+    footer_copyright: 'शेतकरी खरेदी रांग व्यवस्थापन व्यासपीठ',
+    footer_ministry: 'SIH 2026 · PS26032 · ग्राहक व्यवहार, अन्न आणि सार्वजनिक वितरण मंत्रालय',
+  },
+
+  te: {
+    nav_appName: 'సేకరణ క్యూ పోర్టల్',
+    nav_appSubtitle: 'SIH 2026 · PS26032',
+    nav_bookSlot: 'స్లాట్ బుక్ చేయండి',
+    nav_liveQueue: 'లైవ్ క్యూ',
+    nav_myStatus: 'నా స్థితి',
+    nav_loginRegister: 'నమోదు / సైన్ ఇన్',
+    nav_changeLanguage: 'భాష',
+    nav_selectLanguage: 'భాషను ఎంచుకోండి',
+
+    modal_welcome: 'రైతు సేకరణ క్యూ పోర్టల్‌కు స్వాగతం',
+    modal_selectLanguage: 'దయచేసి మీ ప్రాధాన్య భాషను ఎంచుకోండి',
+    modal_selectSubtitle: 'మీరు ఎగువ మెనూ నుండి ఎప్పుడైనా దీన్ని మార్చవచ్చు.',
+    modal_continue: 'కొనసాగించండి',
+
+    home_tag: 'స్మార్ట్ ఇండియా హ్యాకథాన్ 2026 · PS26032',
+    home_heroTitle: 'మండీలో ఎండలో నిలబడి మీ వంతు కోసం వేచి ఉండాల్సిన అవసరం లేదు.',
+    home_heroDesc: 'మీ పంట సేకరణ స్లాట్‌ను బుక్ చేసుకోండి, మొబైల్‌లో లైవ్ క్యూ స్థితిని మరియు చెల్లింపుల వరకు ప్రతి దశను ట్రాక్ చేయండి.',
+    home_getStarted: 'ప్రారంభించండి',
+    home_viewLiveQueue: 'లైవ్ క్యూ చూడండి',
+    home_howItWorks: 'ఇది ఎలా పనిచేస్తుంది',
+    home_fourSteps: 'ప్రారంభం నుండి ముగింపు వరకు నాలుగు సులభమైన దశలు',
+    home_step1Title: 'నమోదు',
+    home_step1Desc: 'మొబైల్ నంబర్ మరియు OTP ద్వారా ధృవీకరించండి — యాప్ అవసరం లేదు.',
+    home_step2Title: 'స్లాట్ బుక్ చేయండి',
+    home_step2Desc: 'మీ సమీప సేకరణ కేంద్రం మరియు అనుకూలమైన సమయాన్ని ఎంచుకోండి.',
+    home_step3Title: 'క్యూ ట్రాక్ చేయండి',
+    home_step3Desc: 'క్యూలో నిలబడకుండా లైవ్ స్థానం మరియు వేచి ఉండే సమయాన్ని చూడండి.',
+    home_step4Title: 'స్థితిని తనిఖీ చేయండి',
+    home_step4Desc: 'మండీకి చేరుకోవడం నుండి బ్యాంకు ఖాతాలో డబ్బులు జమ అయ్యే వరకు ప్రతి దశను తెలుసుకోండి.',
+    home_builtForTag: 'సేకరణ కేంద్రాలు మరియు రైతుల కోసం రూపొందించబడింది',
+    home_builtForHeading: 'గేటు వద్ద రద్దీ తగ్గుదల, రైతులకు పూర్తి పారదర్శకత.',
+    home_builtForDesc: 'రైతులు తమ సందర్శనను ప్లాన్ చేసుకోవడానికి మరియు సిబ్బందికి స్పష్టమైన రికార్డు అందించే ఒకే వేదిక.',
+    home_smsAlertNote: 'మీ వంతు దగ్గర పడగానే మీ ఫోన్‌కు SMS వస్తుంది.',
+    home_feat1Label: 'స్లాట్ బుకింగ్',
+    home_feat1Desc: 'కొద్ది సెకన్లలో ఏదైనా సేకరణ కేంద్రంలో మీ సమయాన్ని బుక్ చేసుకోండి.',
+    home_feat2Label: 'లైవ్ క్యూ ట్రాకింగ్',
+    home_feat2Desc: 'క్యూ స్థానం మరియు వేచి ఉండే సమయం యొక్క రియల్-టైమ్ అప్‌డేట్‌లు.',
+    home_feat3Label: 'SMS నోటిఫికేషన్‌లు',
+    home_feat3Desc: 'బుకింగ్ నిర్ధారణ, వంతు హెచ్చరికలు మరియు చెల్లింపుల SMS వివరాలు.',
+    home_feat4Label: 'చెల్లింపుల ట్రాకింగ్',
+    home_feat4Desc: 'రాక → తూకం → నాణ్యత ఆమోదం → చెల్లింపు, ప్రతి దశ రైతు కళ్ళెదుటే.',
+
+    reg_eyebrow: 'రైతు ఖాతా',
+    reg_title: 'నమోదు లేదా సైన్ ఇన్',
+    reg_subtitle: 'మొబైల్ OTP ద్వారా ధృవీకరించబడింది — పాస్‌వర్డ్ గుర్తుంచుకోవాల్సిన పని లేదు.',
+    reg_mobileNumber: 'మొబైల్ నంబర్',
+    reg_sendOtp: 'OTP పంపండి',
+    reg_sending: 'OTP పంపబడుతోంది…',
+    reg_enterOtp: '6 అంకెల OTP నమోదు చేయండి',
+    reg_otpDesc: 'ఈ నంబర్‌కు పంపిన 6 అంకెల కోడ్‌ను నమోదు చేయండి:',
+    reg_verifyContinue: 'ధృవీకరించి కొనసాగించండి',
+    reg_verifying: 'ధృవీకరిస్తోంది…',
+    reg_wrongNumber: 'తప్పు నంబరా? వెనక్కి వెళ్ళండి',
+    reg_profilePrompt: 'మీ ఖాతాను పూర్తి చేయడానికి దయచేసి వివరాలను నమోదు చేయండి.',
+    reg_fullName: 'పూర్తి పేరు',
+    reg_village: 'గ్రామం',
+    reg_district: 'జిల్లా',
+    reg_state: 'రాష్ట్రం',
+    reg_saveProfile: 'ప్రొఫైల్ సేవ్ చేయండి',
+    reg_saving: 'సేవ్ చేస్తోంది…',
+    reg_allSet: 'మీ నమోదు పూర్తయింది!',
+    reg_accountReady: 'మీ ఖాతా సిద్ధంగా ఉంది — ఇప్పుడు మొదటి స్లాట్‌ను బుక్ చేసుకోండి.',
+    reg_bookFirstSlot: 'సేకరణ స్లాట్ బుక్ చేయండి',
+
+    book_eyebrow: 'సేకరణ స్లాట్',
+    book_title: 'సందర్శనను బుక్ చేయండి',
+    book_subtitle: 'కేంద్రం, తేదీ మరియు సమయాన్ని ఎంచుకోండి. మీకు క్యూ టోకెన్ లభిస్తుంది.',
+    book_selectCenter: '1. సేకరణ కేంద్రాన్ని ఎంచుకోండి',
+    book_chooseDate: '2. తేదీ మరియు సమయాన్ని ఎంచుకోండి',
+    book_selectDate: 'తేదీ',
+    book_produceDetails: '3. పంట వివరాలు',
+    book_chooseCenterPrompt: 'దయచేసి సేకరణ కేంద్రాన్ని ఎంచుకోండి',
+    book_crop: 'పంట రకం',
+    book_quantity: 'అంచనా పరిమాణం (క్వింటాళ్ళు)',
+    book_btn: 'స్లాట్ బుక్ చేయండి',
+    book_booking: 'బుకింగ్ జరుగుతోంది…',
+    book_available: 'అందుబాటులో ఉన్నాయి',
+    book_noSlots: 'ఈ తేదీకి స్లాట్‌లు అందుబాటులో లేవు',
+    book_success: 'విజయవంతంగా బుక్ అయింది! మీ టోకెన్ నంబర్',
+    book_tokenNumber: 'టోకెన్ #',
+    book_cropWheat: 'గోధుమలు (Wheat)',
+    book_cropPaddy: 'వరి / ధాన్యం (Paddy)',
+    book_cropMaize: 'మొక్కజొన్న (Maize)',
+
+    queue_eyebrow: 'రియల్-టైమ్ డిస్‌ప్లే',
+    queue_title: 'లైవ్ మండీ క్యూ బోర్డు',
+    queue_subtitle: 'పబ్లిక్ బోర్డు — రియల్-టైమ్‌లో అప్‌డేట్ అవుతుంది.',
+    queue_selectCenterPrompt: 'క్యూ చూడటానికి సేకరణ కేంద్రాన్ని ఎంచుకోండి',
+    queue_nowServing: 'ప్రస్తుత టోకెన్',
+    queue_waiting: 'వేచి ఉన్నవారు',
+    queue_completed: 'పూర్తయినవి',
+    queue_total: 'మొత్తం టోకెన్లు',
+    queue_token: 'టోకెన్',
+    queue_farmer: 'రైతు',
+    queue_status: 'స్థితి',
+    queue_estWait: 'అంచనా సమయం',
+    queue_noOneWaiting: 'ప్రస్తుతం క్యూలో ఎవరూ వేచి ఉండటం లేదు.',
+    queue_liveConnected: 'లైవ్ అప్‌డేట్‌లు కనెక్ట్ అయ్యాయి',
+
+    status_eyebrow: 'నా ఖాతా',
+    status_title: 'సేకరణ మరియు చెల్లింపుల స్థితి',
+    status_subtitle: 'మండీకి చేరుకోవడం నుండి చెల్లింపు వరకు ప్రతి బుకింగ్‌ను ట్రాక్ చేయండి.',
+    status_noBookings: 'మీ ఖాతాలో ఇంకా ఎటువంటి బుకింగ్‌లు లేవు.',
+    status_selectBookingPrompt: 'వివరాలు చూడటానికి బుకింగ్‌ను ఎంచుకోండి',
+    status_timeline: 'ప్రక్రియ దశలు',
+    status_stageBooked: 'స్లాట్ బుక్ అయింది',
+    status_stageArrived: 'కేంద్రానికి చేరారు',
+    status_stageWeighed: 'తూకం వేయబడింది',
+    status_stageApproved: 'నాణ్యత ఆమోదించబడింది',
+    status_stagePaid: 'చెల్లింపు పూర్తయింది',
+    status_produceDetails: 'పంట మరియు చెల్లింపు వివరాలు',
+    status_quantity: 'తూకం వేసిన పరిమాణం',
+    status_amount: 'చెల్లించిన మొత్తం',
+
+    footer_copyright: 'రైతు సేకరణ క్యూ నిర్వహణ వేదిక',
+    footer_ministry: 'SIH 2026 · PS26032 · వినియోగదారుల వ్యవహారాలు, ఆహార మరియు ప్రజా పంపిణీ మంత్రిత్వ శాఖ',
+  },
+
+  ta: {
+    nav_appName: 'கொள்முதல் வரிசை போர்டல்',
+    nav_appSubtitle: 'SIH 2026 · PS26032',
+    nav_bookSlot: 'முன்பதிவு செய்',
+    nav_liveQueue: 'நேரலை வரிசை',
+    nav_myStatus: 'என் நிலை',
+    nav_loginRegister: 'பதிவு / உள்நுழைவு',
+    nav_changeLanguage: 'மொழி',
+    nav_selectLanguage: 'மொழியைத் தேர்வு செய்க',
+
+    modal_welcome: 'விவசாயிகள் கொள்முதல் வரிசை போர்ட்டலுக்கு நல்வரவு',
+    modal_selectLanguage: 'உங்கள் விருப்பமான மொழியைத் தேர்ந்தெடுக்கவும்',
+    modal_selectSubtitle: 'மேலே உள்ள மெனுவிலிருந்து எப்போது வேண்டுமானாலும் இதை மாற்றலாம்.',
+    modal_continue: 'தொடரவும்',
+
+    home_tag: 'ஸ்மார்ட் இந்தியா ஹேக்கத்தான் 2026 · PS26032',
+    home_heroTitle: 'மண்டியில் வெயிலில் நின்று உங்கள் முறைக்காக காத்திருக்க வேண்டியதில்லை.',
+    home_heroDesc: 'உங்கள் கொள்முதல் நேரத்தை முன்பதிவு செய்யுங்கள், மொபைலில் நேரலை வரிசை நிலையைக் கவனியுங்கள் மற்றும் பணம் பெறுவது வரை பின்தொடருங்கள்.',
+    home_getStarted: 'தொடங்குங்கள்',
+    home_viewLiveQueue: 'நேரலை வரிசையைக் காண்க',
+    home_howItWorks: 'இது எவ்வாறு செயல்படுகிறது',
+    home_fourSteps: 'நான்கு எளிய படிகள்',
+    home_step1Title: 'பதிவு',
+    home_step1Desc: 'மொபைல் எண் மற்றும் OTP மூலம் சரிபாருங்கள் — ஆப் பதிவிறக்க தேவையில்லை.',
+    home_step2Title: 'நேரத்தை முன்பதிவு செய்',
+    home_step2Desc: 'அருகிலுள்ள கொள்முதல் மையம் மற்றும் வசதியான நேரத்தைத் தேர்ந்தெடுக்கவும்.',
+    home_step3Title: 'வரிசையைக் கண்காணிக்கவும்',
+    home_step3Desc: 'வரிசையில் நிற்காமல் நேரலை நிலையையும் காத்திருப்பு நேரத்தையும் தெரிந்துகொள்ளுங்கள்.',
+    home_step4Title: 'நிலையைச் சரிபார்க்கவும்',
+    home_step4Desc: 'மையத்திற்கு வருவது முதல் வங்கிக் கணக்கில் பணம் வருவது வரை கண்காணிக்கவும்.',
+    home_builtForTag: 'கொள்முதல் மையங்கள் மற்றும் விவசாயிகளுக்காக உருவாக்கப்பட்டது',
+    home_builtForHeading: 'வாசலில் நெரிசல் குறைவு, விவசாயிகளுக்கு முழு வெளிப்படைத்தன்மை.',
+    home_builtForDesc: 'விவசாயிகள் திட்டமிடவும், ஊழியர்கள் வரிசையை எளிதாக நிர்வகிக்கவும் உதவும் தளம்.',
+    home_smsAlertNote: 'உங்கள் முறை நெருங்கும் போது உங்கள் மொபைலுக்கு SMS வரும்.',
+    home_feat1Label: 'முன்பதிவு',
+    home_feat1Desc: 'சில வினாடிகளில் எந்த கொள்முதல் மையத்திலும் உங்கள் நேரத்தை பதிவு செய்யுங்கள்.',
+    home_feat2Label: 'நேரலை வரிசை கண்காணிப்பு',
+    home_feat2Desc: 'வரிசை நிலை மற்றும் காத்திருப்பு நேரம் பற்றிய நேரலை தகவல்கள்.',
+    home_feat3Label: 'SMS அறிவிப்புகள்',
+    home_feat3Desc: 'முன்பதிவு உறுதிப்படுத்தல், அழைப்பு மற்றும் பணம் செலுத்துதல் SMS தகவல்கள்.',
+    home_feat4Label: 'பணப் பரிவர்த்தனை கண்காணிப்பு',
+    home_feat4Desc: 'வருதல் → எடை போடுதல் → தரம் ஒப்புதல் → பணம் விடுவிப்பு.',
+
+    reg_eyebrow: 'விவசாயி கணக்கு',
+    reg_title: 'பதிவு அல்லது உள்நுழைவு',
+    reg_subtitle: 'மொபைல் OTP மூலம் சரிபார்க்கப்பட்டது — கடவுச்சொல் தேவையில்லை.',
+    reg_mobileNumber: 'மொபைல் எண்',
+    reg_sendOtp: 'OTP அனுப்புக',
+    reg_sending: 'OTP அனுப்பப்படுகிறது…',
+    reg_enterOtp: '6 இலக்க OTP-ஐ உள்ளிடவும்',
+    reg_otpDesc: 'இந்த எண்ணிற்கு அனுப்பப்பட்ட 6 இலக்கக் குறியீட்டை உள்ளிடவும்:',
+    reg_verifyContinue: 'சரிபார்த்து தொடரவும்',
+    reg_verifying: 'சரிபார்க்கப்படுகிறது…',
+    reg_wrongNumber: 'தவறான எண்ணா? பின்செல்லவும்',
+    reg_profilePrompt: 'உங்கள் கணக்கை முடிக்க உங்கள் விவரங்களை உள்ளிடவும்.',
+    reg_fullName: 'முழுப் பெயர்',
+    reg_village: 'கிராமம்',
+    reg_district: 'மாவட்டம்',
+    reg_state: 'மாநிலம்',
+    reg_saveProfile: 'விவரங்களைச் சேமி',
+    reg_saving: 'சேமிக்கப்படுகிறது…',
+    reg_allSet: 'பதிவு முடிந்தது!',
+    reg_accountReady: 'உங்கள் கணக்கு தயாராக உள்ளது — இப்போது முதல் முன்பதிவைச் செய்யுங்கள்.',
+    reg_bookFirstSlot: 'கொள்முதல் நேரத்தை முன்பதிவு செய்',
+
+    book_eyebrow: 'கொள்முதல் நேரம்',
+    book_title: 'நேரத்தை முன்பதிவு செய்',
+    book_subtitle: 'மையம், தேதி மற்றும் நேரத்தைத் தேர்வுசெய்க. உங்களுக்கு டோக்கன் வழங்கப்படும்.',
+    book_selectCenter: '1. கொள்முதல் மையத்தைத் தேர்வுசெய்க',
+    book_chooseDate: '2. தேதி மற்றும் நேரத்தைத் தேர்வுசெய்க',
+    book_selectDate: 'தேதி',
+    book_produceDetails: '3. விளைபொருள் விவரங்கள்',
+    book_chooseCenterPrompt: 'தயவுசெய்து கொள்முதல் மையத்தைத் தேர்வுசெய்க',
+    book_crop: 'பயிர் வகை',
+    book_quantity: 'மதிப்பிடப்பட்ட அளவு (குவிண்டால்)',
+    book_btn: 'முன்பதிவு செய்',
+    book_booking: 'முன்பதிவு செய்யப்படுகிறது…',
+    book_available: 'கிடைக்கின்றன',
+    book_noSlots: 'இந்த தேதியில் நேரம் கிடைக்கவில்லை',
+    book_success: 'வெற்றிகரமாக பதிவு செய்யப்பட்டது! உங்கள் டோக்கன் எண்',
+    book_tokenNumber: 'டோக்கன் #',
+    book_cropWheat: 'கோதுமை (Wheat)',
+    book_cropPaddy: 'நெல் / அரிசி (Paddy)',
+    book_cropMaize: 'மக்காச்சோளம் (Maize)',
+
+    queue_eyebrow: 'நேரலை திரை',
+    queue_title: 'நேரலை மண்டி வரிசைப் பலகை',
+    queue_subtitle: 'பொதுப் பலகை — நிகழ்நேரத்தில் தானாகப் புதுப்பிக்கப்படும்.',
+    queue_selectCenterPrompt: 'வரிசையைக் காண மையத்தைத் தேர்வுசெய்க',
+    queue_nowServing: 'தற்போதைய டோக்கன்',
+    queue_waiting: 'காத்திருப்போர்',
+    queue_completed: 'முடிந்தவை',
+    queue_total: 'மொத்த டோக்கன்கள்',
+    queue_token: 'டோக்கன்',
+    queue_farmer: 'விவசாயி',
+    queue_status: 'நிலை',
+    queue_estWait: 'காத்திருப்பு நேரம்',
+    queue_noOneWaiting: 'தற்போது வரிசையில் யாரும் காத்திருக்கவில்லை.',
+    queue_liveConnected: 'நேரலை புதுப்பிப்புகள் இணைக்கப்பட்டுள்ளன',
+
+    status_eyebrow: 'என் கணக்கு',
+    status_title: 'கொள்முதல் மற்றும் பண நிலை',
+    status_subtitle: 'மண்டிக்கு வருவது முதல் பணம் பெறுவது வரை உங்கள் ஒவ்வொரு முன்பதிவையும் கண்காணிக்கவும்.',
+    status_noBookings: 'உங்கள் கணக்கில் இதுவரை எந்த முன்பதிவும் இல்லை.',
+    status_selectBookingPrompt: 'விவரங்களைக் காண ஒரு முன்பதிவைத் தேர்ந்தெடுக்கவும்',
+    status_timeline: 'செயல்முறை நிலைகள்',
+    status_stageBooked: 'முன்பதிவு செய்யப்பட்டது',
+    status_stageArrived: 'மையத்திற்கு வருகை',
+    status_stageWeighed: 'எடை போடப்பட்டது',
+    status_stageApproved: 'தரம் அங்கீகரிக்கப்பட்டது',
+    status_stagePaid: 'பணம் செலுத்தப்பட்டது',
+    status_produceDetails: 'விளைபொருள் மற்றும் பண விவரங்கள்',
+    status_quantity: 'எடை அளவு',
+    status_amount: 'செலுத்தப்பட்ட தொகை',
+
+    footer_copyright: 'விவசாயிகள் கொள்முதல் வரிசை மேலாண்மை தளம்',
+    footer_ministry: 'SIH 2026 · PS26032 · நுகர்வோர் விவகாரங்கள், உணவு மற்றும் பொது விநியோக அமைச்சகம்',
+  },
+};
