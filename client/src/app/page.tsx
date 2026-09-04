@@ -99,37 +99,37 @@ export default function HomePage() {
       </section>
 
       {/* Official Government Procurement Framework Banner */}
-      <Card className="procurement-banner p-4 sm:p-8 bg-white border-neutral-200 shadow-sm">
+      <Card className="procurement-banner p-4 sm:p-8 bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 shadow-sm">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6">
           <div className="space-y-1.5 sm:space-y-2 max-w-2xl min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="rounded-md bg-brand-50 px-2 sm:px-2.5 py-0.5 text-[10px] sm:text-xs font-bold text-brand-800 border border-brand-200">
+              <span className="rounded-md bg-brand-50 dark:bg-brand-950/60 px-2 sm:px-2.5 py-0.5 text-[10px] sm:text-xs font-bold text-brand-800 dark:text-brand-300 border border-brand-200 dark:border-brand-800">
                 Government Procurement
               </span>
-              <span className="hidden sm:inline text-xs text-neutral-500 font-medium">
+              <span className="hidden sm:inline text-xs text-neutral-500 dark:text-neutral-400 font-medium">
                 Ministry of Consumer Affairs, Food & Public Distribution
               </span>
             </div>
-            <h3 className="text-base sm:text-xl font-bold text-neutral-900 tracking-tight">
+            <h3 className="text-base sm:text-xl font-bold text-neutral-900 dark:text-neutral-100 tracking-tight">
               20% DBT Safety Advance & Mandated Logistics
             </h3>
-            <p className="text-[11px] sm:text-xs text-neutral-600 leading-relaxed">
+            <p className="text-[11px] sm:text-xs text-neutral-600 dark:text-neutral-300 leading-relaxed">
               Under the National e-Procurement Mandate, this platform resolves long Mandi waiting hours, eliminates schedule uncertainty, and secures farmer income.
             </p>
           </div>
 
           <div className="grid grid-cols-3 gap-2 sm:gap-3 shrink-0">
-            <div className="rounded-xl bg-neutral-50 p-2.5 sm:p-3 border border-neutral-200 text-center">
-              <div className="text-sm sm:text-lg font-extrabold text-brand-700">20% DBT</div>
-              <div className="text-[10px] sm:text-[11px] font-medium text-neutral-500 mt-0.5">Advance</div>
+            <div className="rounded-xl bg-neutral-50 dark:bg-neutral-800/80 p-2.5 sm:p-3 border border-neutral-200 dark:border-neutral-700 text-center">
+              <div className="text-sm sm:text-lg font-extrabold text-brand-700 dark:text-brand-400">20% DBT</div>
+              <div className="text-[10px] sm:text-[11px] font-medium text-neutral-500 dark:text-neutral-400 mt-0.5">Advance</div>
             </div>
-            <div className="rounded-xl bg-neutral-50 p-2.5 sm:p-3 border border-neutral-200 text-center">
-              <div className="text-sm sm:text-lg font-extrabold text-neutral-800">Digital</div>
-              <div className="text-[10px] sm:text-[11px] font-medium text-neutral-500 mt-0.5">Token</div>
+            <div className="rounded-xl bg-neutral-50 dark:bg-neutral-800/80 p-2.5 sm:p-3 border border-neutral-200 dark:border-neutral-700 text-center">
+              <div className="text-sm sm:text-lg font-extrabold text-neutral-800 dark:text-neutral-200">Digital</div>
+              <div className="text-[10px] sm:text-[11px] font-medium text-neutral-500 dark:text-neutral-400 mt-0.5">Token</div>
             </div>
-            <div className="rounded-xl bg-neutral-50 p-2.5 sm:p-3 border border-neutral-200 text-center">
-              <div className="text-sm sm:text-lg font-extrabold text-emerald-700">GPS</div>
-              <div className="text-[10px] sm:text-[11px] font-medium text-neutral-500 mt-0.5">Transport</div>
+            <div className="rounded-xl bg-neutral-50 dark:bg-neutral-800/80 p-2.5 sm:p-3 border border-neutral-200 dark:border-neutral-700 text-center">
+              <div className="text-sm sm:text-lg font-extrabold text-emerald-700 dark:text-emerald-400">GPS</div>
+              <div className="text-[10px] sm:text-[11px] font-medium text-neutral-500 dark:text-neutral-400 mt-0.5">Transport</div>
             </div>
           </div>
         </div>
@@ -137,21 +137,21 @@ export default function HomePage() {
 
       <section>
         <div className="mb-8 text-center">
-          <p className="text-xs font-semibold uppercase tracking-wide text-brand-600">{t('home_howItWorks')}</p>
-          <h2 className="mt-1 text-2xl font-bold tracking-tight text-neutral-900">{t('home_fourSteps')}</h2>
+          <p className="text-xs font-semibold uppercase tracking-wide text-brand-600 dark:text-brand-400">{t('home_howItWorks')}</p>
+          <h2 className="mt-1 text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">{t('home_fourSteps')}</h2>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {steps.map((step, i) => (
             <a key={step.title} href={step.href} className="step-card group block">
-              <Card className="h-full p-5 transition group-hover:-translate-y-0.5 group-hover:border-brand-300 group-hover:shadow-md">
+              <Card className="h-full p-5 transition group-hover:-translate-y-0.5 group-hover:border-brand-300 dark:group-hover:border-brand-600 group-hover:shadow-md">
                 <div className="mb-4 flex items-center justify-between">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 dark:bg-brand-950/60 text-brand-600 dark:text-brand-400">
                     <step.icon className="h-5 w-5" />
                   </span>
-                  <span className="text-xs font-bold text-neutral-300">{String(i + 1).padStart(2, '0')}</span>
+                  <span className="text-xs font-bold text-neutral-300 dark:text-neutral-600">{String(i + 1).padStart(2, '0')}</span>
                 </div>
-                <h3 className="font-semibold text-neutral-900">{step.title}</h3>
-                <p className="mt-1 text-sm text-neutral-500">{step.desc}</p>
+                <h3 className="font-semibold text-neutral-900 dark:text-neutral-100">{step.title}</h3>
+                <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">{step.desc}</p>
               </Card>
             </a>
           ))}
@@ -159,17 +159,17 @@ export default function HomePage() {
       </section>
 
       {/* Verified Buyer Reviews & Producer Reputation Spotlight */}
-      <section className="rounded-2xl sm:rounded-3xl border border-amber-200/80 bg-gradient-to-b from-amber-50/40 to-white p-4 sm:p-10 shadow-sm">
+      <section className="rounded-2xl sm:rounded-3xl border border-amber-200/80 dark:border-amber-900/40 bg-gradient-to-b from-amber-50/40 to-white dark:from-neutral-900 dark:to-neutral-900 p-4 sm:p-10 shadow-sm">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-5 sm:mb-8">
           <div className="min-w-0">
-            <div className="inline-flex items-center gap-1.5 text-[10px] sm:text-xs font-bold text-amber-800 bg-amber-100 px-2 sm:px-2.5 py-0.5 rounded-full mb-1.5">
-              <IconStar className="h-3 w-3 sm:h-3.5 sm:w-3.5 fill-amber-700" filled />
+            <div className="inline-flex items-center gap-1.5 text-[10px] sm:text-xs font-bold text-amber-800 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/60 px-2 sm:px-2.5 py-0.5 rounded-full mb-1.5 border border-amber-200 dark:border-amber-800/60">
+              <IconStar className="h-3 w-3 sm:h-3.5 sm:w-3.5 fill-amber-700 dark:fill-amber-400" filled />
               <span>Grain Quality & Buyer Satisfaction</span>
             </div>
-            <h2 className="text-lg sm:text-2xl font-bold tracking-tight text-neutral-900">
+            <h2 className="text-lg sm:text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
               Verified Buyer Reviews
             </h2>
-            <p className="mt-1 text-xs sm:text-sm text-neutral-600">
+            <p className="mt-1 text-xs sm:text-sm text-neutral-600 dark:text-neutral-400">
               Institutional purchasers submit direct quality ratings.
             </p>
           </div>
@@ -184,87 +184,87 @@ export default function HomePage() {
         </div>
 
         <div className="grid gap-3 sm:gap-4 md:grid-cols-3">
-          <div className="review-card rounded-2xl bg-white p-4 sm:p-5 border border-neutral-200 shadow-sm flex flex-col justify-between">
+          <div className="review-card rounded-2xl bg-white dark:bg-neutral-900 p-4 sm:p-5 border border-neutral-200 dark:border-neutral-800 shadow-sm flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-neutral-800">Vikramaditya Roy</span>
-                <span className="text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                <span className="text-xs font-bold text-neutral-800 dark:text-neutral-200">Vikramaditya Roy</span>
+                <span className="text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/50 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-800">
                   ★ 5.0
                 </span>
               </div>
-              <p className="text-[10px] sm:text-[11px] text-neutral-500 mt-0.5">Quality Officer · FCI</p>
-              <div className="mt-2 text-[11px] sm:text-xs font-semibold text-brand-700">Lot: 40 Qtl Sharbati Wheat</div>
-              <p className="mt-1.5 sm:mt-2 text-[11px] sm:text-xs text-neutral-600 leading-relaxed">
+              <p className="text-[10px] sm:text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">Quality Officer · FCI</p>
+              <div className="mt-2 text-[11px] sm:text-xs font-semibold text-brand-700 dark:text-brand-400">Lot: 40 Qtl Sharbati Wheat</div>
+              <p className="mt-1.5 sm:mt-2 text-[11px] sm:text-xs text-neutral-600 dark:text-neutral-300 leading-relaxed">
                 &ldquo;Moisture at 10.4%, well below ceiling. Zero foreign matter. Prompt delivery.&rdquo;
               </p>
             </div>
-            <div className="mt-2.5 sm:mt-3 pt-2 border-t border-neutral-100 flex flex-wrap gap-1">
-              <span className="text-[10px] font-semibold text-neutral-600 bg-neutral-100 px-2 py-0.5 rounded">✓ Low Moisture</span>
-              <span className="text-[10px] font-semibold text-neutral-600 bg-neutral-100 px-2 py-0.5 rounded">✓ Grade A</span>
+            <div className="mt-2.5 sm:mt-3 pt-2 border-t border-neutral-100 dark:border-neutral-800 flex flex-wrap gap-1">
+              <span className="text-[10px] font-semibold text-neutral-600 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded">✓ Low Moisture</span>
+              <span className="text-[10px] font-semibold text-neutral-600 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded">✓ Grade A</span>
             </div>
           </div>
 
-          <div className="review-card rounded-2xl bg-white p-4 sm:p-5 border border-neutral-200 shadow-sm flex flex-col justify-between">
+          <div className="review-card rounded-2xl bg-white dark:bg-neutral-900 p-4 sm:p-5 border border-neutral-200 dark:border-neutral-800 shadow-sm flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-neutral-800">Rajesh Singhania</span>
-                <span className="text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                <span className="text-xs font-bold text-neutral-800 dark:text-neutral-200">Rajesh Singhania</span>
+                <span className="text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/50 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-800">
                   ★ 5.0
                 </span>
               </div>
-              <p className="text-[10px] sm:text-[11px] text-neutral-500 mt-0.5">VP · Shivalik Flour Mills</p>
-              <div className="mt-2 text-[11px] sm:text-xs font-semibold text-brand-700">Lot: 65 Qtl Wheat</div>
-              <p className="mt-1.5 sm:mt-2 text-[11px] sm:text-xs text-neutral-600 leading-relaxed">
+              <p className="text-[10px] sm:text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">VP · Shivalik Flour Mills</p>
+              <div className="mt-2 text-[11px] sm:text-xs font-semibold text-brand-700 dark:text-brand-400">Lot: 65 Qtl Wheat</div>
+              <p className="mt-1.5 sm:mt-2 text-[11px] sm:text-xs text-neutral-600 dark:text-neutral-300 leading-relaxed">
                 &ldquo;High test weight (&gt;79 kg/hL) and uniform grain kernel. Ideal for chakki atta.&rdquo;
               </p>
             </div>
-            <div className="mt-2.5 sm:mt-3 pt-2 border-t border-neutral-100 flex flex-wrap gap-1">
-              <span className="text-[10px] font-semibold text-neutral-600 bg-neutral-100 px-2 py-0.5 rounded">✓ High Test Weight</span>
-              <span className="text-[10px] font-semibold text-neutral-600 bg-neutral-100 px-2 py-0.5 rounded">✓ Uniform Kernel</span>
+            <div className="mt-2.5 sm:mt-3 pt-2 border-t border-neutral-100 dark:border-neutral-800 flex flex-wrap gap-1">
+              <span className="text-[10px] font-semibold text-neutral-600 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded">✓ High Test Weight</span>
+              <span className="text-[10px] font-semibold text-neutral-600 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded">✓ Uniform Kernel</span>
             </div>
           </div>
 
-          <div className="review-card rounded-2xl bg-white p-4 sm:p-5 border border-neutral-200 shadow-sm flex flex-col justify-between">
+          <div className="review-card rounded-2xl bg-white dark:bg-neutral-900 p-4 sm:p-5 border border-neutral-200 dark:border-neutral-800 shadow-sm flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-neutral-800">Anil Kumar Agarwal</span>
-                <span className="text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                <span className="text-xs font-bold text-neutral-800 dark:text-neutral-200">Anil Kumar Agarwal</span>
+                <span className="text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/50 px-2 py-0.5 rounded border border-amber-200 dark:border-amber-800">
                   ★ 4.9
                 </span>
               </div>
-              <p className="text-[10px] sm:text-[11px] text-neutral-500 mt-0.5">Director · Kuber Agro Rice Export</p>
-              <div className="mt-2 text-[11px] sm:text-xs font-semibold text-brand-700">Lot: 35 Qtl Basmati Paddy</div>
-              <p className="mt-1.5 sm:mt-2 text-[11px] sm:text-xs text-neutral-600 leading-relaxed">
+              <p className="text-[10px] sm:text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">Director · Kuber Agro Rice Export</p>
+              <div className="mt-2 text-[11px] sm:text-xs font-semibold text-brand-700 dark:text-brand-400">Lot: 35 Qtl Basmati Paddy</div>
+              <p className="mt-1.5 sm:mt-2 text-[11px] sm:text-xs text-neutral-600 dark:text-neutral-300 leading-relaxed">
                 &ldquo;Moisture at 13.1%, broken grain below 2.5%. Well sun-dried and free from chaff.&rdquo;
               </p>
             </div>
-            <div className="mt-2.5 sm:mt-3 pt-2 border-t border-neutral-100 flex flex-wrap gap-1">
-              <span className="text-[10px] font-semibold text-neutral-600 bg-neutral-100 px-2 py-0.5 rounded">✓ Export Quality</span>
-              <span className="text-[10px] font-semibold text-neutral-600 bg-neutral-100 px-2 py-0.5 rounded">✓ Clean Lot</span>
+            <div className="mt-2.5 sm:mt-3 pt-2 border-t border-neutral-100 dark:border-neutral-800 flex flex-wrap gap-1">
+              <span className="text-[10px] font-semibold text-neutral-600 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded">✓ Export Quality</span>
+              <span className="text-[10px] font-semibold text-neutral-600 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-800 px-2 py-0.5 rounded">✓ Clean Lot</span>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="grid gap-6 sm:gap-8 rounded-2xl sm:rounded-3xl border border-neutral-200 bg-white p-4 sm:p-10 lg:grid-cols-2 shadow-sm">
+      <section className="grid gap-6 sm:gap-8 rounded-2xl sm:rounded-3xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 sm:p-10 lg:grid-cols-2 shadow-sm">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-brand-600">{t('home_builtForTag')}</p>
-          <h2 className="mt-1 text-2xl font-bold tracking-tight text-neutral-900">
+          <p className="text-xs font-semibold uppercase tracking-wide text-brand-600 dark:text-brand-400">{t('home_builtForTag')}</p>
+          <h2 className="mt-1 text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
             {t('home_builtForHeading')}
           </h2>
-          <p className="mt-3 text-sm text-neutral-500">
+          <p className="mt-3 text-sm text-neutral-500 dark:text-neutral-400">
             {t('home_builtForDesc')}
           </p>
-          <div className="mt-6 flex items-center gap-2 text-sm text-neutral-500">
-            <IconBell className="h-4 w-4 text-brand-600 shrink-0" />
+          <div className="mt-6 flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-400">
+            <IconBell className="h-4 w-4 text-brand-600 dark:text-brand-400 shrink-0" />
             {t('home_smsAlertNote')}
           </div>
         </div>
         <dl className="grid gap-4 sm:grid-cols-2">
           {highlights.map((h) => (
-            <div key={h.label} className="highlight-item rounded-2xl bg-neutral-50 p-4 border border-neutral-100">
-              <dt className="text-sm font-semibold text-neutral-900">{h.label}</dt>
-              <dd className="mt-1 text-xs text-neutral-500">{h.desc}</dd>
+            <div key={h.label} className="highlight-item rounded-2xl bg-neutral-50 dark:bg-neutral-800/60 p-4 border border-neutral-100 dark:border-neutral-800">
+              <dt className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{h.label}</dt>
+              <dd className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{h.desc}</dd>
             </div>
           ))}
         </dl>

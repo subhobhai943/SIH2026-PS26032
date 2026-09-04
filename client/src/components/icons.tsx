@@ -230,3 +230,20 @@ export function IconBuilding({ className = base }: IconProps) {
     </svg>
   );
 }
+
+export function IconSun({ className = base }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className={className}>
+      <circle cx="12" cy="12" r="4" />
+      <path strokeLinecap="round" d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41m14.14-14.14-1.41 1.41" />
+    </svg>
+  );
+}
+
+export function IconMoon({ className = base }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9 9 0 0 1 8.998 2.248a9.006 9.006 0 0 0 12.754 12.754Z" />
+    </svg>
+  );
+}

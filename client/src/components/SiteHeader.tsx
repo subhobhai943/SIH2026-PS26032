@@ -4,10 +4,11 @@ import { useState, useRef, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import gsap from 'gsap';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
+import { useTheme } from '@/lib/theme/ThemeContext';
 import { SUPPORTED_LANGUAGES, LanguageCode } from '@/lib/i18n/languages';
 import { getToken, clearToken } from '@/lib/api';
 import { prefersReducedMotion } from '@/lib/animations';
-import { IconClose, IconGlobe, IconMenu, IconWheat, IconCheck } from './icons';
+import { IconClose, IconGlobe, IconMenu, IconWheat, IconCheck, IconSun, IconMoon } from './icons';
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
@@ -15,6 +16,7 @@ export function SiteHeader() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const pathname = usePathname();
   const { language, setLanguage, openLanguageSelector, t } = useTranslation();
+  const { theme, resolvedTheme, toggleTheme, fontSize, setFontSize } = useTheme();
   const langDropdownRef = useRef<HTMLDivElement>(null);
   const langDropdownMenuRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLElement>(null);
@@ -73,7 +75,6 @@ export function SiteHeader() {
     }
   }, [langMenuOpen]);
 
-
   const navLinks = [
     { href: '/booking', label: t('nav_bookSlot') },
     { href: '/queue', label: t('nav_liveQueue') },
@@ -83,9 +84,12 @@ export function SiteHeader() {
   ];
 
   return (
-    <div className="sticky top-0 z-40 bg-white shadow-sm">
+    <div className="sticky top-0 z-40 bg-white dark:bg-neutral-900 shadow-sm transition-colors">
+      {/* Official Government of India Tricolor Ribbon */}
+      <div className="h-[3.5px] w-full bg-gradient-to-r from-[#FF9933] via-[#FFFFFF] to-[#138808]" />
+
       {/* Official Government of India Top Banner */}
-      <div className="bg-neutral-900 text-neutral-300 text-[10px] sm:text-[11px] font-medium border-b border-neutral-800">
+      <div className="bg-neutral-900 text-neutral-300 text-[10px] sm:text-[11px] font-medium border-b border-neutral-800 dark:bg-neutral-950 dark:border-neutral-800">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-3 py-1 sm:px-6">
           <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
             <span className="inline-block h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-emerald-500 shrink-0"></span>
@@ -93,24 +97,80 @@ export function SiteHeader() {
             <span className="hidden md:inline text-neutral-500">·</span>
             <span className="hidden md:inline text-neutral-300">Ministry of Consumer Affairs, Food & Public Distribution</span>
           </div>
-          <div className="hidden sm:flex items-center gap-3 text-[10px] shrink-0">
-            <span className="rounded bg-neutral-800 px-2 py-0.5 font-medium text-emerald-400 border border-neutral-700">
+
+          <div className="flex items-center gap-2 sm:gap-3 text-[10px] shrink-0">
+            <span className="hidden lg:inline rounded bg-neutral-800 px-2 py-0.5 font-medium text-emerald-400 border border-neutral-700">
               राष्ट्रीय ई-उपार्जन पोर्टल · National e-Procurement Portal
             </span>
+
+            {/* Accessibility Font Size Scaling Toolbar */}
+            <div className="hidden sm:flex items-center rounded-md bg-neutral-800/80 border border-neutral-700 p-0.5" title="Font Size">
+              <button
+                type="button"
+                onClick={() => setFontSize('normal')}
+                className={`px-1.5 py-0.5 text-[10px] font-bold rounded transition ${
+                  fontSize === 'normal' ? 'bg-neutral-700 text-white shadow-xs' : 'text-neutral-400 hover:text-white'
+                }`}
+                aria-label="Default Font Size"
+              >
+                -A
+              </button>
+              <button
+                type="button"
+                onClick={() => setFontSize('large')}
+                className={`px-1.5 py-0.5 text-[10px] font-bold rounded transition ${
+                  fontSize === 'large' ? 'bg-neutral-700 text-white shadow-xs' : 'text-neutral-400 hover:text-white'
+                }`}
+                aria-label="Medium Font Size"
+              >
+                A
+              </button>
+              <button
+                type="button"
+                onClick={() => setFontSize('larger')}
+                className={`px-1.5 py-0.5 text-[10px] font-bold rounded transition ${
+                  fontSize === 'larger' ? 'bg-neutral-700 text-white shadow-xs' : 'text-neutral-400 hover:text-white'
+                }`}
+                aria-label="Large Font Size"
+              >
+                +A
+              </button>
+            </div>
+
+            {/* Dark / Light Theme Toggle Button */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="flex items-center gap-1 rounded-md bg-neutral-800/90 hover:bg-neutral-700 border border-neutral-700 px-2 py-0.5 text-[11px] font-medium text-neutral-200 transition"
+              title={resolvedTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              aria-label="Toggle dark/light theme"
+            >
+              {resolvedTheme === 'dark' ? (
+                <>
+                  <IconSun className="h-3 w-3 text-amber-400" />
+                  <span className="hidden sm:inline text-[10px] text-amber-300">Light</span>
+                </>
+              ) : (
+                <>
+                  <IconMoon className="h-3 w-3 text-cyan-300" />
+                  <span className="hidden sm:inline text-[10px] text-cyan-200">Dark</span>
+                </>
+              )}
+            </button>
           </div>
         </div>
       </div>
 
       {/* Main Navigation */}
-      <header className="border-b border-neutral-200/80 bg-white/95 backdrop-blur">
+      <header className="border-b border-neutral-200/80 bg-white/95 backdrop-blur dark:border-neutral-800/80 dark:bg-neutral-900/95">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-3 py-2 sm:px-6 sm:py-2.5">
-          <a href="/" className="flex items-center gap-2 sm:gap-2.5 text-neutral-900 min-w-0">
+          <a href="/" className="flex items-center gap-2 sm:gap-2.5 text-neutral-900 dark:text-neutral-100 min-w-0">
             <span className="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-xl bg-brand-700 text-white shadow-sm">
               <IconWheat className="h-4 w-4 sm:h-5 sm:w-5" />
             </span>
             <span className="text-xs sm:text-base font-bold leading-tight min-w-0">
               <span className="block truncate">{t('nav_appName')}</span>
-              <span className="block text-[9px] sm:text-[10px] font-medium text-neutral-500 truncate">
+              <span className="block text-[9px] sm:text-[10px] font-medium text-neutral-500 dark:text-neutral-400 truncate">
                 Dept. of Food & Public Distribution
               </span>
             </span>
@@ -125,8 +185,8 @@ export function SiteHeader() {
                 href={link.href}
                 className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
                   pathname === link.href
-                    ? 'bg-brand-50 text-brand-700'
-                    : 'text-neutral-600 hover:bg-neutral-100'
+                    ? 'bg-brand-50 text-brand-700 dark:bg-brand-950/70 dark:text-brand-300 dark:border dark:border-brand-800/60'
+                    : 'text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800'
                 }`}
               >
                 {link.label}
@@ -139,22 +199,22 @@ export function SiteHeader() {
             <button
               type="button"
               onClick={() => setLangMenuOpen(!langMenuOpen)}
-              className="flex items-center gap-1.5 rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-xs font-semibold text-neutral-700 transition hover:border-brand-300 hover:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+              className="flex items-center gap-1.5 rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-xs font-semibold text-neutral-700 transition hover:border-brand-300 hover:bg-white dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
               aria-label="Select Language"
             >
-              <IconGlobe className="h-4 w-4 text-brand-600" />
+              <IconGlobe className="h-4 w-4 text-brand-600 dark:text-brand-400" />
               <span>{currentLang.flag}</span>
               <span>{currentLang.name}</span>
-              <span className="text-[10px] text-neutral-400">▾</span>
+              <span className="text-[10px] text-neutral-400 dark:text-neutral-500">▾</span>
             </button>
 
             {langMenuOpen && (
               <div
                 ref={langDropdownMenuRef}
-                className="absolute right-0 mt-2 w-56 overflow-hidden rounded-2xl border border-neutral-100 bg-white p-1.5 shadow-xl ring-1 ring-black/5"
+                className="absolute right-0 mt-2 w-56 overflow-hidden rounded-2xl border border-neutral-100 bg-white p-1.5 shadow-xl ring-1 ring-black/5 dark:border-neutral-800 dark:bg-neutral-900 dark:ring-white/10"
               >
-                <div className="px-3 py-2 border-b border-neutral-100">
-                  <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+                <div className="px-3 py-2 border-b border-neutral-100 dark:border-neutral-800">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">
                     {t('nav_selectLanguage')}
                   </p>
                 </div>
@@ -170,29 +230,29 @@ export function SiteHeader() {
                         }}
                         className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-xs font-medium transition ${
                           isSelected
-                            ? 'bg-brand-50 text-brand-700 font-bold'
-                            : 'text-neutral-700 hover:bg-neutral-100'
+                            ? 'bg-brand-50 text-brand-700 font-bold dark:bg-brand-950/70 dark:text-brand-300'
+                            : 'text-neutral-700 hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-neutral-800'
                         }`}
                       >
                         <div className="flex items-center gap-2">
                           <span className="text-base">{lang.flag}</span>
                           <span>{lang.name}</span>
-                          <span className="text-[10px] text-neutral-400">
+                          <span className="text-[10px] text-neutral-400 dark:text-neutral-500">
                             ({lang.englishName})
                           </span>
                         </div>
-                        {isSelected && <IconCheck className="h-3.5 w-3.5 text-brand-600" />}
+                        {isSelected && <IconCheck className="h-3.5 w-3.5 text-brand-600 dark:text-brand-400" />}
                       </button>
                     );
                   })}
                 </div>
-                <div className="border-t border-neutral-100 pt-1">
+                <div className="border-t border-neutral-100 dark:border-neutral-800 pt-1">
                   <button
                     onClick={() => {
                       setLangMenuOpen(false);
                       openLanguageSelector();
                     }}
-                    className="w-full rounded-lg px-3 py-1.5 text-center text-[11px] font-semibold text-brand-700 hover:bg-brand-50"
+                    className="w-full rounded-lg px-3 py-1.5 text-center text-[11px] font-semibold text-brand-700 hover:bg-brand-50 dark:text-brand-400 dark:hover:bg-neutral-800"
                   >
                     View All Languages (पूर्ण सूची)
                   </button>
@@ -210,14 +270,14 @@ export function SiteHeader() {
                 setIsLoggedIn(false);
                 window.location.href = '/';
               }}
-              className="rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-xs font-semibold text-neutral-600 hover:bg-neutral-100 hover:text-red-600 transition"
+              className="rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-xs font-semibold text-neutral-600 hover:bg-neutral-100 hover:text-red-600 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700 dark:hover:text-red-400 transition"
             >
               Sign Out
             </button>
           ) : (
             <a
               href="/register"
-              className="rounded-xl bg-brand-700 px-3.5 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-brand-800 transition"
+              className="rounded-xl bg-brand-700 px-3.5 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-brand-800 dark:bg-brand-600 dark:hover:bg-brand-500 transition"
             >
               {t('nav_loginRegister')}
             </a>
@@ -229,7 +289,7 @@ export function SiteHeader() {
           <button
             type="button"
             onClick={openLanguageSelector}
-            className="flex items-center gap-1 rounded-lg border border-neutral-200 bg-neutral-50 px-2 py-1.5 text-[11px] font-semibold text-neutral-700"
+            className="flex items-center gap-1 rounded-lg border border-neutral-200 bg-neutral-50 px-2 py-1.5 text-[11px] font-semibold text-neutral-700 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
             aria-label="Language"
           >
             <span>{currentLang.flag}</span>
@@ -238,7 +298,7 @@ export function SiteHeader() {
 
           <button
             onClick={() => setOpen((v) => !v)}
-            className="rounded-lg p-2 text-neutral-600 hover:bg-neutral-100"
+            className="rounded-lg p-2 text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800"
             aria-label="Toggle navigation"
           >
             {open ? <IconClose className="h-5 w-5" /> : <IconMenu className="h-5 w-5" />}
@@ -248,7 +308,7 @@ export function SiteHeader() {
 
       {/* Mobile menu — full-width slide-down */}
       {open && (
-        <nav ref={mobileMenuRef} className="border-t border-neutral-200 bg-white px-3 py-2 md:hidden safe-bottom">
+        <nav ref={mobileMenuRef} className="border-t border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900 px-3 py-2 md:hidden safe-bottom">
           {navLinks.map((link) => (
             <a
               key={link.href}
@@ -256,23 +316,23 @@ export function SiteHeader() {
               onClick={() => setOpen(false)}
               className={`mobile-nav-link block rounded-lg px-3 py-3 text-sm font-medium ${
                 pathname === link.href
-                  ? 'bg-brand-50 text-brand-700'
-                  : 'text-neutral-600 hover:bg-neutral-100'
+                  ? 'bg-brand-50 text-brand-700 dark:bg-brand-950/70 dark:text-brand-300'
+                  : 'text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800'
               }`}
             >
               {link.label}
             </a>
           ))}
-          <div className="my-2 border-t border-neutral-100 pt-2 space-y-1.5">
+          <div className="my-2 border-t border-neutral-100 dark:border-neutral-800 pt-2 space-y-1.5">
             <button
               onClick={() => {
                 setOpen(false);
                 openLanguageSelector();
               }}
-              className="mobile-nav-link flex w-full items-center justify-between rounded-lg px-3 py-3 text-xs font-semibold text-neutral-700 hover:bg-neutral-100"
+              className="mobile-nav-link flex w-full items-center justify-between rounded-lg px-3 py-3 text-xs font-semibold text-neutral-700 hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-neutral-800"
             >
               <span className="flex items-center gap-2">
-                <IconGlobe className="h-4 w-4 text-brand-600" />
+                <IconGlobe className="h-4 w-4 text-brand-600 dark:text-brand-400" />
                 {t('nav_changeLanguage')}
               </span>
               <span>{currentLang.name} ➔</span>
@@ -286,14 +346,14 @@ export function SiteHeader() {
                   setIsLoggedIn(false);
                   window.location.href = '/';
                 }}
-                className="mobile-nav-link w-full text-left rounded-lg px-3 py-3 text-xs font-semibold text-red-600 hover:bg-red-50"
+                className="mobile-nav-link w-full text-left rounded-lg px-3 py-3 text-xs font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-950/50"
               >
                 Sign Out
               </button>
             ) : (
               <a
                 href="/register"
-                className="mobile-nav-link block w-full text-center rounded-xl bg-brand-700 px-3 py-3 text-xs font-bold text-white"
+                className="mobile-nav-link block w-full text-center rounded-xl bg-brand-700 px-3 py-3 text-xs font-bold text-white hover:bg-brand-800 dark:bg-brand-600 dark:hover:bg-brand-500"
               >
                 {t('nav_loginRegister')}
               </a>

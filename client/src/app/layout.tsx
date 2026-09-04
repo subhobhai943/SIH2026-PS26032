@@ -66,8 +66,30 @@ import { ClientProviders } from '@/components/ClientProviders';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={inter.variable}>
-      <body className="flex min-h-screen flex-col bg-neutral-50 font-sans antialiased">
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var t = localStorage.getItem('sih26032_theme');
+                  var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                  if (t === 'dark' || (!t && prefersDark)) {
+                    document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.classList.remove('dark');
+                  }
+                  var fs = localStorage.getItem('sih26032_font_size');
+                  if (fs === 'larger') document.documentElement.style.fontSize = '18px';
+                  else if (fs === 'large') document.documentElement.style.fontSize = '17px';
+                } catch(e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
+      <body className="flex min-h-screen flex-col bg-neutral-50 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100 font-sans antialiased transition-colors duration-150">
         <ClientProviders>{children}</ClientProviders>
       </body>
     </html>
