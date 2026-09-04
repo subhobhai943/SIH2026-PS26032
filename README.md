@@ -46,8 +46,6 @@ This platform is an official, production-grade digital government portal designe
 
 ## 🏗️ System Architecture
 
-![National e-Procurement Portal System Architecture](architecture.png)
-
 ```mermaid
 flowchart TD
     subgraph Client["Frontend Client (Next.js 14)"]
