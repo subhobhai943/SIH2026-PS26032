@@ -9,7 +9,7 @@ import { IconClock, IconMapPin, IconQueue } from '@/components/icons';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
 import { prefersReducedMotion } from '@/lib/animations';
 
-type Center = { _id: string; name: string; district: string };
+type Center = { _id: string; name: string; district: string; state?: string; code?: string };
 type BoardEntry = {
   token: number;
   status: string;
@@ -117,11 +117,20 @@ export default function QueuePage() {
         className="w-full max-w-md rounded-xl border border-neutral-300 bg-white px-3.5 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100 shadow-sm"
       >
         <option value="">{t('queue_selectCenterPrompt')}</option>
-        {centers.map((c) => (
-          <option key={c._id} value={c._id}>
-            {c.name} — {c.district}
-          </option>
-        ))}
+        {Array.from(new Set(centers.map((c) => c.state)))
+          .filter(Boolean)
+          .sort()
+          .map((state) => (
+            <optgroup key={state} label={state}>
+              {centers
+                .filter((c) => c.state === state)
+                .map((c) => (
+                  <option key={c._id} value={c._id}>
+                    {c.name} — {c.district}
+                  </option>
+                ))}
+            </optgroup>
+          ))}
       </select>
 
       {!centerId && (

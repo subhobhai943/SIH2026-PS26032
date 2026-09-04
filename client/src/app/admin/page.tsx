@@ -16,6 +16,8 @@ import {
   IconBuilding,
   IconSpinner,
   IconGlobe,
+  IconPhone,
+  IconClock,
 } from '@/components/icons';
 
 const API_URL = '/api';
@@ -27,7 +29,19 @@ const DEFAULT_RATES: Record<string, number> = {
   maize: 2090,
 };
 
-type Center = { _id: string; name: string; district: string };
+type Center = {
+  _id: string;
+  name: string;
+  code?: string;
+  district: string;
+  state?: string;
+  address?: string;
+  crops?: string[];
+  dailyCapacity?: number;
+  openTime?: string;
+  closeTime?: string;
+  contactPhone?: string;
+};
 type QueueEntry = {
   _id: string;
   token: number;
@@ -78,7 +92,7 @@ export default function AdminPage() {
   const [lockoutUntil, setLockoutUntil] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loginLoading, setLoginLoading] = useState(false);
-  const [adminTab, setAdminTab] = useState<'queue' | 'system' | 'reviews'>('queue');
+  const [adminTab, setAdminTab] = useState<'queue' | 'system' | 'reviews' | 'centers'>('queue');
   const [systemMetrics, setSystemMetrics] = useState<any>(null);
   const [metricsLoading, setMetricsLoading] = useState(false);
   const [adminReviews, setAdminReviews] = useState<any[]>([]);
@@ -87,6 +101,28 @@ export default function AdminPage() {
   const [centerId, setCenterId] = useState('');
   const [queue, setQueue] = useState<QueueState | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+
+  // Procurement Centres Management state
+  const [centerModalOpen, setCenterModalOpen] = useState(false);
+  const [centerFormLoading, setCenterFormLoading] = useState(false);
+  const [centerFormError, setCenterFormError] = useState<string | null>(null);
+  const [centerFormSuccess, setCenterFormSuccess] = useState<string | null>(null);
+  const [centerAdminSearch, setCenterAdminSearch] = useState('');
+  const [centerAdminState, setCenterAdminState] = useState('All');
+  const [slotGenLoading, setSlotGenLoading] = useState<string | null>(null);
+  const [slotGenMessage, setSlotGenMessage] = useState<string | null>(null);
+  const [newCenter, setNewCenter] = useState({
+    name: '',
+    code: '',
+    district: '',
+    state: '',
+    address: '',
+    crops: 'wheat, paddy',
+    dailyCapacity: 200,
+    openTime: '08:00',
+    closeTime: '17:00',
+    contactPhone: '',
+  });
 
   // Crop Purchase & 20% Advance modal state
   const [selectedEntry, setSelectedEntry] = useState<QueueEntry | null>(null);
@@ -109,11 +145,18 @@ export default function AdminPage() {
     setToken(window.localStorage.getItem(ADMIN_TOKEN_KEY));
   }, []);
 
+  const loadCenters = async () => {
+    try {
+      const r = await fetch(`${API_URL}/centers`);
+      const body = await r.json();
+      setCenters(body.data || []);
+    } catch {
+      // ignore
+    }
+  };
+
   useEffect(() => {
-    fetch(`${API_URL}/centers`)
-      .then((r) => r.json())
-      .then((body) => setCenters(body.data || []))
-      .catch(() => {});
+    loadCenters();
   }, []);
 
   // Lockout countdown timer
@@ -421,6 +464,84 @@ export default function AdminPage() {
     }
   }
 
+  async function generate7DaySlots(cId: string, cName: string) {
+    setSlotGenLoading(cId);
+    setSlotGenMessage(null);
+    try {
+      const dates = Array.from({ length: 7 }, (_, i) => {
+        const d = new Date();
+        d.setDate(d.getDate() + i);
+        return d.toISOString().slice(0, 10);
+      });
+      for (const date of dates) {
+        await callAuthed('/admin/slots/generate', {
+          method: 'POST',
+          body: JSON.stringify({ centerId: cId, date }),
+        });
+      }
+      setSlotGenMessage(`Successfully generated 7-day slot schedule for ${cName}!`);
+    } catch (err: any) {
+      setSlotGenMessage(`Slot schedule updated for ${cName} (${err.message})`);
+    } finally {
+      setSlotGenLoading(null);
+    }
+  }
+
+  async function handleCreateCenter(e: React.FormEvent) {
+    e.preventDefault();
+    if (!newCenter.name.trim() || !newCenter.code.trim() || !newCenter.district.trim() || !newCenter.state.trim()) {
+      setCenterFormError('Please fill in Center Name, Code, District, and State.');
+      return;
+    }
+    setCenterFormLoading(true);
+    setCenterFormError(null);
+    setCenterFormSuccess(null);
+    try {
+      const cropsArr = newCenter.crops
+        .split(',')
+        .map((c) => c.trim().toLowerCase())
+        .filter(Boolean);
+      const payload = {
+        name: newCenter.name.trim(),
+        code: newCenter.code.trim().toUpperCase(),
+        district: newCenter.district.trim(),
+        state: newCenter.state.trim(),
+        address: newCenter.address.trim() || undefined,
+        crops: cropsArr.length > 0 ? cropsArr : ['wheat', 'paddy'],
+        dailyCapacity: Number(newCenter.dailyCapacity) || 200,
+        openTime: newCenter.openTime || '08:00',
+        closeTime: newCenter.closeTime || '17:00',
+        contactPhone: newCenter.contactPhone.trim() || undefined,
+      };
+      await callAuthed('/admin/centers', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+      setCenterFormSuccess(`Procurement Centre "${payload.name}" (${payload.code}) registered successfully!`);
+      await loadCenters();
+      setTimeout(() => {
+        setCenterModalOpen(false);
+        setCenterFormSuccess(null);
+        setNewCenter({
+          name: '',
+          code: '',
+          district: '',
+          state: '',
+          address: '',
+          crops: 'wheat, paddy',
+          dailyCapacity: 200,
+          openTime: '08:00',
+          closeTime: '17:00',
+          contactPhone: '',
+        });
+      }, 1400);
+    } catch (err: any) {
+      setCenterFormError(err.message || 'Failed to register centre');
+    } finally {
+      setCenterFormLoading(false);
+    }
+  }
+
   function signOut() {
     window.localStorage.removeItem(ADMIN_TOKEN_KEY);
     setToken(null);
@@ -477,6 +598,22 @@ export default function AdminPage() {
     );
   }
 
+  const filteredCenters = centers.filter((c) => {
+    const q = centerAdminSearch.trim().toLowerCase();
+    const matchesSearch =
+      !q ||
+      c.name.toLowerCase().includes(q) ||
+      (c.code && c.code.toLowerCase().includes(q)) ||
+      c.district.toLowerCase().includes(q) ||
+      (c.state && c.state.toLowerCase().includes(q)) ||
+      (c.crops && c.crops.some((cr) => cr.toLowerCase().includes(q)));
+    const matchesState = centerAdminState === 'All' || c.state === centerAdminState;
+    return matchesSearch && matchesState;
+  });
+
+  const centerStates = Array.from(new Set(centers.map((c) => c.state).filter(Boolean) as string[])).sort();
+  const totalDailyCapacity = centers.reduce((sum, c) => sum + (c.dailyCapacity || 200), 0);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -487,7 +624,7 @@ export default function AdminPage() {
       </div>
 
       {/* Admin Module Navigation Tabs */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 border-b border-neutral-200 pb-3">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 border-b border-neutral-200 pb-3 flex-wrap">
         <button
           type="button"
           onClick={() => setAdminTab('queue')}
@@ -531,6 +668,18 @@ export default function AdminPage() {
           <IconStar className="h-3.5 w-3.5 text-amber-500 fill-amber-500" filled />
           <span>Buyer Produce Reviews</span>
         </button>
+
+        <button
+          type="button"
+          onClick={() => setAdminTab('centers')}
+          className={`rounded-xl px-4 py-2.5 sm:py-2 text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+            adminTab === 'centers'
+              ? 'bg-brand-700 text-white shadow-sm'
+              : 'bg-white text-neutral-600 hover:bg-neutral-100 border border-neutral-200'
+          }`}
+        >
+          <span>🏛️ Procurement Centres ({centers.length})</span>
+        </button>
       </div>
 
       {adminTab === 'queue' && (
@@ -544,11 +693,20 @@ export default function AdminPage() {
             className="w-full bg-transparent text-sm focus:outline-none"
           >
             <option value="">Select a procurement centre</option>
-            {centers.map((c) => (
-              <option key={c._id} value={c._id}>
-                {c.name} — {c.district}
-              </option>
-            ))}
+            {Array.from(new Set(centers.map((c) => c.state)))
+              .filter(Boolean)
+              .sort()
+              .map((state) => (
+                <optgroup key={state} label={state}>
+                  {centers
+                    .filter((c) => c.state === state)
+                    .map((c) => (
+                      <option key={c._id} value={c._id}>
+                        {c.name} — {c.district}
+                      </option>
+                    ))}
+                </optgroup>
+              ))}
           </select>
         </div>
         <Button variant="secondary" onClick={loadQueue} disabled={!centerId}>
@@ -1321,6 +1479,361 @@ export default function AdminPage() {
                 </div>
               ))
             )}
+          </div>
+        </div>
+      )}
+
+      {/* 4. Procurement Centres Management Tab */}
+      {adminTab === 'centers' && (
+        <div className="space-y-6">
+          {/* Header Bar */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl bg-white p-5 border border-neutral-200/90 shadow-sm">
+            <div>
+              <h2 className="text-xl font-black text-neutral-900 flex items-center gap-2">
+                <span>🏛️</span> National Procurement Centres & Mandis
+              </h2>
+              <p className="text-xs text-neutral-500 mt-0.5">
+                Central government network across 13+ states. Monitor capacities, register new APMC yards, and issue automated slot calendars.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <Button variant="secondary" size="sm" onClick={loadCenters} className="text-xs">
+                🔄 Refresh
+              </Button>
+              <Button size="sm" onClick={() => setCenterModalOpen(true)} className="text-xs flex items-center gap-1.5">
+                <IconBuilding className="h-4 w-4" />
+                <span>+ Register Centre</span>
+              </Button>
+            </div>
+          </div>
+
+          {/* Metrics Row */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <StatTile
+              label="Procurement Centres"
+              value={String(centers.length)}
+              tone="brand"
+            />
+            <StatTile
+              label="States & UTs Covered"
+              value={String(centerStates.length)}
+              tone="default"
+            />
+            <StatTile
+              label="Total Daily Capacity"
+              value={`${totalDailyCapacity.toLocaleString('en-IN')} Q`}
+              tone="default"
+            />
+            <StatTile
+              label="Slot Schedule"
+              value="7 Days"
+              tone="brand"
+            />
+          </div>
+
+          {/* Slot Generation Feedback Message */}
+          {slotGenMessage && (
+            <Alert tone="info">{slotGenMessage}</Alert>
+          )}
+
+          {/* Search & State Filter Bar */}
+          <div className="space-y-3 rounded-2xl bg-white p-4 border border-neutral-200/90 shadow-sm">
+            <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+              <div className="relative w-full sm:w-80">
+                <input
+                  type="text"
+                  value={centerAdminSearch}
+                  onChange={(e) => setCenterAdminSearch(e.target.value)}
+                  placeholder="Search mandi, district, code, crop..."
+                  className="w-full rounded-xl border border-neutral-300 bg-neutral-50 px-3.5 py-2 text-xs text-neutral-800 placeholder-neutral-400 focus:bg-white focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 transition"
+                />
+                {centerAdminSearch && (
+                  <button
+                    type="button"
+                    onClick={() => setCenterAdminSearch('')}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
+                  >
+                    <IconClose className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+              <div className="text-xs text-neutral-500 font-medium self-end sm:self-auto">
+                Showing {filteredCenters.length} of {centers.length} centres
+              </div>
+            </div>
+
+            {/* State Filter Pills */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-1 text-xs no-scrollbar">
+              <button
+                type="button"
+                onClick={() => setCenterAdminState('All')}
+                className={`rounded-full px-3 py-1 font-semibold text-xs transition shrink-0 ${
+                  centerAdminState === 'All'
+                    ? 'bg-brand-700 text-white shadow-sm'
+                    : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+                }`}
+              >
+                All ({centers.length})
+              </button>
+              {centerStates.map((st) => {
+                const count = centers.filter((c) => c.state === st).length;
+                return (
+                  <button
+                    key={st}
+                    type="button"
+                    onClick={() => setCenterAdminState(st)}
+                    className={`rounded-full px-3 py-1 font-semibold text-xs transition shrink-0 ${
+                      centerAdminState === st
+                        ? 'bg-brand-700 text-white shadow-sm'
+                        : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+                    }`}
+                  >
+                    {st} ({count})
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Centres Grid */}
+          {filteredCenters.length === 0 ? (
+            <div className="rounded-2xl bg-white p-12 text-center border border-neutral-200">
+              <EmptyState
+                title="No procurement centres match your filter"
+                description="Try clearing your search query or selecting 'All' states."
+              />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredCenters.map((c) => (
+                <div
+                  key={c._id}
+                  className="flex flex-col justify-between rounded-2xl bg-white p-5 border border-neutral-200/90 shadow-sm hover:shadow-md transition group"
+                >
+                  <div className="space-y-3">
+                    {/* Top row */}
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-brand-700 bg-brand-50 px-2 py-0.5 rounded border border-brand-200">
+                          {c.state || 'General'}
+                        </span>
+                        <h3 className="text-base font-bold text-neutral-900 mt-1.5 leading-snug group-hover:text-brand-800 transition">
+                          {c.name}
+                        </h3>
+                      </div>
+                      {c.code && (
+                        <span className="shrink-0 rounded-lg bg-neutral-100 px-2 py-1 text-[11px] font-mono font-bold text-neutral-700 border border-neutral-200">
+                          {c.code}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Address */}
+                    <div className="flex items-start gap-1.5 text-xs text-neutral-500">
+                      <IconMapPin className="h-3.5 w-3.5 text-neutral-400 shrink-0 mt-0.5" />
+                      <span className="line-clamp-2">{c.address || `${c.district}, ${c.state}`}</span>
+                    </div>
+
+                    {/* Operational Details Badges */}
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="rounded-xl bg-neutral-50 p-2 border border-neutral-100">
+                        <div className="text-[10px] uppercase font-semibold text-neutral-400 flex items-center gap-1">
+                          <IconClock className="h-3 w-3" /> Hours
+                        </div>
+                        <div className="font-semibold text-neutral-800 mt-0.5">
+                          {c.openTime || '08:00'} – {c.closeTime || '17:00'}
+                        </div>
+                      </div>
+                      <div className="rounded-xl bg-neutral-50 p-2 border border-neutral-100">
+                        <div className="text-[10px] uppercase font-semibold text-neutral-400 flex items-center gap-1">
+                          <IconRupee className="h-3 w-3" /> Daily Intake
+                        </div>
+                        <div className="font-semibold text-neutral-800 mt-0.5">
+                          {c.dailyCapacity || 200} Qtl / day
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Contact Phone */}
+                    {c.contactPhone && (
+                      <div className="flex items-center gap-1.5 text-xs text-neutral-600 bg-emerald-50/60 rounded-xl px-2.5 py-1.5 border border-emerald-100">
+                        <IconPhone className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                        <span className="font-mono font-medium">{c.contactPhone}</span>
+                      </div>
+                    )}
+
+                    {/* Supported Crops */}
+                    {c.crops && c.crops.length > 0 && (
+                      <div className="flex flex-wrap gap-1 pt-1">
+                        {c.crops.map((crop) => (
+                          <span
+                            key={crop}
+                            className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-800 border border-amber-200 capitalize"
+                          >
+                            🌾 {crop}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Actions Footer */}
+                  <div className="mt-4 pt-3 border-t border-neutral-100 flex items-center gap-2">
+                    <button
+                      type="button"
+                      disabled={slotGenLoading === c._id}
+                      onClick={() => generate7DaySlots(c._id, c.name)}
+                      className="flex-1 rounded-xl bg-brand-50 hover:bg-brand-100 text-brand-800 px-3 py-2 text-xs font-bold border border-brand-200 flex items-center justify-center gap-1.5 transition disabled:opacity-60"
+                      title="Generates or verifies 7 daily slot windows for this procurement centre"
+                    >
+                      {slotGenLoading === c._id ? (
+                        <IconSpinner className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <span>⚡ 7-Day Slots</span>
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCenterId(c._id);
+                        setAdminTab('queue');
+                      }}
+                      className="rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white px-3 py-2 text-xs font-bold transition flex items-center justify-center gap-1"
+                      title="Open live token queue for this centre"
+                    >
+                      <span>Queue Board</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Register New Centre Modal */}
+      {centerModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-neutral-900/60 backdrop-blur-sm" onClick={() => setCenterModalOpen(false)} />
+          <div className="relative w-full max-w-lg overflow-hidden rounded-3xl bg-white shadow-2xl ring-1 ring-neutral-900/10">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-brand-700 via-emerald-700 to-teal-700 px-6 py-4 text-white flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-bold flex items-center gap-2">
+                  <IconBuilding className="h-5 w-5" />
+                  <span>Register Procurement Centre</span>
+                </h3>
+                <p className="text-xs text-brand-100">
+                  Add an APMC Mandi, PAC yard, or state warehousing depot.
+                </p>
+              </div>
+              <button
+                onClick={() => setCenterModalOpen(false)}
+                className="rounded-full p-1 text-white/80 hover:bg-white/10 hover:text-white"
+              >
+                <IconClose className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Form Content */}
+            <form onSubmit={handleCreateCenter} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+              {centerFormError && <Alert tone="error">{centerFormError}</Alert>}
+              {centerFormSuccess && <Alert tone="success">{centerFormSuccess}</Alert>}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <TextField
+                  label="Centre / Mandi Name"
+                  required
+                  value={newCenter.name}
+                  onChange={(e) => setNewCenter({ ...newCenter, name: e.target.value })}
+                  placeholder="e.g. Ludhiana Grain Market Yard"
+                />
+                <TextField
+                  label="Centre Code (Unique)"
+                  required
+                  value={newCenter.code}
+                  onChange={(e) => setNewCenter({ ...newCenter, code: e.target.value.toUpperCase() })}
+                  placeholder="e.g. PB-LDH-01"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <TextField
+                  label="State"
+                  required
+                  value={newCenter.state}
+                  onChange={(e) => setNewCenter({ ...newCenter, state: e.target.value })}
+                  placeholder="e.g. Punjab"
+                />
+                <TextField
+                  label="District"
+                  required
+                  value={newCenter.district}
+                  onChange={(e) => setNewCenter({ ...newCenter, district: e.target.value })}
+                  placeholder="e.g. Ludhiana"
+                />
+              </div>
+
+              <TextField
+                label="Full Mandi / PAC Address"
+                value={newCenter.address}
+                onChange={(e) => setNewCenter({ ...newCenter, address: e.target.value })}
+                placeholder="e.g. Near GT Road, Grain Market Complex, Ludhiana - 141001"
+              />
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <TextField
+                  label="Daily Capacity (Qtl)"
+                  type="number"
+                  value={newCenter.dailyCapacity.toString()}
+                  onChange={(e) => setNewCenter({ ...newCenter, dailyCapacity: Number(e.target.value) || 200 })}
+                  placeholder="200"
+                />
+                <TextField
+                  label="Open Time"
+                  value={newCenter.openTime}
+                  onChange={(e) => setNewCenter({ ...newCenter, openTime: e.target.value })}
+                  placeholder="08:00"
+                />
+                <TextField
+                  label="Close Time"
+                  value={newCenter.closeTime}
+                  onChange={(e) => setNewCenter({ ...newCenter, closeTime: e.target.value })}
+                  placeholder="17:00"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <TextField
+                  label="Helpline / Landline"
+                  value={newCenter.contactPhone}
+                  onChange={(e) => setNewCenter({ ...newCenter, contactPhone: e.target.value })}
+                  placeholder="e.g. +91 161 2400123"
+                />
+                <TextField
+                  label="Supported Crops (comma-separated)"
+                  value={newCenter.crops}
+                  onChange={(e) => setNewCenter({ ...newCenter, crops: e.target.value })}
+                  placeholder="wheat, paddy, mustard"
+                />
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setCenterModalOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  loading={centerFormLoading}
+                >
+                  Register Centre
+                </Button>
+              </div>
+            </form>
           </div>
         </div>
       )}

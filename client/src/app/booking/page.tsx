@@ -37,10 +37,27 @@ export default function BookingPage() {
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
   const [crop, setCrop] = useState('wheat');
   const [quantity, setQuantity] = useState(10);
+  const [centerSearch, setCenterSearch] = useState('');
+  const [selectedState, setSelectedState] = useState('All');
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const calcCardRef = useRef<HTMLDivElement>(null);
+
+  const uniqueStates = ['All', ...Array.from(new Set(centers.map((c) => c.state))).filter(Boolean).sort()];
+
+  const filteredCenters = centers.filter((c) => {
+    const matchesState = selectedState === 'All' || c.state === selectedState;
+    const q = centerSearch.trim().toLowerCase();
+    const matchesSearch =
+      !q ||
+      c.name.toLowerCase().includes(q) ||
+      c.district.toLowerCase().includes(q) ||
+      c.state.toLowerCase().includes(q) ||
+      c.code?.toLowerCase().includes(q) ||
+      c.crops?.some((cr) => cr.toLowerCase().includes(q));
+    return matchesState && matchesSearch;
+  });
 
   useEffect(() => {
     if (slots.length > 0 && !prefersReducedMotion()) {
@@ -159,29 +176,99 @@ export default function BookingPage() {
         <div className="space-y-6 lg:col-span-2">
           {/* 1. Centre Selection */}
           <Card className="p-4 sm:p-5">
-            <h2 className="mb-3 text-sm font-semibold text-neutral-800 flex items-center gap-2">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-50 text-brand-700 text-xs font-bold">1</span>
-              {t('book_selectCenter')}
-            </h2>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {centers.map((c) => (
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+              <h2 className="text-sm font-semibold text-neutral-800 flex items-center gap-2">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-50 text-brand-700 text-xs font-bold">1</span>
+                {t('book_selectCenter')}
+              </h2>
+              <span className="text-xs text-neutral-500 font-medium">
+                {filteredCenters.length} centres available
+              </span>
+            </div>
+
+            {/* Search & State Filter Controls */}
+            <div className="space-y-2 mb-4">
+              <div className="relative">
+                <input
+                  type="text"
+                  value={centerSearch}
+                  onChange={(e) => setCenterSearch(e.target.value)}
+                  placeholder="Search Mandi name, district, state, or crop..."
+                  className="w-full rounded-xl border border-neutral-300 bg-neutral-50/50 pl-9 pr-8 py-2 text-xs sm:text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-100"
+                />
+                <span className="absolute left-3 top-2.5 text-neutral-400">
+                  <IconMapPin className="h-3.5 w-3.5" />
+                </span>
+                {centerSearch && (
+                  <button
+                    type="button"
+                    onClick={() => setCenterSearch('')}
+                    className="absolute right-3 top-2 text-xs font-bold text-neutral-400 hover:text-neutral-700"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+
+              {/* State Filter Pills */}
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+                {uniqueStates.map((st) => {
+                  const count = st === 'All' ? centers.length : centers.filter((c) => c.state === st).length;
+                  const isActive = selectedState === st;
+                  return (
+                    <button
+                      key={st}
+                      type="button"
+                      onClick={() => setSelectedState(st)}
+                      className={`whitespace-nowrap rounded-lg px-2.5 py-1 text-[11px] font-semibold transition ${
+                        isActive
+                          ? 'bg-brand-700 text-white shadow-xs'
+                          : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+                      }`}
+                    >
+                      {st} ({count})
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="grid gap-2.5 sm:grid-cols-2 max-h-[460px] overflow-y-auto pr-1">
+              {filteredCenters.map((c) => (
                 <button
                   key={c._id}
                   onClick={() => setCenterId(c._id)}
-                  className={`rounded-xl border p-4 text-left transition ${
+                  className={`relative rounded-xl border p-3.5 sm:p-4 text-left transition ${
                     centerId === c._id
-                      ? 'border-brand-600 bg-brand-50 ring-2 ring-brand-500'
-                      : 'border-neutral-200 hover:border-brand-300'
+                      ? 'border-brand-600 bg-brand-50 ring-2 ring-brand-500 shadow-sm'
+                      : 'border-neutral-200 hover:border-brand-300 hover:bg-neutral-50/50'
                   }`}
                 >
-                  <div className="font-bold text-neutral-900">{c.name}</div>
-                  <div className="mt-1 flex items-center gap-1 text-xs text-neutral-500">
-                    <IconMapPin className="h-3.5 w-3.5 shrink-0" /> {c.district}, {c.state}
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="font-bold text-neutral-900 text-xs sm:text-sm leading-snug">
+                      {c.name}
+                    </div>
+                    {centerId === c._id ? (
+                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-600 text-white">
+                        <IconCheck className="h-3 w-3" />
+                      </span>
+                    ) : (
+                      c.code && (
+                        <span className="shrink-0 rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] font-mono font-bold text-neutral-600 border border-neutral-200">
+                          {c.code}
+                        </span>
+                      )
+                    )}
                   </div>
+
+                  <div className="mt-1 flex items-center gap-1 text-xs text-neutral-500">
+                    <IconMapPin className="h-3 w-3 shrink-0 text-neutral-400" /> {c.district}, {c.state}
+                  </div>
+
                   {c.crops?.length > 0 && (
-                    <div className="mt-2.5 flex flex-wrap gap-1">
+                    <div className="mt-2 flex flex-wrap gap-1">
                       {c.crops.map((cr) => (
-                        <span key={cr} className="rounded-full bg-white px-2 py-0.5 text-[11px] font-medium uppercase tracking-wider text-neutral-600 border border-neutral-200 shadow-2xs">
+                        <span key={cr} className="rounded-full bg-white px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-neutral-600 border border-neutral-200 shadow-2xs">
                           {cr}
                         </span>
                       ))}
@@ -189,6 +276,11 @@ export default function BookingPage() {
                   )}
                 </button>
               ))}
+              {filteredCenters.length === 0 && centers.length > 0 && (
+                <p className="col-span-2 py-6 text-center text-xs text-neutral-400">
+                  No centres match &quot;{centerSearch}&quot;. Try clearing filters.
+                </p>
+              )}
               {centers.length === 0 && !error && (
                 <p className="col-span-2 py-4 text-center text-sm text-neutral-400">Loading centres…</p>
               )}
