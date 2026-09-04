@@ -40,22 +40,36 @@ export default function HomePage() {
 
   return (
     <div ref={containerRef} className="space-y-8 sm:space-y-16">
-      <section className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-brand-600 to-brand-700 px-4 py-10 sm:px-12 sm:py-20 text-white shadow-xl">
+      <section className="relative overflow-hidden rounded-2xl sm:rounded-3xl shadow-2xl border border-brand-800/40">
+        {/* Real Indian Agricultural Landscape Background Image */}
         <div
-          className="pointer-events-none absolute inset-0 opacity-10"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-1000 scale-105"
+          style={{
+            backgroundImage: `url('https://sih26032-farmer-media.s3.eu-north-1.amazonaws.com/backgrounds/bg_crops_landscape.jpg')`,
+          }}
+        />
+
+        {/* Real Government Portal Gradient Overlay (Maintains 100% WCAG AAA Text Contrast) */}
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/92 via-brand-950/85 to-neutral-950/80 dark:from-black/95 dark:via-brand-950/90 dark:to-neutral-950/90" />
+
+        {/* Traditional Indian Government Subtle Grid Accents */}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-15"
           style={{
             backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)',
             backgroundSize: '24px 24px',
           }}
         />
-        <div className="relative mx-auto max-w-2xl text-center">
-          <span className="hero-badge inline-flex items-center rounded-full bg-white/15 px-3 py-1 text-[10px] sm:text-xs font-semibold uppercase tracking-wide">
-            {t('home_tag')}
+
+        <div className="relative mx-auto max-w-3xl text-center px-4 py-12 sm:px-12 sm:py-20 text-white">
+          <span className="hero-badge inline-flex items-center gap-2 rounded-full bg-white/15 px-3.5 py-1 text-[10px] sm:text-xs font-semibold uppercase tracking-wide backdrop-blur border border-white/20">
+            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span>{t('home_tag')}</span>
           </span>
-          <h1 className="hero-title mt-4 sm:mt-5 text-2xl sm:text-3xl md:text-5xl font-extrabold leading-tight tracking-tight">
+          <h1 className="hero-title mt-4 sm:mt-5 text-2xl sm:text-3xl md:text-5xl font-extrabold leading-tight tracking-tight drop-shadow-md">
             {t('home_heroTitle')}
           </h1>
-          <p className="hero-desc mx-auto mt-3 sm:mt-4 max-w-xl text-sm sm:text-lg text-brand-50">
+          <p className="hero-desc mx-auto mt-3 sm:mt-4 max-w-xl text-sm sm:text-lg text-emerald-100/90 drop-shadow-sm font-medium">
             {t('home_heroDesc')}
           </p>
           <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row sm:justify-center gap-3 sm:gap-3.5 flex-wrap items-center">

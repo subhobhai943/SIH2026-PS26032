@@ -317,8 +317,14 @@ export default function ReviewsPage() {
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 pb-16 transition-colors">
       {/* Top Banner */}
-      <div className="bg-gradient-to-r from-brand-900 via-brand-800 to-amber-900 text-white">
-        <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:py-12">
+      <div className="relative overflow-hidden bg-gradient-to-r from-brand-950 via-brand-900 to-amber-950 text-white shadow-md">
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-overlay pointer-events-none"
+          style={{
+            backgroundImage: `url('https://sih26032-farmer-media.s3.eu-north-1.amazonaws.com/backgrounds/bg_crops_landscape.jpg')`,
+          }}
+        />
+        <div className="relative mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:py-12">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div className="space-y-3 max-w-2xl">
               <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold backdrop-blur text-amber-200 border border-white/10">

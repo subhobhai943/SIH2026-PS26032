@@ -362,6 +362,18 @@ export function SiteHeader() {
         </nav>
       )}
     </header>
-  </div>
-);
+
+      {/* Official Government Procurement Notice Bulletin */}
+      <div className="bg-amber-500/10 dark:bg-amber-950/40 border-b border-amber-200/60 dark:border-amber-900/40 px-3 py-1 text-xs text-amber-950 dark:text-amber-200">
+        <div className="mx-auto flex max-w-6xl items-center gap-2 overflow-hidden text-[11px] sm:text-xs font-medium">
+          <span className="rounded bg-amber-600 text-white px-2 py-0.5 font-bold text-[9px] sm:text-[10px] uppercase tracking-wider shrink-0 shadow-xs">
+            सूचना / Notice
+          </span>
+          <span className="truncate">
+            🌾 Rabi Season 2026-27 e-Upajan active across 18 Mandis · 20% DBT safety advance guaranteed within 2 hours of arrival.
+          </span>
+        </div>
+      </div>
+    </div>
+  );
 }

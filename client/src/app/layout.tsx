@@ -89,7 +89,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      <body className="flex min-h-screen flex-col bg-neutral-50 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100 font-sans antialiased transition-colors duration-150">
+      <body className="flex min-h-screen flex-col font-sans antialiased text-neutral-900 dark:text-neutral-100 transition-colors duration-150">
         <ClientProviders>{children}</ClientProviders>
       </body>
     </html>
