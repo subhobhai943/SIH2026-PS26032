@@ -2,6 +2,7 @@ import path from 'node:path';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import compression from 'compression';
 import morgan from 'morgan';
 import mongoose from 'mongoose';
 import { env } from './config/env.js';
@@ -25,6 +26,7 @@ export function createApp() {
   app.set('trust proxy', 1);
   app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
   app.use(cors({ origin: env.clientOrigin, credentials: true }));
+  app.use(compression());
   app.use(express.json({ limit: '15mb' }));
   app.use(mongoSanitizeMiddleware);
   app.use(morgan(env.nodeEnv === 'production' ? 'combined' : 'dev'));

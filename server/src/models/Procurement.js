@@ -57,6 +57,8 @@ const procurementSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+procurementSchema.index({ farmer: 1, createdAt: -1 });
+
 procurementSchema.pre('save', function computeAmounts(next) {
   if (this.isModified('quantityQtl') || this.isModified('ratePerQtl') || this.isModified('advancePercent')) {
     this.amount = Math.round(this.quantityQtl * this.ratePerQtl * 100) / 100;

@@ -33,9 +33,9 @@ router.get('/farmers', requireStaff(), adminController.listFarmers);
 router.get('/farmers/:id', requireStaff(), adminController.getFarmerDossier);
 router.patch('/farmers/:id', requireStaff('admin'), adminController.updateFarmer);
 
-// Database Inspector & Telemetry
-router.get('/database/overview', requireStaff(), adminController.getDatabaseOverview);
-router.get('/database/collection/:name', requireStaff(), adminController.getCollectionData);
-router.get('/database/collection/:name/:id', requireStaff(), adminController.getDocumentDetails);
+// Database Inspector & Telemetry (Restricted strictly to Administrators)
+router.get('/database/overview', requireStaff('admin'), adminController.getDatabaseOverview);
+router.get('/database/collection/:name', requireStaff('admin'), adminController.getCollectionData);
+router.get('/database/collection/:name/:id', requireStaff('admin'), adminController.getDocumentDetails);
 
 export default router;

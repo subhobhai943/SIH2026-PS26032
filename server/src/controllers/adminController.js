@@ -810,12 +810,30 @@ export const getDatabaseOverview = asyncHandler(async (req, res) => {
   });
 });
 
+function sanitizeDocument(doc, colName) {
+  if (!doc || typeof doc !== 'object') return doc;
+  const clone = { ...doc };
+  if (colName === 'staffs') {
+    delete clone.passwordHash;
+  }
+  return clone;
+}
+
 /** GET /api/admin/database/collection/:name — browse documents in any collection with pagination & search */
 export const getCollectionData = asyncHandler(async (req, res) => {
   const db = mongoose.connection.db;
   if (!db) throw ApiError.internal('Database connection not established');
 
   const collectionName = req.params.name;
+  if (
+    !collectionName ||
+    typeof collectionName !== 'string' ||
+    !/^[a-zA-Z0-9_]+$/.test(collectionName) ||
+    collectionName.startsWith('system.')
+  ) {
+    throw ApiError.badRequest('Invalid or forbidden collection name');
+  }
+
   const col = db.collection(collectionName);
 
   const page = Math.max(1, parseInt(req.query.page) || 1);
@@ -871,6 +889,9 @@ export const getCollectionData = asyncHandler(async (req, res) => {
       .toArray();
   }
 
+  // Security: scrub sensitive fields such as passwordHash
+  const safeDocuments = documents.map((doc) => sanitizeDocument(doc, collectionName));
+
   res.json({
     ok: true,
     data: {
@@ -879,7 +900,7 @@ export const getCollectionData = asyncHandler(async (req, res) => {
       page,
       limit,
       totalPages: Math.ceil(total / limit) || 1,
-      documents,
+      documents: safeDocuments,
     },
   });
 });
@@ -890,6 +911,15 @@ export const getDocumentDetails = asyncHandler(async (req, res) => {
   if (!db) throw ApiError.internal('Database connection not established');
 
   const { name, id } = req.params;
+  if (
+    !name ||
+    typeof name !== 'string' ||
+    !/^[a-zA-Z0-9_]+$/.test(name) ||
+    name.startsWith('system.')
+  ) {
+    throw ApiError.badRequest('Invalid or forbidden collection name');
+  }
+
   const col = db.collection(name);
 
   let doc = null;
@@ -901,6 +931,6 @@ export const getDocumentDetails = asyncHandler(async (req, res) => {
   }
   if (!doc) throw ApiError.notFound('Document not found');
 
-  res.json({ ok: true, data: doc });
+  res.json({ ok: true, data: sanitizeDocument(doc, name) });
 });
 

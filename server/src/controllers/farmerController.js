@@ -31,7 +31,7 @@ const profileSchema = z.object({
   aadhaarLast4: z.string().regex(/^\d{4}$/).optional(),
   crops: z.array(z.string().min(1)).max(10).optional(),
   landAreaAcres: z.number().min(0).max(10_000).optional(),
-  preferredLanguage: z.enum(['en', 'hi', 'bn', 'ta', 'te', 'mr']).optional(),
+  preferredLanguage: z.enum(['en', 'hi', 'pa', 'bn', 'ta', 'te', 'mr']).optional(),
 });
 
 /** POST /api/farmers/otp/request */

@@ -15,6 +15,7 @@
     "@aws-sdk/client-s3": "^3.1126.0",
     "@whiskeysockets/baileys": "^7.0.0-rc14",
     "bcryptjs": "^2.4.3",
+    "compression": "^1.8.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
@@ -34,5 +35,8 @@
   },
   "engines": {
     "node": ">=20"
+  },
+  "overrides": {
+    "qs": "^6.16.0"
   }
 }

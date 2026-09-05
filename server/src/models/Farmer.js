@@ -17,7 +17,7 @@ const farmerSchema = new mongoose.Schema(
     state: { type: String, trim: true, default: '' },
     crops: [{ type: String, trim: true }],
     landAreaAcres: { type: Number, min: 0 },
-    preferredLanguage: { type: String, enum: ['en', 'hi', 'bn', 'ta', 'te', 'mr'], default: 'en' },
+    preferredLanguage: { type: String, enum: ['en', 'hi', 'pa', 'bn', 'ta', 'te', 'mr'], default: 'en' },
     profileComplete: { type: Boolean, default: false },
     fcmToken: { type: String, default: '' },
     averageRating: { type: Number, default: 5, min: 1, max: 5 },

@@ -29,6 +29,7 @@ const queueSchema = new mongoose.Schema(
 );
 
 queueSchema.index({ center: 1, date: 1, token: 1 }, { unique: true });
+queueSchema.index({ center: 1, date: 1, status: 1, token: 1 });
 queueSchema.index({ farmer: 1, date: 1 });
 
 /** Entries that still occupy a place in line. */

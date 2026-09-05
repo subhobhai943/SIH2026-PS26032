@@ -15,6 +15,9 @@ async function main() {
   server.listen(env.port, () => {
     console.log(`[server] listening on port ${env.port} (${env.nodeEnv})`);
     initWhatsApp().catch((err) => console.warn('[whatsapp] init deferred:', err.message));
+    if (typeof process.send === 'function') {
+      process.send('ready');
+    }
   });
 
   const shutdown = (signal) => {
