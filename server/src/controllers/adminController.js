@@ -16,6 +16,7 @@ import { farmersToAlert, getQueueState } from '../services/queueService.js';
 import { ensureShipmentForQueue } from './shipmentController.js';
 import { getRateLimitMetrics } from '../middleware/rateLimiter.js';
 import { escapeRegex } from '../utils/sanitize.js';
+import { generateAndUploadBill } from '../services/pdfBillService.js';
 
 // ---------------------------------------------------------------- auth
 
@@ -449,6 +450,14 @@ export const payBalance = asyncHandler(async (req, res) => {
 
   await procurement.save();
 
+  // Generate official Mandi Bill PDF and upload to S3
+  try {
+    const billPdfUrl = await generateAndUploadBill(procurement._id);
+    procurement.billPdfUrl = billPdfUrl;
+  } catch (err) {
+    console.warn('[adminController] Bill PDF generation warning on payBalance:', err.message);
+  }
+
   if (procurement.paymentConfirmed) {
     await sendTemplate(entry.farmer.phone, 'paymentConfirmed', {
       token: entry.token,
@@ -456,11 +465,13 @@ export const payBalance = asyncHandler(async (req, res) => {
       advanceAmount: procurement.advanceAmount,
       balanceAmount: procurement.balanceAmount,
       utrNumber: procurement.utrNumber,
+      billPdfUrl: procurement.billPdfUrl,
     });
   } else {
     await sendTemplate(entry.farmer.phone, 'paymentDone', {
       amount: procurement.balanceAmount || procurement.amount,
       paymentRef: ref,
+      billPdfUrl: procurement.billPdfUrl,
     });
   }
 
@@ -519,18 +530,41 @@ export const confirmPayment = asyncHandler(async (req, res) => {
 
   await procurement.save();
 
-  // Send DBT Payment Confirmation SMS
+  // Generate official Mandi Bill PDF and upload to S3
+  try {
+    const billPdfUrl = await generateAndUploadBill(procurement._id);
+    procurement.billPdfUrl = billPdfUrl;
+  } catch (err) {
+    console.warn('[adminController] Bill PDF generation warning on confirmPayment:', err.message);
+  }
+
+  // Send DBT Payment Confirmation SMS & WhatsApp
   await sendTemplate(entry.farmer.phone, 'paymentConfirmed', {
     token: entry.token,
     amount: procurement.amount,
     advanceAmount: procurement.advanceAmount,
     balanceAmount: procurement.balanceAmount,
     utrNumber: procurement.utrNumber,
+    billPdfUrl: procurement.billPdfUrl,
   });
 
   try { await ensureShipmentForQueue(entry._id); } catch (_) {}
 
   res.json({ ok: true, data: procurement });
+});
+
+/** POST /api/admin/procurement/:queueEntryId/generate-bill — manually generate / upload official PDF bill to S3 */
+export const generateBill = asyncHandler(async (req, res) => {
+  const entry = await Queue.findById(req.params.queueEntryId);
+  if (!entry) throw ApiError.notFound('Queue entry not found');
+  resolveCenterScope(req.staff, entry.center);
+
+  let procurement = await Procurement.findOne({ queueEntry: entry._id });
+  if (!procurement) throw ApiError.badRequest('Procurement record not found');
+
+  const billPdfUrl = await generateAndUploadBill(procurement._id);
+  const updatedProc = await Procurement.findById(procurement._id);
+  res.json({ ok: true, data: { billPdfUrl, procurement: updatedProc } });
 });
 
 /** GET /api/admin/system-metrics — Live telemetry on cluster load balancer and rate limiters */

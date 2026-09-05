@@ -38,3 +38,7 @@ coverage/
 # uploaded media
 uploads/
 server/uploads/
+
+# bot sessions & auth
+sessions/
+server/sessions/

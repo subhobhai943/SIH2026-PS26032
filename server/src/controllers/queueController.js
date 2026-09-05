@@ -4,6 +4,7 @@ import Procurement from '../models/Procurement.js';
 import { ApiError, asyncHandler } from '../utils/ApiError.js';
 import { todayISO } from '../utils/datetime.js';
 import { getFarmerQueueView, getQueueState } from '../services/queueService.js';
+import { generateAndUploadBill } from '../services/pdfBillService.js';
 
 /** GET /api/queue/:centerId?date= — the public live board for a centre. */
 export const getBoard = asyncHandler(async (req, res) => {
@@ -64,7 +65,21 @@ export const myProcurementStatus = asyncHandler(async (req, res) => {
     .lean();
   if (!entry) throw ApiError.notFound('Booking not found');
 
-  const procurement = await Procurement.findOne({ queueEntry: entry._id }).lean();
+  let procurement = await Procurement.findOne({ queueEntry: entry._id }).lean();
+
+  if (
+    procurement &&
+    (procurement.balanceStatus === 'paid' || procurement.paymentConfirmed || procurement.stage === 'paid') &&
+    !procurement.billPdfUrl
+  ) {
+    try {
+      const billUrl = await generateAndUploadBill(procurement._id);
+      procurement.billPdfUrl = billUrl;
+      procurement.billGeneratedAt = new Date();
+    } catch (billErr) {
+      console.warn('[queueController] auto-generate bill warning:', billErr.message);
+    }
+  }
 
   res.json({
     ok: true,

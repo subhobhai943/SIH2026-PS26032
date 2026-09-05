@@ -26,5 +26,6 @@ router.patch('/procurement/:queueEntryId', requireStaff(), adminController.updat
 router.post('/procurement/:queueEntryId/pay-advance', requireStaff(), adminController.payAdvance);
 router.post('/procurement/:queueEntryId/pay-balance', requireStaff(), adminController.payBalance);
 router.post('/procurement/:queueEntryId/confirm-payment', requireStaff(), adminController.confirmPayment);
+router.post('/procurement/:queueEntryId/generate-bill', requireStaff(), adminController.generateBill);
 
 export default router;

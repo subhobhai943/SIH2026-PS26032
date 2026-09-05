@@ -51,6 +51,8 @@ const procurementSchema = new mongoose.Schema(
     accountMasked: { type: String, default: '•••• •••• 5421' },
     ifscCode: { type: String, default: 'SBIN0001842' },
     confirmedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Staff' },
+    billPdfUrl: { type: String, default: '' },
+    billGeneratedAt: { type: Date },
   },
   { timestamps: true }
 );

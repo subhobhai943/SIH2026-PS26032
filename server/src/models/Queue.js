@@ -22,6 +22,7 @@ const queueSchema = new mongoose.Schema(
     servingStartedAt: { type: Date },
     completedAt: { type: Date },
     cancelledAt: { type: Date },
+    billPdfUrl: { type: String, default: '' },
     notes: { type: String, default: '' },
   },
   { timestamps: true }

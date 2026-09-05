@@ -235,6 +235,7 @@ function buildWhatsAppMessage(templateName, meta, message, data = {}) {
         `• *Token Number:* #${data.token || '1'}\n` +
         `• *Settlement Amount:* ₹${data.amount || data.balanceAmount || '17,624'}\n` +
         `• *UTR Reference:* ${data.utrNumber || data.paymentRef || 'SETTLE-CONFIRMED'}\n\n` +
+        (data.billPdfUrl ? `📥 *Download Official Bill (PDF):*\n${data.billPdfUrl}\n\n` : '') +
         `📄 *Download Full Mandi Receipt:* ${portalUrl}`
       );
 

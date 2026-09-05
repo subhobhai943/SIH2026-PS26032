@@ -50,6 +50,7 @@ type QueueEntry = {
   estimatedQuantityQtl?: number;
   farmer: { _id?: string; name: string; phone: string; village: string };
   slot: { startTime: string; endTime: string };
+  billPdfUrl?: string;
 };
 type QueueState = {
   center: { id: string; name: string };
@@ -82,6 +83,8 @@ type ProcurementData = {
   bankName?: string;
   accountMasked?: string;
   ifscCode?: string;
+  billPdfUrl?: string;
+  billGeneratedAt?: string;
 };
 
 export default function AdminPage() {
@@ -409,6 +412,27 @@ export default function AdminPage() {
       });
       setProcurement(res);
       setProcMessage(`DBT Payment Confirmed! ₹${res.amount} settled to farmer bank account. UTR: ${res.utrNumber}`);
+      await loadQueue();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setProcLoading(false);
+    }
+  }
+
+  async function generateBillPdf() {
+    if (!selectedEntry || !procurement) return;
+    setProcLoading(true);
+    setProcMessage(null);
+    try {
+      const res = await callAuthed(`/admin/procurement/${selectedEntry._id}/generate-bill`, {
+        method: 'POST',
+      });
+      setProcurement(res.procurement || { ...procurement, billPdfUrl: res.billPdfUrl });
+      setProcMessage('Official Mandi Bill PDF generated and uploaded to AWS S3 successfully!');
+      if (res.billPdfUrl) {
+        window.open(res.billPdfUrl, '_blank');
+      }
       await loadQueue();
     } catch (err: any) {
       setError(err.message);
@@ -786,6 +810,16 @@ export default function AdminPage() {
                             >
                               <span>🌾</span> Weigh &amp; Pay (20% Adv)
                             </button>
+                            {entry.billPdfUrl && (
+                              <a
+                                href={entry.billPdfUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 rounded-lg bg-teal-50 px-2 py-1.5 text-xs font-semibold text-teal-800 border border-teal-200 hover:bg-teal-100 transition shadow-xs"
+                              >
+                                <span>📄 Bill</span>
+                              </a>
+                            )}
                             <Button size="sm" variant="danger" loading={actionLoading === entry._id} onClick={() => markNoShow(entry._id)}>
                               No-Show
                             </Button>
@@ -940,7 +974,7 @@ export default function AdminPage() {
                     </div>
 
                     {procurement.paymentConfirmed ? (
-                      <div className="rounded-xl bg-emerald-50 border border-emerald-300 p-3.5 space-y-1.5 text-xs text-emerald-900 mt-2">
+                      <div className="rounded-xl bg-emerald-50 border border-emerald-300 p-3.5 space-y-2 text-xs text-emerald-900 mt-2">
                         <div className="flex items-center justify-between">
                           <span className="font-bold flex items-center gap-1.5 text-emerald-800">
                             <span className="text-base font-black text-emerald-600">✓</span> Government DBT Payment Confirmed
@@ -952,6 +986,34 @@ export default function AdminPage() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-[11px] font-mono text-emerald-700">
                           <div>UTR: {procurement.utrNumber || procurement.paymentRef || 'N/A'}</div>
                           <div>Slip ID: {procurement.paymentConfirmationSlipId || 'DBT-REC'}</div>
+                        </div>
+
+                        {/* Bill PDF Action Area */}
+                        <div className="pt-2 border-t border-emerald-200/80 flex flex-wrap items-center justify-between gap-2">
+                          <div className="flex items-center gap-1 text-[11px] text-emerald-900 font-medium">
+                            <span>📄</span>
+                            <span>{procurement.billPdfUrl ? 'Official Mandi Bill stored in AWS S3' : 'Official Mandi Bill (PDF)'}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {procurement.billPdfUrl && (
+                              <a
+                                href={procurement.billPdfUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 text-xs font-bold transition shadow-xs"
+                              >
+                                <span>📥 Download Bill (PDF)</span>
+                              </a>
+                            )}
+                            <button
+                              type="button"
+                              disabled={procLoading}
+                              onClick={generateBillPdf}
+                              className="inline-flex items-center gap-1 rounded-lg border border-emerald-300 bg-white hover:bg-emerald-50 text-emerald-900 px-2.5 py-1.5 text-xs font-semibold transition"
+                            >
+                              <span>{procurement.billPdfUrl ? '🔄 Regenerate' : '📄 Generate Bill (PDF)'}</span>
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ) : (
@@ -987,6 +1049,41 @@ export default function AdminPage() {
                           <IconShieldCheck className="h-4 w-4 text-emerald-300" />
                           <span>Confirm & Settle Full DBT Payment (₹{procurement.amount.toLocaleString()})</span>
                         </button>
+
+                        {procurement.amount > 0 && (
+                          <div className="pt-1 flex items-center justify-between border-t border-neutral-100">
+                            <span className="text-[11px] text-neutral-500">Mandi Bill &amp; S3 Archive:</span>
+                            {procurement.billPdfUrl ? (
+                              <div className="flex items-center gap-2">
+                                <a
+                                  href={procurement.billPdfUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-xs text-emerald-700 font-bold hover:underline"
+                                >
+                                  📥 View Bill (PDF)
+                                </a>
+                                <button
+                                  type="button"
+                                  disabled={procLoading}
+                                  onClick={generateBillPdf}
+                                  className="text-[11px] text-neutral-600 hover:text-neutral-900 underline"
+                                >
+                                  Regenerate
+                                </button>
+                              </div>
+                            ) : (
+                              <button
+                                type="button"
+                                disabled={procLoading}
+                                onClick={generateBillPdf}
+                                className="inline-flex items-center gap-1 rounded-lg border border-neutral-300 bg-white hover:bg-neutral-50 px-2.5 py-1 text-xs font-medium text-neutral-700 transition"
+                              >
+                                <span>📄 Preview / Upload Bill (PDF)</span>
+                              </button>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
 

@@ -59,6 +59,8 @@ type StatusDetail = {
     bankName?: string;
     accountMasked?: string;
     ifscCode?: string;
+    billPdfUrl?: string;
+    billGeneratedAt?: string;
   } | null;
   stages: StageInfo[];
 };
@@ -321,8 +323,19 @@ export default function StatusPage() {
                       </div>
                     </div>
 
-                    {/* Print Button (hidden on paper) */}
-                    <div className="no-print">
+                    {/* Action Buttons (hidden on paper) */}
+                    <div className="no-print flex flex-wrap items-center gap-2">
+                      {p?.billPdfUrl && (
+                        <a
+                          href={p.billPdfUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          download={`Mandi_Bill_Token_${selected.booking.token}.pdf`}
+                          className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white px-3.5 py-2 text-xs font-bold shadow-md transition"
+                        >
+                          <span>📄 Download Bill (PDF)</span>
+                        </a>
+                      )}
                       <button
                         type="button"
                         onClick={() => window.print()}
@@ -517,6 +530,52 @@ export default function StatusPage() {
                       </div>
                     </div>
                   </div>
+
+                  {/* Official Mandi Bill PDF Download Banner (AWS S3) */}
+                  {p?.billPdfUrl && (
+                    <div className="rounded-2xl border-2 border-emerald-500 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-100/70 p-4 space-y-3 no-print shadow-sm">
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-700 text-white font-black text-xl shadow-sm">
+                            📄
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-800 bg-emerald-200/80 px-2 py-0.5 rounded">
+                                AWS S3 Secure Stored
+                              </span>
+                              <span className="text-[10px] text-emerald-700 font-medium">
+                                e-NAM Verified
+                              </span>
+                            </div>
+                            <h3 className="text-sm font-extrabold text-neutral-900 mt-0.5">
+                              Official Mandi Procurement Bill &amp; DBT Settlement Voucher (PDF)
+                            </h3>
+                            <p className="text-xs text-neutral-600">
+                              सरकारी मंडी खरीद बिल एवं प्रत्यक्ष लाभ अंतरण (डीबीटी) प्रमाण-पत्र
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <a
+                            href={p.billPdfUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            download={`Mandi_Bill_Token_${selected.booking.token}.pdf`}
+                            className="inline-flex items-center gap-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 px-4 py-2.5 text-xs font-bold text-white shadow-md transition"
+                          >
+                            <span>📥 Download Official Bill (PDF)</span>
+                          </a>
+                        </div>
+                      </div>
+
+                      <div className="text-[11px] text-emerald-900/80 border-t border-emerald-200/70 pt-2 flex flex-wrap items-center justify-between gap-2">
+                        <span>✓ Government-certified A4 bill with tamper-proof cryptographic audit stamp</span>
+                        <span className="font-mono text-[10px] text-emerald-700">Token #{selected.booking.token} · S3 Bucket sih26032-farmer-media</span>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Bank & Aadhaar Seeding Credentials */}
                   <div className="rounded-xl border border-neutral-200 p-4 bg-neutral-50/50 space-y-3">

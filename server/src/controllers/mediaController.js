@@ -28,6 +28,7 @@ const ALLOWED_EXTENSIONS = new Set([
   '.svg',
   '.ico',
   '.avif',
+  '.pdf',
 ]);
 
 const MIME_MAP = {
@@ -39,6 +40,7 @@ const MIME_MAP = {
   '.svg': 'image/svg+xml',
   '.ico': 'image/x-icon',
   '.avif': 'image/avif',
+  '.pdf': 'application/pdf',
 };
 
 /**
