@@ -1,8 +1,7 @@
 import mongoose from 'mongoose';
 
 /**
- * Connects to MongoDB. Retries with a fixed backoff so the container can start
- * before Mongo is ready (docker-compose brings both up at once).
+ * Connects to MongoDB with retry backoff in case Mongo service is starting up.
  */
 export async function connectDB(uri, { retries = 5, delayMs = 3000 } = {}) {
   mongoose.set('strictQuery', true);
