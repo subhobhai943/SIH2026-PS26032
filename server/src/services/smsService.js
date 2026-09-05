@@ -3,6 +3,7 @@ import { env } from '../config/env.js';
 import Notification from '../models/Notification.js';
 import Farmer from '../models/Farmer.js';
 import { notifyFarmer } from './socketService.js';
+import { sendWhatsAppMessage, isWhatsAppConnected } from './whatsappService.js';
 
 const MSG91_ENDPOINT = 'https://api.msg91.com/api/v2/sendsms';
 
@@ -247,6 +248,15 @@ export async function sendTemplate(phone, templateName, data = {}) {
     console.warn('[sms] In-app notification persistence error:', err.message);
   }
 
-  // 2. Dispatch carrier SMS via Twilio
+  // 2. Dispatch instant WhatsApp message if bot is paired
+  try {
+    if (isWhatsAppConnected()) {
+      sendWhatsAppMessage(phone, message).catch((err) => {
+        console.warn('[whatsapp] dispatch error:', err.message);
+      });
+    }
+  } catch (_) {}
+
+  // 3. Dispatch carrier SMS
   return sendSMS(phone, message);
 }
