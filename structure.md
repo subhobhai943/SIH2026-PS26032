@@ -102,7 +102,7 @@ Below is the exhaustive, production-verified directory tree of the repository:
 
 ```
 SIH2026-PS26032/
-├── LICENSE                                # MIT Open Source License
+├── LICENSE                                # Proprietary & Confidential License
 ├── README.md                              # Main Project Overview & Quickstart Guide
 ├── structure.md                           # This Architecture & Codebase Specification
 │

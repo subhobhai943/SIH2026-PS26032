@@ -2,6 +2,7 @@
   "name": "sih26032-server",
   "version": "0.1.0",
   "private": true,
+  "license": "UNLICENSED",
   "description": "Backend for the Farmer Procurement Queue Management Platform (SIH 2026 PS26032)",
   "type": "module",
   "main": "src/index.js",

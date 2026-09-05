@@ -318,4 +318,7 @@ NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
 ---
 
 ## 📄 License
-This project is open-source under the [MIT License](./LICENSE).
+
+Copyright (c) 2026 subhobhai943. All Rights Reserved.  
+This project is licensed under a **Proprietary & Confidential Private License**. Unauthorized copying, reproduction, distribution, modification, or commercial exploitation is strictly prohibited. See [LICENSE](./LICENSE) for full legal terms.
+
