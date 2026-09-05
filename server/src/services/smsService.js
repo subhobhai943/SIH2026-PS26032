@@ -5,8 +5,6 @@ import Farmer from '../models/Farmer.js';
 import { notifyFarmer } from './socketService.js';
 import { sendWhatsAppMessage, isWhatsAppConnected } from './whatsappService.js';
 
-const MSG91_ENDPOINT = 'https://api.msg91.com/api/v2/sendsms';
-
 let twilioClient = null;
 
 function getTwilioClient() {
@@ -97,62 +95,6 @@ export async function sendViaTwilio(phone, message, templateKey = 'sms_order_con
   }
 }
 
-async function sendViaMsg91(phone, message) {
-  if (!env.msg91.authKey) throw new Error('MSG91_AUTH_KEY is not configured');
-
-  const res = await fetch(MSG91_ENDPOINT, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', authkey: env.msg91.authKey },
-    body: JSON.stringify({
-      sender: env.msg91.senderId,
-      route: env.msg91.route,
-      country: '91',
-      ...(env.msg91.dltTeId ? { DLT_TE_ID: env.msg91.dltTeId } : {}),
-      sms: [{ message, to: [phone] }],
-    }),
-  });
-
-  const body = await res.text();
-  if (!res.ok) throw new Error(`MSG91 responded ${res.status}: ${body}`);
-  return { provider: 'msg91', response: body };
-}
-
-/** Send real cellular SMS via self-hosted Android SMS Gateway (capcom6/android-sms-gateway) */
-export async function sendViaAndroidGateway(phone, message) {
-  const url = env.androidSms?.url || process.env.ANDROID_SMS_URL;
-  const login = env.androidSms?.login || process.env.ANDROID_SMS_LOGIN;
-  const password = env.androidSms?.password || process.env.ANDROID_SMS_PASSWORD;
-
-  if (!url) {
-    throw new Error('ANDROID_SMS_URL is not configured in server/.env');
-  }
-
-  const cleanPhone = toE164(phone);
-  const auth = login && password ? 'Basic ' + Buffer.from(`${login}:${password}`).toString('base64') : null;
-
-  const payload = {
-    message,
-    phoneNumbers: [cleanPhone],
-  };
-
-  const headers = { 'Content-Type': 'application/json' };
-  if (auth) headers['Authorization'] = auth;
-
-  const res = await fetch(url, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(payload),
-  });
-
-  const bodyText = await res.text();
-  if (!res.ok) {
-    throw new Error(`Android SMS Gateway responded ${res.status}: ${bodyText}`);
-  }
-
-  console.log(`[sms:android-gateway] -> ${cleanPhone} | status: ${res.status}`);
-  return { provider: 'android-gateway', ok: true, response: bodyText };
-}
-
 function sendViaConsole(phone, message) {
   console.log(`[sms:console] -> +91${phone}: ${message}`);
   return { provider: 'console' };
@@ -164,15 +106,6 @@ function sendViaConsole(phone, message) {
  */
 export async function sendSMS(phone, message) {
   try {
-    if (env.smsProvider === 'android-gateway') {
-      try {
-        return await sendViaAndroidGateway(phone, message);
-      } catch (gwErr) {
-        console.error(`[sms:android-gateway] delivery to ${toE164(phone)} failed: ${gwErr.message}. Fallback to console.`);
-        sendViaConsole(phone, message);
-        return { provider: 'android-gateway', error: gwErr.message, fallback: 'console' };
-      }
-    }
     if (env.smsProvider === 'twilio') {
       try {
         return await sendViaTwilio(phone, message);
@@ -182,7 +115,6 @@ export async function sendSMS(phone, message) {
         return { provider: 'twilio', error: twilioErr.message, fallback: 'console' };
       }
     }
-    if (env.smsProvider === 'msg91') return await sendViaMsg91(phone, message);
     return sendViaConsole(phone, message);
   } catch (err) {
     console.error(`[sms] delivery to ${phone} failed: ${err.message}`);

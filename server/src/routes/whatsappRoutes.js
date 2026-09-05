@@ -167,14 +167,5 @@ router.get('/status', (req, res) => {
   });
 });
 
-// Send test message endpoint
-router.post('/test', async (req, res) => {
-  const { phone, message } = req.body;
-  if (!phone) return res.status(400).json({ error: 'phone is required' });
-
-  const text = message || '🌾 Test notification from e-Mandi WhatsApp Bot! Your connection is working!';
-  const result = await sendWhatsAppMessage(phone, text);
-  res.json(result);
-});
-
 export default router;
+

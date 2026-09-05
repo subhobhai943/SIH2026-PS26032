@@ -25,24 +25,14 @@ export const env = {
   otpTtlMinutes: Number(process.env.OTP_TTL_MINUTES || 5),
   otpDevMode: bool(process.env.OTP_DEV_MODE, true),
 
-  smsProvider: process.env.SMS_PROVIDER || (process.env.ANDROID_SMS_URL ? 'android-gateway' : (process.env.TWILIO_ACCOUNT_SID ? 'twilio' : 'console')),
-  androidSms: {
-    url: process.env.ANDROID_SMS_URL || '',
-    login: process.env.ANDROID_SMS_LOGIN || '',
-    password: process.env.ANDROID_SMS_PASSWORD || '',
-  },
+  smsProvider: process.env.SMS_PROVIDER || (process.env.TWILIO_ACCOUNT_SID ? 'twilio' : 'console'),
   twilio: {
     accountSid: process.env.TWILIO_ACCOUNT_SID || '',
     authToken: process.env.TWILIO_AUTH_TOKEN || '',
     phoneNumber: process.env.TWILIO_PHONE_NUMBER || '',
     messagingServiceSid: process.env.TWILIO_MESSAGING_SERVICE_SID || '',
   },
-  msg91: {
-    authKey: process.env.MSG91_AUTH_KEY || '',
-    senderId: process.env.MSG91_SENDER_ID || 'SIHPRC',
-    route: process.env.MSG91_ROUTE || '4',
-    dltTeId: process.env.MSG91_DLT_TE_ID || '',
-  },
+
 
 
   firebase: {
