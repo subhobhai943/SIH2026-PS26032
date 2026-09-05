@@ -113,11 +113,99 @@ function sendViaConsole(phone, message) {
   return { provider: 'console' };
 }
 
+/** Send Push alert via ntfy.sh (100% free, zero signup/cost, instant mobile push) */
+export async function sendViaNtfy(phone, message, title = 'e-Mandi Alert') {
+  const cleanPhone = String(phone).replace(/\D/g, '').slice(-10);
+  if (!cleanPhone) return null;
+  const topic = `sih_emandi_${cleanPhone}`;
+
+  // HTTP headers must be ASCII byte strings
+  const asciiTitle = String(title).replace(/[^\x20-\x7E]/g, '').trim() || 'e-Mandi Alert';
+
+  try {
+    const res = await fetch(`https://ntfy.sh/${topic}`, {
+      method: 'POST',
+      headers: {
+        Title: asciiTitle,
+        Priority: 'high',
+        Tags: 'moneybag,white_check_mark',
+        Click: process.env.CLIENT_URL ? `${process.env.CLIENT_URL}/status` : 'https://sih-emandi.gov.in/status',
+      },
+      body: message,
+    });
+    console.log(`[push:ntfy] -> topic ${topic} | status: ${res.status}`);
+    return { provider: 'ntfy', ok: res.ok };
+  } catch (err) {
+    console.warn('[push:ntfy] delivery failed:', err.message);
+    return null;
+  }
+}
+
+/** Send Telegram alert if TELEGRAM_BOT_TOKEN & TELEGRAM_CHAT_ID are set */
+export async function sendViaTelegram(message) {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  const chatId = process.env.TELEGRAM_CHAT_ID;
+  if (!token || !chatId) return null;
+
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: message,
+      }),
+    });
+    console.log(`[push:telegram] -> chat ${chatId} | status: ${res.status}`);
+    return { provider: 'telegram', ok: res.ok };
+  } catch (err) {
+    console.warn('[push:telegram] delivery failed:', err.message);
+    return null;
+  }
+}
+
+/** Send WhatsApp alert via CallMeBot API */
+export async function sendViaWhatsApp(phone, message) {
+  const apiKey = process.env.CALLMEBOT_API_KEY;
+  if (!apiKey) return null;
+
+  try {
+    const cleanPhone = toE164(phone);
+    const encoded = encodeURIComponent(message);
+    const url = `https://api.callmebot.com/whatsapp.php?phone=${cleanPhone}&text=${encoded}&apikey=${apiKey}`;
+    const res = await fetch(url);
+    console.log(`[whatsapp:callmebot] -> ${cleanPhone} | status: ${res.status}`);
+    return { provider: 'callmebot', ok: res.ok };
+  } catch (err) {
+    console.warn('[whatsapp:callmebot] delivery failed:', err.message);
+    return null;
+  }
+}
+
 /**
  * Sends an SMS. Delivery failures are logged and swallowed: a farmer must never
  * lose their slot or payment because the SMS gateway was down.
  */
-export async function sendSMS(phone, message) {
+export async function sendSMS(phone, message, title = '🌾 e-Mandi Alert') {
+  // Always dispatch instant push via ntfy (zero cost, immediate mobile ring)
+  try {
+    await sendViaNtfy(phone, message, title);
+  } catch (_) {}
+
+  // If Telegram is configured, dispatch instant Telegram notification
+  try {
+    if (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID) {
+      await sendViaTelegram(message);
+    }
+  } catch (_) {}
+
+  // If WhatsApp is configured, dispatch parallel instant WhatsApp alert
+  try {
+    if (process.env.CALLMEBOT_API_KEY) {
+      await sendViaWhatsApp(phone, message);
+    }
+  } catch (_) {}
+
   try {
     if (env.smsProvider === 'sns') {
       try {
@@ -194,6 +282,6 @@ export async function sendTemplate(phone, templateName, data = {}) {
     console.warn('[sms] In-app notification persistence error:', err.message);
   }
 
-  // 2. Dispatch carrier SMS
-  return sendSMS(phone, message);
+  // 2. Dispatch carrier SMS & multi-channel push
+  return sendSMS(phone, message, meta.title);
 }

@@ -6,6 +6,7 @@ import { ThemeProvider } from '@/lib/theme/ThemeContext';
 import { LanguageModal } from '@/components/LanguageModal';
 import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
+import { LiveNotificationToast } from '@/components/LiveNotificationToast';
 
 export function ClientProviders({ children }: { children: React.ReactNode }) {
   return (
@@ -30,6 +31,7 @@ export function ClientProviders({ children }: { children: React.ReactNode }) {
           <SiteFooter />
         </div>
         <LanguageModal />
+        <LiveNotificationToast />
       </LanguageProvider>
     </ThemeProvider>
   );
