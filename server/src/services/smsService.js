@@ -1,5 +1,8 @@
 import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
 import { env } from '../config/env.js';
+import Notification from '../models/Notification.js';
+import Farmer from '../models/Farmer.js';
+import { notifyFarmer } from './socketService.js';
 
 const MSG91_ENDPOINT = 'https://api.msg91.com/api/v2/sendsms';
 
@@ -133,8 +136,64 @@ export async function sendSMS(phone, message) {
   }
 }
 
-export function sendTemplate(phone, templateName, data) {
+const TEMPLATE_METADATA = {
+  otp: { title: '🔐 Verification Code (OTP)', type: 'sms' },
+  bookingConfirmed: { title: '📅 Mandi Slot Booking Confirmed', type: 'booking_confirmed' },
+  bookingCancelled: { title: '❌ Mandi Slot Cancelled', type: 'booking_cancelled' },
+  nearingTurn: { title: '🔔 Turn Approaching Notice', type: 'queue_alert' },
+  yourTurn: { title: '📢 Your Turn — Proceed to Counter', type: 'queue_alert' },
+  procurementUpdate: { title: '📋 Procurement Status Update', type: 'general' },
+  advancePaymentDone: { title: '💰 20% DBT Safety Advance Credited', type: 'payment_advance' },
+  paymentDone: { title: '🌾 80% Final DBT Settlement Released', type: 'payment_balance' },
+  paymentConfirmed: { title: '🏛️ DBT Payment Confirmation & UTR Slip', type: 'payment_confirmed' },
+};
+
+export async function sendTemplate(phone, templateName, data = {}) {
   const build = templates[templateName];
   if (!build) throw new Error(`Unknown SMS template '${templateName}'`);
-  return sendSMS(phone, build(data));
+  const message = build(data);
+
+  // Clean 10-digit phone for database lookup
+  const cleanPhone = String(phone).replace(/\D/g, '').slice(-10);
+  const meta = TEMPLATE_METADATA[templateName] || { title: 'e-Procurement Alert', type: 'sms' };
+
+  // 1. Always persist digital SMS receipt in DB and push real-time in-app alert
+  try {
+    const farmer = await Farmer.findOne({ phone: cleanPhone });
+    const notification = await Notification.create({
+      farmer: farmer?._id || null,
+      phone: cleanPhone,
+      type: meta.type,
+      title: meta.title,
+      message,
+      data: { ...data, template: templateName },
+      provider: env.smsProvider,
+    });
+
+    if (farmer) {
+      notifyFarmer(String(farmer._id), 'notification', {
+        id: String(notification._id),
+        type: notification.type,
+        title: notification.title,
+        message: notification.message,
+        data: notification.data,
+        createdAt: notification.createdAt,
+      });
+
+      if (templateName === 'advancePaymentDone') {
+        notifyFarmer(String(farmer._id), 'payment:advance', {
+          token: data.token,
+          advanceAmount: data.advanceAmount,
+          amount: data.amount,
+          balanceAmount: data.balanceAmount,
+          paymentRef: data.paymentRef,
+        });
+      }
+    }
+  } catch (err) {
+    console.warn('[sms] In-app notification persistence error:', err.message);
+  }
+
+  // 2. Dispatch carrier SMS
+  return sendSMS(phone, message);
 }

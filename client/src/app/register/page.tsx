@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import gsap from 'gsap';
-import { api, setToken } from '@/lib/api';
+import { api, setToken, getToken, clearToken } from '@/lib/api';
 import { Alert, Button, Card, PageHeader, TextField } from '@/components/ui';
 import { IconPhone, IconStatus, IconCamera, IconUpload, IconUser, IconCheck } from '@/components/icons';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
@@ -33,7 +33,31 @@ export default function RegisterPage() {
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [existingUser, setExistingUser] = useState<any | null>(null);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const stepCardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const token = getToken();
+    if (token) {
+      api
+        .get<any>('/farmers/me')
+        .then((data) => {
+          if (data && data._id) {
+            setExistingUser(data);
+          }
+        })
+        .catch(() => {
+          clearToken();
+          setExistingUser(null);
+        })
+        .finally(() => {
+          setCheckingAuth(false);
+        });
+    } else {
+      setCheckingAuth(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (stepCardRef.current && !prefersReducedMotion()) {
@@ -202,6 +226,99 @@ export default function RegisterPage() {
     profile: t('reg_stepProfile'),
     done: t('reg_allSet'),
   };
+
+  if (existingUser) {
+    return (
+      <div className="mx-auto max-w-lg space-y-6">
+        <PageHeader
+          eyebrow="खाता पहले से लॉगिन है · Active Farmer Session"
+          title="Already Signed In (लॉगिन स्थिति)"
+          subtitle="You are already authenticated with your verified farmer profile."
+        />
+
+        <Card className="overflow-hidden border-2 border-emerald-600/50 shadow-xl bg-white dark:bg-neutral-900">
+          <div className="bg-gradient-to-r from-emerald-800 to-brand-900 px-5 py-4 text-white">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-xs font-bold uppercase tracking-wider text-emerald-200">
+                  Verified Farmer Account
+                </span>
+              </div>
+              <span className="rounded bg-white/20 px-2 py-0.5 text-[10px] font-bold text-white">
+                {existingUser.badge || 'A-Grade Producer'}
+              </span>
+            </div>
+          </div>
+
+          <div className="p-5 sm:p-6 space-y-5">
+            <div className="flex items-center gap-4">
+              {existingUser.photoUrl ? (
+                <img
+                  src={existingUser.photoUrl}
+                  alt={existingUser.name || 'Farmer'}
+                  className="h-16 w-16 rounded-2xl object-cover ring-2 ring-emerald-500/30 shrink-0"
+                />
+              ) : (
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-800 text-2xl font-bold shrink-0">
+                  🌾
+                </div>
+              )}
+              <div className="min-w-0 flex-1">
+                <h3 className="text-lg font-extrabold text-neutral-900 dark:text-neutral-100 truncate">
+                  {existingUser.name || 'Registered Farmer'}
+                </h3>
+                <p className="text-xs font-mono font-semibold text-neutral-600 dark:text-neutral-400">
+                  📱 +91 {existingUser.phone}
+                </p>
+                {(existingUser.village || existingUser.district) && (
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate">
+                    📍 {existingUser.village ? `${existingUser.village}, ` : ''}{existingUser.district} ({existingUser.state})
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-xl bg-emerald-50 dark:bg-emerald-950/40 p-3.5 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-900 dark:text-emerald-200">
+              <p className="font-semibold">✓ You are currently signed in.</p>
+              <p className="mt-0.5 opacity-80">
+                You do not need to register or verify OTP again. You can directly proceed to book delivery slots, check your live queue token, or view your 20% DBT safety advance receipt.
+              </p>
+            </div>
+
+            <div className="space-y-2.5 pt-2">
+              <a
+                href="/booking"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-700 hover:bg-brand-800 dark:bg-brand-600 dark:hover:bg-brand-500 py-3.5 px-4 text-sm font-extrabold text-white shadow-md transition"
+              >
+                <span>📅 Proceed to Book Slot (स्लॉट बुक करें)</span>
+                <span>➔</span>
+              </a>
+
+              <a
+                href="/status"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 py-3 px-4 text-sm font-bold text-neutral-800 dark:text-neutral-200 transition border border-neutral-200 dark:border-neutral-700"
+              >
+                <span>📋 View My Queue & DBT Payment Status (मेरी स्थिति देखें)</span>
+              </a>
+
+              <button
+                type="button"
+                onClick={() => {
+                  clearToken();
+                  setExistingUser(null);
+                  setStep('phone');
+                }}
+                className="w-full text-center text-xs font-bold text-red-600 dark:text-red-400 hover:underline py-2 transition"
+              >
+                🚪 Sign Out & Switch Account (दूसरे नंबर से लॉगिन करें)
+              </button>
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   const currentStepNum = STEP_ORDER.indexOf(step) + 1;
 

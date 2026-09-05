@@ -7,11 +7,17 @@ export function getToken(): string | null {
 }
 
 export function setToken(token: string) {
-  if (typeof window !== 'undefined') window.localStorage.setItem(TOKEN_KEY, token);
+  if (typeof window !== 'undefined') {
+    window.localStorage.setItem(TOKEN_KEY, token);
+    window.dispatchEvent(new Event('auth:change'));
+  }
 }
 
 export function clearToken() {
-  if (typeof window !== 'undefined') window.localStorage.removeItem(TOKEN_KEY);
+  if (typeof window !== 'undefined') {
+    window.localStorage.removeItem(TOKEN_KEY);
+    window.dispatchEvent(new Event('auth:change'));
+  }
 }
 
 export class ApiClientError extends Error {

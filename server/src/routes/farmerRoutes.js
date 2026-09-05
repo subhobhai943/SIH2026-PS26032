@@ -16,4 +16,8 @@ router.get('/me', requireFarmer, farmerController.getProfile);
 router.put('/me', requireFarmer, farmerController.updateProfile);
 router.put('/me/push-token', requireFarmer, farmerController.registerPushToken);
 
+router.get('/me/notifications', requireFarmer, farmerController.getNotifications);
+router.patch('/me/notifications/read-all', requireFarmer, farmerController.markAllNotificationsRead);
+router.patch('/me/notifications/:id/read', requireFarmer, farmerController.markNotificationRead);
+
 export default router;

@@ -370,6 +370,7 @@ export const updateProcurementStage = asyncHandler(async (req, res) => {
   }
 
   try { await ensureShipmentForQueue(entry._id); } catch (_) {}
+  await broadcastQueue(String(entry.center._id || entry.center), entry.date);
 
   res.json({ ok: true, data: procurement });
 });
@@ -410,6 +411,7 @@ export const payAdvance = asyncHandler(async (req, res) => {
   });
 
   try { await ensureShipmentForQueue(entry._id); } catch (_) {}
+  await broadcastQueue(String(entry.center._id || entry.center), entry.date);
 
   res.json({ ok: true, data: procurement });
 });
@@ -463,6 +465,7 @@ export const payBalance = asyncHandler(async (req, res) => {
   }
 
   try { await ensureShipmentForQueue(entry._id); } catch (_) {}
+  await broadcastQueue(String(entry.center._id || entry.center), entry.date);
 
   res.json({ ok: true, data: procurement });
 });

@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { env } from '../config/env.js';
 import Farmer from '../models/Farmer.js';
 import Otp from '../models/Otp.js';
+import Notification from '../models/Notification.js';
 import { signToken } from '../middleware/auth.js';
 import { ApiError, asyncHandler } from '../utils/ApiError.js';
 import { parse } from '../utils/validate.js';
@@ -150,3 +151,55 @@ export const registerPushToken = asyncHandler(async (req, res) => {
   await req.farmer.save();
   res.json({ ok: true, data: { registered: true } });
 });
+
+/** GET /api/farmers/me/notifications */
+export const getNotifications = asyncHandler(async (req, res) => {
+  const farmerId = req.farmer._id;
+  const phone = req.farmer.phone;
+
+  const notifications = await Notification.find({
+    $or: [{ farmer: farmerId }, { phone }],
+  })
+    .sort({ createdAt: -1 })
+    .limit(50)
+    .lean();
+
+  const unreadCount = notifications.filter((n) => !n.read).length;
+
+  res.json({
+    ok: true,
+    data: {
+      notifications,
+      unreadCount,
+    },
+  });
+});
+
+/** PATCH /api/farmers/me/notifications/read-all */
+export const markAllNotificationsRead = asyncHandler(async (req, res) => {
+  const farmerId = req.farmer._id;
+  const phone = req.farmer.phone;
+
+  await Notification.updateMany(
+    { $or: [{ farmer: farmerId }, { phone }], read: false },
+    { $set: { read: true } }
+  );
+
+  res.json({ ok: true, data: { marked: true } });
+});
+
+/** PATCH /api/farmers/me/notifications/:id/read */
+export const markNotificationRead = asyncHandler(async (req, res) => {
+  const farmerId = req.farmer._id;
+  const phone = req.farmer.phone;
+
+  const notification = await Notification.findOneAndUpdate(
+    { _id: req.params.id, $or: [{ farmer: farmerId }, { phone }] },
+    { $set: { read: true } },
+    { new: true }
+  );
+
+  if (!notification) throw ApiError.notFound('Notification not found');
+  res.json({ ok: true, data: notification });
+});
+

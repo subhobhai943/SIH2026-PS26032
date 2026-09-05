@@ -1,13 +1,29 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui';
-import { IconArrowRight, IconBell, IconCalendar, IconPhone, IconQueue, IconStatus, IconTruck, IconStar } from '@/components/icons';
+import { IconArrowRight, IconBell, IconCalendar, IconPhone, IconQueue, IconStatus, IconTruck, IconStar, IconCheck } from '@/components/icons';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
 import { useGsapContext } from '@/lib/animations';
+import { getToken } from '@/lib/api';
 import gsap from 'gsap';
 
 export default function HomePage() {
   const { t } = useTranslation();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    function checkAuth() {
+      setIsLoggedIn(Boolean(getToken()));
+    }
+    checkAuth();
+    window.addEventListener('auth:change', checkAuth);
+    window.addEventListener('storage', checkAuth);
+    return () => {
+      window.removeEventListener('auth:change', checkAuth);
+      window.removeEventListener('storage', checkAuth);
+    };
+  }, []);
 
   const containerRef = useGsapContext(() => {
     try {
@@ -25,7 +41,12 @@ export default function HomePage() {
   }, []);
 
   const steps = [
-    { title: t('home_step1Title'), desc: t('home_step1Desc'), href: '/register', icon: IconPhone },
+    {
+      title: isLoggedIn ? `✓ ${t('home_step1Title')} (सत्यापित)` : t('home_step1Title'),
+      desc: isLoggedIn ? 'Account verified and active. Proceed to book delivery slots directly.' : t('home_step1Desc'),
+      href: isLoggedIn ? '/booking' : '/register',
+      icon: isLoggedIn ? IconCheck : IconPhone,
+    },
     { title: t('home_step2Title'), desc: t('home_step2Desc'), href: '/booking', icon: IconCalendar },
     { title: t('home_step3Title'), desc: t('home_step3Desc'), href: '/queue', icon: IconQueue },
     { title: t('home_step4Title'), desc: t('home_step4Desc'), href: '/status', icon: IconStatus },
@@ -64,7 +85,7 @@ export default function HomePage() {
         <div className="relative mx-auto max-w-3xl text-center px-4 py-12 sm:px-12 sm:py-20 text-white">
           <span className="hero-badge inline-flex items-center gap-2 rounded-full bg-white/15 px-3.5 py-1 text-[10px] sm:text-xs font-semibold uppercase tracking-wide backdrop-blur border border-white/20">
             <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>{t('home_tag')}</span>
+            <span>{isLoggedIn ? 'किसान खाता सक्रिय · Active Session' : t('home_tag')}</span>
           </span>
           <h1 className="hero-title mt-4 sm:mt-5 text-2xl sm:text-3xl md:text-5xl font-extrabold leading-tight tracking-tight drop-shadow-md">
             {t('home_heroTitle')}
@@ -73,14 +94,35 @@ export default function HomePage() {
             {t('home_heroDesc')}
           </p>
           <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row sm:justify-center gap-3 sm:gap-3.5 flex-wrap items-center">
-            {/* Primary Action: Get Started / Book Slot */}
-            <a
-              href="/register"
-              className="hero-btn w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-xl bg-white px-6 sm:px-8 py-3.5 sm:py-4 text-base font-extrabold text-neutral-900 shadow-xl transition-all duration-200 hover:bg-neutral-100 hover:shadow-2xl hover:-translate-y-0.5 active:scale-[0.98] border-2 border-white ring-2 ring-white/30"
-            >
-              <span className="text-neutral-900 font-extrabold">{t('home_getStarted')}</span>
-              <IconArrowRight className="h-5 w-5 text-neutral-900 stroke-[2.5]" />
-            </a>
+            {/* Primary Action Button: Book Slot (if logged in) or Get Started (if guest) */}
+            {isLoggedIn ? (
+              <>
+                <a
+                  href="/booking"
+                  className="hero-btn w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-xl bg-emerald-400 px-6 sm:px-8 py-3.5 sm:py-4 text-base font-extrabold text-neutral-950 shadow-xl transition-all duration-200 hover:bg-emerald-300 hover:shadow-2xl hover:-translate-y-0.5 active:scale-[0.98] border-2 border-emerald-300 ring-2 ring-emerald-400/30"
+                >
+                  <IconCalendar className="h-5 w-5 text-neutral-950 stroke-[2.5]" />
+                  <span className="text-neutral-950 font-extrabold">{t('nav_bookSlot')} (स्लॉट बुक करें)</span>
+                  <IconArrowRight className="h-5 w-5 text-neutral-950 stroke-[2.5]" />
+                </a>
+
+                <a
+                  href="/status"
+                  className="hero-btn w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 sm:px-6 py-3.5 text-sm sm:text-base font-extrabold text-neutral-900 shadow-lg transition-all duration-200 hover:bg-neutral-100 hover:-translate-y-0.5 active:scale-[0.98] border-2 border-white"
+                >
+                  <IconStatus className="h-4 w-4 text-brand-700" />
+                  <span>{t('nav_myStatus')} (मेरी स्थिति व रसीदें)</span>
+                </a>
+              </>
+            ) : (
+              <a
+                href="/register"
+                className="hero-btn w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-xl bg-white px-6 sm:px-8 py-3.5 sm:py-4 text-base font-extrabold text-neutral-900 shadow-xl transition-all duration-200 hover:bg-neutral-100 hover:shadow-2xl hover:-translate-y-0.5 active:scale-[0.98] border-2 border-white ring-2 ring-white/30"
+              >
+                <span className="text-neutral-900 font-extrabold">{t('home_getStarted')}</span>
+                <IconArrowRight className="h-5 w-5 text-neutral-900 stroke-[2.5]" />
+              </a>
+            )}
 
             {/* Secondary Action: Live Queue */}
             <a

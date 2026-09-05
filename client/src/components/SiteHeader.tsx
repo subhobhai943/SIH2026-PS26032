@@ -6,34 +6,83 @@ import gsap from 'gsap';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
 import { useTheme } from '@/lib/theme/ThemeContext';
 import { SUPPORTED_LANGUAGES, LanguageCode } from '@/lib/i18n/languages';
-import { getToken, clearToken } from '@/lib/api';
+import { api, getToken, clearToken } from '@/lib/api';
 import { prefersReducedMotion } from '@/lib/animations';
-import { IconClose, IconGlobe, IconMenu, IconWheat, IconCheck, IconSun, IconMoon } from './icons';
+import { IconClose, IconGlobe, IconMenu, IconWheat, IconCheck, IconSun, IconMoon, IconBell } from './icons';
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const [langMenuOpen, setLangMenuOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [farmer, setFarmer] = useState<{ name?: string; phone?: string; photoUrl?: string } | null>(null);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const pathname = usePathname();
   const { language, setLanguage, openLanguageSelector, t } = useTranslation();
   const { theme, resolvedTheme, toggleTheme, fontSize, setFontSize } = useTheme();
   const langDropdownRef = useRef<HTMLDivElement>(null);
   const langDropdownMenuRef = useRef<HTMLDivElement>(null);
+  const notifDropdownRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLElement>(null);
 
   const currentLang = SUPPORTED_LANGUAGES.find((l) => l.code === language) || SUPPORTED_LANGUAGES[0];
 
+  const fetchFarmerAndNotifs = () => {
+    const token = getToken();
+    const authed = Boolean(token);
+    setIsLoggedIn(authed);
+    if (authed) {
+      api
+        .get<any>('/farmers/me')
+        .then((f) => setFarmer(f))
+        .catch(() => {
+          clearToken();
+          setIsLoggedIn(false);
+          setFarmer(null);
+        });
+      api
+        .get<{ notifications: any[]; unreadCount: number }>('/farmers/me/notifications')
+        .then((res) => {
+          setNotifications(res?.notifications || []);
+          setUnreadCount(res?.unreadCount || 0);
+        })
+        .catch(() => {});
+    } else {
+      setFarmer(null);
+      setNotifications([]);
+      setUnreadCount(0);
+    }
+  };
+
   useEffect(() => {
-    setIsLoggedIn(Boolean(getToken()));
+    fetchFarmerAndNotifs();
 
     function handleClickOutside(event: MouseEvent) {
       if (langDropdownRef.current && !langDropdownRef.current.contains(event.target as Node)) {
         setLangMenuOpen(false);
       }
+      if (notifDropdownRef.current && !notifDropdownRef.current.contains(event.target as Node)) {
+        setNotifOpen(false);
+      }
     }
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    window.addEventListener('auth:change', fetchFarmerAndNotifs);
+    window.addEventListener('storage', fetchFarmerAndNotifs);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('auth:change', fetchFarmerAndNotifs);
+      window.removeEventListener('storage', fetchFarmerAndNotifs);
+    };
+  }, [pathname]);
+
+  const handleMarkAllRead = async () => {
+    try {
+      await api.patch('/farmers/me/notifications/read-all');
+      setUnreadCount(0);
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    } catch {}
+  };
 
   useEffect(() => {
     if (open && mobileMenuRef.current && !prefersReducedMotion()) {
@@ -261,19 +310,122 @@ export function SiteHeader() {
             )}
           </div>
 
-          {/* Desktop Auth Status */}
+          {/* Desktop Auth Status & Notifications */}
           {isLoggedIn ? (
-            <button
-              type="button"
-              onClick={() => {
-                clearToken();
-                setIsLoggedIn(false);
-                window.location.href = '/';
-              }}
-              className="rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-xs font-semibold text-neutral-600 hover:bg-neutral-100 hover:text-red-600 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700 dark:hover:text-red-400 transition"
-            >
-              Sign Out
-            </button>
+            <div className="flex items-center gap-2">
+              {/* Notification Bell Dropdown */}
+              <div className="relative" ref={notifDropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setNotifOpen(!notifOpen)}
+                  className="relative flex items-center justify-center h-8 w-8 rounded-xl border border-neutral-200 bg-neutral-50 text-neutral-700 hover:border-brand-300 hover:bg-white dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 transition"
+                  aria-label="Notifications"
+                >
+                  <IconBell className="h-4 w-4" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 text-[9px] font-extrabold text-white animate-pulse">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+
+                {notifOpen && (
+                  <div className="absolute right-0 mt-2 w-80 sm:w-96 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-2xl ring-1 ring-black/5 dark:border-neutral-800 dark:bg-neutral-900 z-50">
+                    <div className="flex items-center justify-between px-4 py-3 bg-neutral-50 dark:bg-neutral-800/80 border-b border-neutral-200 dark:border-neutral-700">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-sm">🔔</span>
+                        <span className="text-xs font-bold text-neutral-900 dark:text-neutral-100">
+                          SMS & DBT Receipts (एसएमएस व रसीदें)
+                        </span>
+                      </div>
+                      {unreadCount > 0 && (
+                        <button
+                          onClick={handleMarkAllRead}
+                          className="text-[11px] font-semibold text-brand-700 dark:text-brand-400 hover:underline"
+                        >
+                          Mark all read
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="max-h-80 overflow-y-auto divide-y divide-neutral-100 dark:divide-neutral-800">
+                      {notifications.length === 0 ? (
+                        <div className="p-6 text-center text-xs text-neutral-500">
+                          No notifications yet. SMS receipts and payment updates will appear here.
+                        </div>
+                      ) : (
+                        notifications.map((n) => (
+                          <div
+                            key={n._id}
+                            className={`p-3.5 transition text-xs ${
+                              !n.read ? 'bg-emerald-50/50 dark:bg-emerald-950/30' : 'hover:bg-neutral-50 dark:hover:bg-neutral-800/50'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between gap-2 mb-1">
+                              <span className="font-bold text-neutral-900 dark:text-neutral-100 truncate">
+                                {n.title}
+                              </span>
+                              <span className="text-[10px] text-neutral-400 shrink-0">
+                                {new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                            </div>
+                            <p className="text-neutral-600 dark:text-neutral-300 leading-relaxed font-mono text-[11px] bg-neutral-100/80 dark:bg-neutral-800/80 p-2 rounded-lg border border-neutral-200/60 dark:border-neutral-700/60">
+                              {n.message}
+                            </p>
+                            <div className="mt-2 flex items-center justify-between text-[11px]">
+                              <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold flex items-center gap-1">
+                                ✓ SMS Sent to +91 {n.phone}
+                              </span>
+                              <a
+                                href="/status"
+                                onClick={() => setNotifOpen(false)}
+                                className="font-bold text-brand-700 dark:text-brand-400 hover:underline"
+                              >
+                                View Voucher ➔
+                              </a>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    <div className="p-2 border-t border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50 text-center">
+                      <a
+                        href="/status"
+                        onClick={() => setNotifOpen(false)}
+                        className="text-xs font-bold text-brand-700 dark:text-brand-400 hover:underline"
+                      >
+                        View Full DBT Payment & Queue Dossier ➔
+                      </a>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Farmer Profile Pill */}
+              <a
+                href="/status"
+                className="flex items-center gap-1.5 rounded-xl border border-emerald-300 bg-emerald-50 px-2.5 py-1.5 text-xs font-bold text-emerald-900 hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-200 transition"
+                title="View Farmer Dossier"
+              >
+                <span className="text-sm">👤</span>
+                <span className="max-w-[90px] truncate">{farmer?.name || farmer?.phone || 'Farmer'}</span>
+              </a>
+
+              {/* Sign Out Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  clearToken();
+                  setIsLoggedIn(false);
+                  setFarmer(null);
+                  window.location.href = '/';
+                }}
+                className="rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-xs font-semibold text-neutral-600 hover:bg-neutral-100 hover:text-red-600 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700 dark:hover:text-red-400 transition"
+              >
+                Sign Out
+              </button>
+            </div>
           ) : (
             <a
               href="/register"
@@ -286,6 +438,23 @@ export function SiteHeader() {
 
         {/* Mobile controls */}
         <div className="flex items-center gap-1.5 md:hidden">
+          {/* Mobile Notifications */}
+          {isLoggedIn && (
+            <button
+              type="button"
+              onClick={() => setNotifOpen(!notifOpen)}
+              className="relative flex items-center justify-center h-8 w-8 rounded-lg border border-neutral-200 bg-neutral-50 text-neutral-700 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
+              aria-label="Notifications"
+            >
+              <IconBell className="h-4 w-4" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 text-[9px] font-extrabold text-white">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+          )}
+
           <button
             type="button"
             onClick={openLanguageSelector}
