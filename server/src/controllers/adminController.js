@@ -17,6 +17,11 @@ import { ensureShipmentForQueue } from './shipmentController.js';
 import { getRateLimitMetrics } from '../middleware/rateLimiter.js';
 import { escapeRegex } from '../utils/sanitize.js';
 import { generateAndUploadBill } from '../services/pdfBillService.js';
+import Farmer from '../models/Farmer.js';
+import Notification from '../models/Notification.js';
+import Shipment from '../models/Shipment.js';
+import Review from '../models/Review.js';
+import Otp from '../models/Otp.js';
 
 // ---------------------------------------------------------------- auth
 
@@ -605,5 +610,297 @@ export const getSystemMetrics = asyncHandler(async (req, res) => {
       rateLimiter: rateLimitStats,
     },
   });
+});
+
+// ---------------------------------------------------------------- users / farmers
+
+/** GET /api/admin/farmers — list registered farmers with search and stats */
+export const listFarmers = asyncHandler(async (req, res) => {
+  const page = Math.max(1, parseInt(req.query.page) || 1);
+  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
+  const search = String(req.query.search || '').trim();
+  const state = String(req.query.state || '').trim();
+
+  const filter = {};
+  if (search) {
+    const rx = new RegExp(escapeRegex(search), 'i');
+    filter.$or = [{ name: rx }, { phone: rx }, { village: rx }, { district: rx }, { state: rx }, { badge: rx }];
+  }
+  if (state && state !== 'All') {
+    filter.state = state;
+  }
+
+  const [total, farmersDocs, statsOverview] = await Promise.all([
+    Farmer.countDocuments(filter),
+    Farmer.find(filter)
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .lean(),
+    Promise.all([
+      Farmer.countDocuments(),
+      Farmer.countDocuments({ aadhaarLast4: { $exists: true, $ne: '' } }),
+      Farmer.aggregate([{ $group: { _id: null, totalAcres: { $sum: '$landAreaAcres' } } }]),
+      Farmer.distinct('state'),
+    ]),
+  ]);
+
+  const [totalRegistered, verifiedKyc, acresAgg, statesList] = statsOverview;
+
+  // Enrich each farmer with their total queue bookings and procurements count
+  const enrichedFarmers = await Promise.all(
+    farmersDocs.map(async (f) => {
+      const [bookingsCount, procurements] = await Promise.all([
+        Queue.countDocuments({ farmer: f._id }),
+        Procurement.find({ farmer: f._id }).select('amount stage advanceStatus balanceStatus billPdfUrl').lean(),
+      ]);
+
+      const totalMspValue = procurements.reduce((sum, p) => sum + (p.amount || 0), 0);
+      const completedDeliveries = procurements.filter((p) => p.stage === 'paid' || p.balanceStatus === 'paid').length;
+      const hasBill = procurements.some((p) => Boolean(p.billPdfUrl));
+
+      return {
+        ...f,
+        totalBookings: bookingsCount,
+        totalProcurements: procurements.length,
+        completedDeliveries,
+        totalMspValue,
+        hasBill,
+      };
+    })
+  );
+
+  res.json({
+    ok: true,
+    data: {
+      farmers: enrichedFarmers,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit) || 1,
+      stats: {
+        totalFarmers: totalRegistered,
+        verifiedKyc,
+        totalLandAcres: acresAgg[0]?.totalAcres || 0,
+        statesCount: statesList.filter(Boolean).length,
+      },
+    },
+  });
+});
+
+/** GET /api/admin/farmers/:id — get full farmer profile, bookings, procurements, and notifications */
+export const getFarmerDossier = asyncHandler(async (req, res) => {
+  const farmer = await Farmer.findById(req.params.id).lean();
+  if (!farmer) throw ApiError.notFound('Farmer not found');
+
+  const [bookings, procurements, notifications] = await Promise.all([
+    Queue.find({ farmer: farmer._id })
+      .populate('center', 'name code district state address contactPhone')
+      .populate('slot', 'startTime endTime')
+      .sort({ createdAt: -1 })
+      .lean(),
+    Procurement.find({ farmer: farmer._id })
+      .populate('center', 'name code district state')
+      .sort({ createdAt: -1 })
+      .lean(),
+    Notification.find({ farmer: farmer._id })
+      .sort({ createdAt: -1 })
+      .limit(30)
+      .lean(),
+  ]);
+
+  res.json({
+    ok: true,
+    data: {
+      farmer,
+      bookings,
+      procurements,
+      notifications,
+    },
+  });
+});
+
+/** PATCH /api/admin/farmers/:id — update farmer details or badge */
+export const updateFarmer = asyncHandler(async (req, res) => {
+  const allowed = ['name', 'village', 'district', 'state', 'badge', 'landAreaAcres', 'preferredLanguage', 'crops'];
+  const updateData = {};
+  for (const key of allowed) {
+    if (req.body[key] !== undefined) updateData[key] = req.body[key];
+  }
+
+  const farmer = await Farmer.findByIdAndUpdate(req.params.id, updateData, { new: true, runValidators: true });
+  if (!farmer) throw ApiError.notFound('Farmer not found');
+
+  res.json({ ok: true, data: farmer });
+});
+
+// ---------------------------------------------------------------- database inspector
+
+/** GET /api/admin/database/overview — comprehensive DB stats, telemetry, and collection list */
+export const getDatabaseOverview = asyncHandler(async (req, res) => {
+  const db = mongoose.connection.db;
+  if (!db) throw ApiError.internal('Database connection not established');
+
+  const [dbStats, collectionsList] = await Promise.all([
+    db.stats(),
+    db.listCollections().toArray(),
+  ]);
+
+  const collectionNames = collectionsList.map((c) => c.name);
+
+  // Friendly meta descriptions for known collections
+  const META_MAP = {
+    farmers: { label: 'Farmers / Users', icon: '👨‍🌾', description: 'Registered farmers, mobile authentication, KYC, landholding and profile data' },
+    procurements: { label: 'Procurements & DBT Bills', icon: '🌾', description: 'Grain weighing records, MSP rates, 20% advance & 80% final settlement, UTRs, and AWS S3 bills' },
+    queues: { label: 'Queue Entries & Tokens', icon: '⏳', description: 'Daily token gate passes, live queue positions, arrival & serving lifecycle timestamps' },
+    slots: { label: 'Procurement Slots', icon: '📅', description: 'Centre operating time windows, capacity allocations, and booked seats' },
+    centers: { label: 'Procurement Mandis', icon: '🏛️', description: 'Official APMC mandis, PACS yards, and FCI depots across states' },
+    notifications: { label: 'Digital SMS & WA Audit', icon: '📲', description: 'Transactional SMS receipts, WhatsApp bot dispatches, and delivery logs' },
+    shipments: { label: '3rd-Party Logistics', icon: '🚚', description: 'Delhivery / carrier consignments, vehicle numbers, drivers, and GPS transit checkpoints' },
+    reviews: { label: 'Buyer Quality Ratings', icon: '⭐', description: 'Grain inspection feedback and farmer reputation ratings from bulk buyers and FCI officers' },
+    staffs: { label: 'Staff & Operators', icon: '🛡️', description: 'Admin, operator, and weighing clerk credentials with center-level scoping' },
+    otps: { label: 'Phone Verification OTPs', icon: '🔐', description: 'Temporary OTP audit logs with expiration TTL indexes' },
+  };
+
+  const collections = await Promise.all(
+    collectionNames.map(async (name) => {
+      const col = db.collection(name);
+      const count = await col.countDocuments();
+      let sampleDoc = null;
+      try {
+        sampleDoc = await col.findOne({}, { sort: { _id: -1 } });
+      } catch (_) {}
+
+      const meta = META_MAP[name] || { label: name, icon: '📁', description: `MongoDB collection for ${name}` };
+
+      return {
+        name,
+        label: meta.label,
+        icon: meta.icon,
+        description: meta.description,
+        count,
+        sampleDocId: sampleDoc?._id || null,
+      };
+    })
+  );
+
+  const order = ['farmers', 'procurements', 'queues', 'centers', 'slots', 'notifications', 'shipments', 'reviews', 'staffs', 'otps'];
+  collections.sort((a, b) => {
+    const ia = order.indexOf(a.name);
+    const ib = order.indexOf(b.name);
+    return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+  });
+
+  res.json({
+    ok: true,
+    data: {
+      dbName: dbStats.db,
+      connected: mongoose.connection.readyState === 1,
+      host: mongoose.connection.host || 'localhost',
+      port: mongoose.connection.port || 27017,
+      totalCollections: dbStats.collections,
+      totalObjects: dbStats.objects,
+      avgObjSizeKb: Math.round((dbStats.avgObjSize || 0) / 1024 * 100) / 100,
+      dataSizeMb: Math.round((dbStats.dataSize || 0) / (1024 * 1024) * 100) / 100,
+      storageSizeMb: Math.round((dbStats.storageSize || 0) / (1024 * 1024) * 100) / 100,
+      indexesCount: dbStats.indexes,
+      indexSizeMb: Math.round((dbStats.indexSize || 0) / (1024 * 1024) * 100) / 100,
+      collections,
+    },
+  });
+});
+
+/** GET /api/admin/database/collection/:name — browse documents in any collection with pagination & search */
+export const getCollectionData = asyncHandler(async (req, res) => {
+  const db = mongoose.connection.db;
+  if (!db) throw ApiError.internal('Database connection not established');
+
+  const collectionName = req.params.name;
+  const col = db.collection(collectionName);
+
+  const page = Math.max(1, parseInt(req.query.page) || 1);
+  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
+  const search = String(req.query.search || '').trim();
+
+  let filter = {};
+  if (search) {
+    if (mongoose.Types.ObjectId.isValid(search) && search.length === 24) {
+      filter.$or = [{ _id: new mongoose.Types.ObjectId(search) }, { farmer: new mongoose.Types.ObjectId(search) }];
+    } else {
+      const rx = new RegExp(escapeRegex(search), 'i');
+      filter.$or = [
+        { name: rx },
+        { phone: rx },
+        { status: rx },
+        { stage: rx },
+        { crop: rx },
+        { code: rx },
+        { district: rx },
+        { state: rx },
+        { title: rx },
+        { paymentRef: rx },
+        { utrNumber: rx },
+        { trackingNumber: rx },
+        { username: rx },
+        { email: rx },
+      ];
+    }
+  }
+
+  let total = 0;
+  let documents = [];
+
+  try {
+    [total, documents] = await Promise.all([
+      col.countDocuments(filter),
+      col
+        .find(filter)
+        .sort({ _id: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .toArray(),
+    ]);
+  } catch (queryErr) {
+    // If complex $or failed against some schema types, fallback to simple find
+    total = await col.countDocuments();
+    documents = await col
+      .find({})
+      .sort({ _id: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .toArray();
+  }
+
+  res.json({
+    ok: true,
+    data: {
+      collection: collectionName,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit) || 1,
+      documents,
+    },
+  });
+});
+
+/** GET /api/admin/database/collection/:name/:id — get exact document JSON */
+export const getDocumentDetails = asyncHandler(async (req, res) => {
+  const db = mongoose.connection.db;
+  if (!db) throw ApiError.internal('Database connection not established');
+
+  const { name, id } = req.params;
+  const col = db.collection(name);
+
+  let doc = null;
+  if (mongoose.Types.ObjectId.isValid(id)) {
+    doc = await col.findOne({ _id: new mongoose.Types.ObjectId(id) });
+  }
+  if (!doc) {
+    doc = await col.findOne({ _id: id });
+  }
+  if (!doc) throw ApiError.notFound('Document not found');
+
+  res.json({ ok: true, data: doc });
 });
 

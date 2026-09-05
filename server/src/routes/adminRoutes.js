@@ -28,4 +28,14 @@ router.post('/procurement/:queueEntryId/pay-balance', requireStaff(), adminContr
 router.post('/procurement/:queueEntryId/confirm-payment', requireStaff(), adminController.confirmPayment);
 router.post('/procurement/:queueEntryId/generate-bill', requireStaff(), adminController.generateBill);
 
+// Users / Farmers
+router.get('/farmers', requireStaff(), adminController.listFarmers);
+router.get('/farmers/:id', requireStaff(), adminController.getFarmerDossier);
+router.patch('/farmers/:id', requireStaff('admin'), adminController.updateFarmer);
+
+// Database Inspector & Telemetry
+router.get('/database/overview', requireStaff(), adminController.getDatabaseOverview);
+router.get('/database/collection/:name', requireStaff(), adminController.getCollectionData);
+router.get('/database/collection/:name/:id', requireStaff(), adminController.getDocumentDetails);
+
 export default router;

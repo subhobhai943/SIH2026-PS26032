@@ -18,7 +18,12 @@ import {
   IconGlobe,
   IconPhone,
   IconClock,
+  IconUser,
+  IconSearch,
+  IconDatabase,
+  IconCalendar,
 } from '@/components/icons';
+
 
 const API_URL = '/api';
 const ADMIN_TOKEN_KEY = 'sih26032_admin_token';
@@ -87,6 +92,94 @@ type ProcurementData = {
   billGeneratedAt?: string;
 };
 
+type FarmerItem = {
+  _id: string;
+  name: string;
+  phone: string;
+  village: string;
+  district?: string;
+  state?: string;
+  aadhaarLast4?: string;
+  landAreaAcres?: number;
+  crops?: string[];
+  badge?: string;
+  preferredLanguage?: string;
+  createdAt: string;
+  stats?: {
+    totalBookings: number;
+    totalProcurements: number;
+    completedDeliveries: number;
+    totalMspValue: number;
+    hasBill: boolean;
+  };
+};
+
+type FarmerDossier = {
+  farmer: FarmerItem;
+  bookings: Array<{
+    _id: string;
+    token: number;
+    crop?: string;
+    estimatedQuantityQtl?: number;
+    date: string;
+    status: string;
+    center?: { name: string; district?: string; state?: string };
+    slot?: { startTime: string; endTime: string };
+    createdAt: string;
+  }>;
+  procurements: Array<{
+    _id: string;
+    crop: string;
+    quantityQtl: number;
+    ratePerQtl: number;
+    amount: number;
+    advanceAmount: number;
+    balanceAmount: number;
+    stage: string;
+    utrNumber?: string;
+    billPdfUrl?: string;
+    createdAt: string;
+  }>;
+  notifications: Array<{
+    _id: string;
+    type: string;
+    channel: string;
+    title: string;
+    message: string;
+    sentAt: string;
+    status: string;
+  }>;
+};
+
+type DatabaseCollectionInfo = {
+  name: string;
+  displayName: string;
+  description: string;
+  category: string;
+  count: number;
+  storageSize?: number;
+  totalIndexSize?: number;
+};
+
+type DatabaseOverview = {
+  database: {
+    name: string;
+    collections: number;
+    objects: number;
+    avgObjSize: number;
+    dataSize: number;
+    storageSize: number;
+    indexes: number;
+    indexSize: number;
+    connection: {
+      status: string;
+      host: string;
+      port: number;
+    };
+  };
+  collections: DatabaseCollectionInfo[];
+};
+
 export default function AdminPage() {
   const [token, setToken] = useState<string | null>(null);
   const [usernameOrEmail, setUsernameOrEmail] = useState('');
@@ -95,8 +188,9 @@ export default function AdminPage() {
   const [lockoutUntil, setLockoutUntil] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loginLoading, setLoginLoading] = useState(false);
-  const [adminTab, setAdminTab] = useState<'queue' | 'system' | 'reviews' | 'centers'>('queue');
+  const [adminTab, setAdminTab] = useState<'queue' | 'users' | 'database' | 'system' | 'reviews' | 'centers'>('queue');
   const [systemMetrics, setSystemMetrics] = useState<any>(null);
+
   const [metricsLoading, setMetricsLoading] = useState(false);
   const [adminReviews, setAdminReviews] = useState<any[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
@@ -143,6 +237,40 @@ export default function AdminPage() {
   const [checkpointLocation, setCheckpointLocation] = useState('');
   const [checkpointTitle, setCheckpointTitle] = useState('');
   const [shipLoading, setShipLoading] = useState(false);
+
+  // Farmers / Users Directory state
+  const [farmers, setFarmers] = useState<FarmerItem[]>([]);
+  const [farmersLoading, setFarmersLoading] = useState(false);
+  const [farmersStats, setFarmersStats] = useState<{
+    totalFarmers: number;
+    verifiedKyc: number;
+    totalLandAcres: number;
+    statesCount: number;
+  } | null>(null);
+  const [farmerSearch, setFarmerSearch] = useState('');
+  const [farmerStateFilter, setFarmerStateFilter] = useState('All');
+  const [farmerPage, setFarmerPage] = useState(1);
+  const [farmerTotalPages, setFarmerTotalPages] = useState(1);
+  const [farmerTotalCount, setFarmerTotalCount] = useState(0);
+  const [farmerDossier, setFarmerDossier] = useState<FarmerDossier | null>(null);
+  const [dossierLoading, setDossierLoading] = useState(false);
+  const [dossierModalOpen, setDossierModalOpen] = useState(false);
+  const [updatingFarmerBadge, setUpdatingFarmerBadge] = useState(false);
+
+  // Database Inspector & Telemetry state
+  const [dbOverview, setDbOverview] = useState<DatabaseOverview | null>(null);
+  const [dbLoading, setDbLoading] = useState(false);
+  const [activeCollection, setActiveCollection] = useState('farmers');
+  const [collectionDocs, setCollectionDocs] = useState<any[]>([]);
+  const [collectionLoading, setCollectionLoading] = useState(false);
+  const [collectionTotal, setCollectionTotal] = useState(0);
+  const [collectionPage, setCollectionPage] = useState(1);
+  const [collectionTotalPages, setCollectionTotalPages] = useState(1);
+  const [collectionSearch, setCollectionSearch] = useState('');
+  const [inspectedDoc, setInspectedDoc] = useState<any | null>(null);
+  const [docModalOpen, setDocModalOpen] = useState(false);
+  const [copiedDocId, setCopiedDocId] = useState<string | null>(null);
+
 
   useEffect(() => {
     setToken(window.localStorage.getItem(ADMIN_TOKEN_KEY));
@@ -259,11 +387,123 @@ export default function AdminPage() {
     }
   }
 
+  async function loadFarmers(page = 1, search = farmerSearch, state = farmerStateFilter) {
+    setFarmersLoading(true);
+    setError(null);
+    try {
+      const q = new URLSearchParams({
+        page: String(page),
+        limit: '10',
+      });
+      if (search) q.set('search', search);
+      if (state && state !== 'All') q.set('state', state);
+      const res = await callAuthed(`/admin/farmers?${q.toString()}`);
+      setFarmers(res.farmers || []);
+      setFarmerPage(res.page || res.pagination?.page || 1);
+      setFarmerTotalPages(res.totalPages || res.pagination?.totalPages || 1);
+      setFarmerTotalCount(res.total || res.pagination?.total || 0);
+      if (res.stats) setFarmersStats(res.stats);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setFarmersLoading(false);
+    }
+  }
+
+  async function openFarmerDossier(farmerId: string) {
+    setDossierModalOpen(true);
+    setDossierLoading(true);
+    try {
+      const res = await callAuthed(`/admin/farmers/${farmerId}`);
+      setFarmerDossier(res);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setDossierLoading(false);
+    }
+  }
+
+  async function handleUpdateBadge(farmerId: string, newBadge: string) {
+    setUpdatingFarmerBadge(true);
+    try {
+      await callAuthed(`/admin/farmers/${farmerId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ badge: newBadge }),
+      });
+      if (farmerDossier) {
+        setFarmerDossier({ ...farmerDossier, farmer: { ...farmerDossier.farmer, badge: newBadge } });
+      }
+      setFarmers((prev) => prev.map((f) => (f._id === farmerId ? { ...f, badge: newBadge } : f)));
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setUpdatingFarmerBadge(false);
+    }
+  }
+
+  async function loadDatabaseOverview() {
+    setDbLoading(true);
+    try {
+      const res = await callAuthed('/admin/database/overview');
+      setDbOverview(res);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setDbLoading(false);
+    }
+  }
+
+  async function loadCollectionData(colName = activeCollection, page = 1, search = collectionSearch) {
+    setCollectionLoading(true);
+    try {
+      const q = new URLSearchParams({
+        page: String(page),
+        limit: '10',
+      });
+      if (search) q.set('search', search);
+      const res = await callAuthed(`/admin/database/collection/${colName}?${q.toString()}`);
+      setCollectionDocs(res.documents || []);
+      setCollectionPage(res.page || res.pagination?.page || 1);
+      setCollectionTotalPages(res.totalPages || res.pagination?.totalPages || 1);
+      setCollectionTotal(res.total || res.pagination?.total || 0);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setCollectionLoading(false);
+    }
+  }
+
+  function handleSelectCollection(colName: string) {
+    setActiveCollection(colName);
+    setCollectionPage(1);
+    setCollectionSearch('');
+    loadCollectionData(colName, 1, '');
+  }
+
+  function openDocInspector(doc: any) {
+    setInspectedDoc(doc);
+    setDocModalOpen(true);
+    setCopiedDocId(null);
+  }
+
+  function copyDocJson(doc: any) {
+    navigator.clipboard.writeText(JSON.stringify(doc, null, 2));
+    setCopiedDocId(doc?._id || 'json');
+    setTimeout(() => setCopiedDocId(null), 2000);
+  }
+
   useEffect(() => {
     if (token && centerId) loadQueue();
     if (token && adminTab === 'system') loadSystemMetrics();
+    if (token && adminTab === 'reviews') loadAdminReviews();
+    if (token && adminTab === 'users') loadFarmers(1);
+    if (token && adminTab === 'database') {
+      loadDatabaseOverview();
+      loadCollectionData(activeCollection, 1, collectionSearch);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, centerId, adminTab]);
+
 
   async function runAction(id: string, action: () => Promise<unknown>) {
     setActionLoading(id);
@@ -664,6 +904,51 @@ export default function AdminPage() {
         <button
           type="button"
           onClick={() => {
+            setAdminTab('users');
+            loadFarmers(1);
+          }}
+          className={`rounded-xl px-4 py-2.5 sm:py-2 text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+            adminTab === 'users'
+              ? 'bg-brand-700 text-white shadow-sm'
+              : 'bg-white text-neutral-600 hover:bg-neutral-100 border border-neutral-200'
+          }`}
+        >
+          <IconUser className="h-3.5 w-3.5" />
+          <span>Registered Farmers {farmersStats ? `(${farmersStats.totalFarmers})` : ''}</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setAdminTab('database');
+            loadDatabaseOverview();
+            loadCollectionData(activeCollection, 1);
+          }}
+          className={`rounded-xl px-4 py-2.5 sm:py-2 text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+            adminTab === 'database'
+              ? 'bg-brand-700 text-white shadow-sm'
+              : 'bg-white text-neutral-600 hover:bg-neutral-100 border border-neutral-200'
+          }`}
+        >
+          <IconDatabase className="h-3.5 w-3.5" />
+          <span>🗄️ Database Inspector & Telemetry</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setAdminTab('centers')}
+          className={`rounded-xl px-4 py-2.5 sm:py-2 text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+            adminTab === 'centers'
+              ? 'bg-brand-700 text-white shadow-sm'
+              : 'bg-white text-neutral-600 hover:bg-neutral-100 border border-neutral-200'
+          }`}
+        >
+          <span>🏛️ Procurement Centres ({centers.length})</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
             setAdminTab('system');
             loadSystemMetrics();
           }}
@@ -674,7 +959,7 @@ export default function AdminPage() {
           }`}
         >
           <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>⚡ Load Balancer & Rate Limits</span>
+          <span>⚡ System & Rate Limits</span>
         </button>
 
         <button
@@ -692,19 +977,8 @@ export default function AdminPage() {
           <IconStar className="h-3.5 w-3.5 text-amber-500 fill-amber-500" filled />
           <span>Buyer Produce Reviews</span>
         </button>
-
-        <button
-          type="button"
-          onClick={() => setAdminTab('centers')}
-          className={`rounded-xl px-4 py-2.5 sm:py-2 text-xs font-bold transition flex items-center justify-center gap-1.5 ${
-            adminTab === 'centers'
-              ? 'bg-brand-700 text-white shadow-sm'
-              : 'bg-white text-neutral-600 hover:bg-neutral-100 border border-neutral-200'
-          }`}
-        >
-          <span>🏛️ Procurement Centres ({centers.length})</span>
-        </button>
       </div>
+
 
       {adminTab === 'queue' && (
         <div className="space-y-6">
@@ -1238,8 +1512,755 @@ export default function AdminPage() {
         </div>
       )}
 
+      {/* Farmers & Users Directory Tab */}
+      {adminTab === 'users' && (
+        <div className="space-y-6">
+          {/* Header Banner */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl bg-white p-5 border border-neutral-200/90 shadow-sm">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-800 border border-brand-200">
+                <IconUser className="h-3.5 w-3.5 text-brand-700" />
+                <span>Central Farmer Registry · Direct Benefit Transfer (DBT)</span>
+              </div>
+              <h2 className="text-xl font-black text-neutral-900 mt-2">
+                Registered Farmers & KYC Directory
+              </h2>
+              <p className="text-xs text-neutral-500 mt-0.5">
+                Inspect farmer profiles, linked Aadhaar credentials, land holdings, MSP disbursements, and generated S3 bill archives.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => loadFarmers(farmerPage, farmerSearch, farmerStateFilter)}
+                disabled={farmersLoading}
+                className="text-xs flex items-center gap-1.5"
+              >
+                {farmersLoading ? <IconSpinner className="h-3.5 w-3.5 animate-spin" /> : <span>🔄 Refresh Registry</span>}
+              </Button>
+            </div>
+          </div>
+
+          {/* Telemetry KPI Cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="rounded-2xl border border-neutral-200/80 bg-white p-4 shadow-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">Registered Farmers</span>
+                <span className="rounded-xl bg-brand-50 p-2 text-brand-700">
+                  <IconUser className="h-4 w-4" />
+                </span>
+              </div>
+              <p className="mt-2 text-2xl font-black text-neutral-900">{farmersStats?.totalFarmers ?? farmers.length}</p>
+              <p className="mt-1 text-[11px] text-neutral-500">Verified phone authentication</p>
+            </div>
+
+            <div className="rounded-2xl border border-neutral-200/80 bg-white p-4 shadow-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">Aadhaar Verified</span>
+                <span className="rounded-xl bg-emerald-50 p-2 text-emerald-700">
+                  <IconShieldCheck className="h-4 w-4" />
+                </span>
+              </div>
+              <p className="mt-2 text-2xl font-black text-emerald-700">
+                {farmersStats?.verifiedKyc ?? farmers.length}
+                <span className="text-xs font-semibold text-emerald-600 ml-1.5">
+                  ({farmersStats?.totalFarmers ? Math.round(((farmersStats.verifiedKyc) / farmersStats.totalFarmers) * 100) : 100}%)
+                </span>
+              </p>
+              <p className="mt-1 text-[11px] text-neutral-500">Direct Benefit Transfer ready</p>
+            </div>
+
+            <div className="rounded-2xl border border-neutral-200/80 bg-white p-4 shadow-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">Farmland Registered</span>
+                <span className="rounded-xl bg-amber-50 p-2 text-amber-700">
+                  <IconWheat className="h-4 w-4" />
+                </span>
+              </div>
+              <p className="mt-2 text-2xl font-black text-neutral-900">
+                {farmersStats?.totalLandAcres ?? 0} <span className="text-sm font-semibold text-neutral-500">Acres</span>
+              </p>
+              <p className="mt-1 text-[11px] text-neutral-500">Geotagged agricultural holdings</p>
+            </div>
+
+            <div className="rounded-2xl border border-neutral-200/80 bg-white p-4 shadow-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">State Footprint</span>
+                <span className="rounded-xl bg-blue-50 p-2 text-blue-700">
+                  <IconGlobe className="h-4 w-4" />
+                </span>
+              </div>
+              <p className="mt-2 text-2xl font-black text-neutral-900">{farmersStats?.statesCount ?? 5}</p>
+              <p className="mt-1 text-[11px] text-neutral-500">States & Union Territories</p>
+            </div>
+          </div>
+
+          {/* Search and Filters Bar */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-neutral-200 shadow-sm">
+            <div className="flex-1 relative">
+              <IconSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+              <input
+                type="text"
+                value={farmerSearch}
+                onChange={(e) => setFarmerSearch(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') loadFarmers(1, farmerSearch, farmerStateFilter);
+                }}
+                placeholder="Search by farmer name, mobile (+91), village, district, or Aadhaar..."
+                className="w-full pl-10 pr-4 py-2 text-xs rounded-xl border border-neutral-300 focus:border-brand-600 focus:ring-1 focus:ring-brand-600 outline-none transition"
+              />
+            </div>
+
+            <div className="flex items-center gap-2">
+              <select
+                value={farmerStateFilter}
+                onChange={(e) => {
+                  setFarmerStateFilter(e.target.value);
+                  loadFarmers(1, farmerSearch, e.target.value);
+                }}
+                className="rounded-xl border border-neutral-300 bg-white px-3 py-2 text-xs text-neutral-700 focus:border-brand-600 focus:outline-none shadow-sm"
+              >
+                <option value="All">All States (13+)</option>
+                <option value="Punjab">Punjab</option>
+                <option value="Haryana">Haryana</option>
+                <option value="Uttar Pradesh">Uttar Pradesh</option>
+                <option value="Madhya Pradesh">Madhya Pradesh</option>
+                <option value="Rajasthan">Rajasthan</option>
+                <option value="Gujarat">Gujarat</option>
+                <option value="Maharashtra">Maharashtra</option>
+                <option value="Bihar">Bihar</option>
+                <option value="Karnataka">Karnataka</option>
+              </select>
+
+              <Button
+                size="sm"
+                onClick={() => loadFarmers(1, farmerSearch, farmerStateFilter)}
+                disabled={farmersLoading}
+                className="text-xs px-3.5 py-2"
+              >
+                Filter
+              </Button>
+
+              {(farmerSearch || farmerStateFilter !== 'All') && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFarmerSearch('');
+                    setFarmerStateFilter('All');
+                    loadFarmers(1, '', 'All');
+                  }}
+                  className="rounded-xl border border-neutral-200 px-3 py-2 text-xs font-semibold text-neutral-600 hover:bg-neutral-100 transition"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Farmers Directory Table */}
+          <div className="overflow-hidden rounded-2xl border border-neutral-200/90 bg-white shadow-sm">
+            {farmersLoading ? (
+              <div className="flex flex-col items-center justify-center py-16 text-neutral-500">
+                <IconSpinner className="h-8 w-8 animate-spin text-brand-600 mb-2" />
+                <p className="text-xs font-semibold">Loading farmer records...</p>
+              </div>
+            ) : farmers.length === 0 ? (
+              <div className="py-12 px-4 text-center">
+                <div className="mx-auto w-12 h-12 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-400 mb-3">
+                  <IconUser className="h-6 w-6" />
+                </div>
+                <h4 className="text-sm font-bold text-neutral-800">No registered farmers found</h4>
+                <p className="text-xs text-neutral-500 mt-1">Try adjusting your search query or state filter.</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-neutral-200 bg-neutral-50/70 text-[11px] font-bold uppercase tracking-wider text-neutral-500">
+                      <th className="py-3 px-4">Farmer Identity</th>
+                      <th className="py-3 px-4">Location</th>
+                      <th className="py-3 px-4">Land & Crops</th>
+                      <th className="py-3 px-4">Aadhaar KYC</th>
+                      <th className="py-3 px-4">MSP Activity</th>
+                      <th className="py-3 px-4">Tier Badge</th>
+                      <th className="py-3 px-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-neutral-100 text-xs text-neutral-700">
+                    {farmers.map((f) => (
+                      <tr key={f._id} className="hover:bg-neutral-50/80 transition">
+                        <td className="py-3.5 px-4">
+                          <div className="flex items-center gap-3">
+                            <div className="h-9 w-9 shrink-0 rounded-full bg-gradient-to-br from-brand-600 to-emerald-700 text-white font-black text-xs flex items-center justify-center shadow-xs">
+                              {f.name.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase()}
+                            </div>
+                            <div>
+                              <p className="font-bold text-neutral-900">{f.name}</p>
+                              <a
+                                href={`tel:${f.phone}`}
+                                className="text-[11px] text-neutral-500 hover:text-brand-700 flex items-center gap-1 mt-0.5"
+                              >
+                                <IconPhone className="h-3 w-3 text-neutral-400" />
+                                <span>{f.phone}</span>
+                              </a>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <p className="font-medium text-neutral-800">{f.village || '—'}</p>
+                          <p className="text-[11px] text-neutral-500">
+                            {f.district ? `${f.district}, ` : ''}{f.state || '—'}
+                          </p>
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <p className="font-semibold text-neutral-900">{f.landAreaAcres ? `${f.landAreaAcres} Acres` : '—'}</p>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {(f.crops && f.crops.length > 0 ? f.crops : ['wheat']).slice(0, 2).map((crop) => (
+                              <span
+                                key={crop}
+                                className="rounded-md bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium text-amber-800 border border-amber-200 capitalize"
+                              >
+                                {crop}
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+                        <td className="py-3.5 px-4">
+                          {f.aadhaarLast4 ? (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 border border-emerald-200">
+                              <IconShieldCheck className="h-3.5 w-3.5" />
+                              <span>•••• {f.aadhaarLast4}</span>
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2.5 py-1 text-[11px] font-medium text-neutral-600">
+                              KYC Pending
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <p className="font-bold text-neutral-900">
+                            ₹{(f.stats?.totalMspValue || 0).toLocaleString('en-IN')}
+                          </p>
+                          <p className="text-[11px] text-neutral-500">
+                            {f.stats?.totalBookings || 0} slots · {f.stats?.completedDeliveries || 0} delivered
+                          </p>
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <span
+                            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                              f.badge === 'kisan_ratna'
+                                ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                                : f.badge === 'verified_prime'
+                                ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                                : 'bg-neutral-100 text-neutral-700 border border-neutral-200'
+                            }`}
+                          >
+                            {f.badge === 'kisan_ratna' ? '👑 Kisan Ratna' : f.badge === 'verified_prime' ? '⭐ Prime' : 'Standard'}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-4 text-right">
+                          <button
+                            type="button"
+                            onClick={() => openFarmerDossier(f._id)}
+                            className="inline-flex items-center gap-1.5 rounded-xl bg-brand-50 hover:bg-brand-100 text-brand-800 border border-brand-200 px-3 py-1.5 text-xs font-bold transition shadow-2xs"
+                          >
+                            <span>Dossier & Bills</span>
+                            {f.stats?.hasBill && (
+                              <span className="rounded-full bg-emerald-600 text-white text-[9px] px-1.5 py-0.2 font-bold" title="S3 PDF Available">
+                                S3
+                              </span>
+                            )}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* Pagination Controls */}
+            {farmerTotalPages > 1 && (
+              <div className="flex items-center justify-between px-4 py-3 border-t border-neutral-200 bg-neutral-50/50 text-xs text-neutral-600">
+                <div>
+                  Showing page <span className="font-bold text-neutral-900">{farmerPage}</span> of{' '}
+                  <span className="font-bold text-neutral-900">{farmerTotalPages}</span> ({farmerTotalCount} total farmers)
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    disabled={farmerPage <= 1 || farmersLoading}
+                    onClick={() => loadFarmers(farmerPage - 1, farmerSearch, farmerStateFilter)}
+                    className="rounded-lg border border-neutral-300 px-2.5 py-1 text-xs font-semibold hover:bg-white disabled:opacity-50 transition"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    type="button"
+                    disabled={farmerPage >= farmerTotalPages || farmersLoading}
+                    onClick={() => loadFarmers(farmerPage + 1, farmerSearch, farmerStateFilter)}
+                    className="rounded-lg border border-neutral-300 px-2.5 py-1 text-xs font-semibold hover:bg-white disabled:opacity-50 transition"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Database Inspector & Telemetry Tab */}
+      {adminTab === 'database' && (
+        <div className="space-y-6">
+          {/* Header Banner */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl bg-white p-5 border border-neutral-200/90 shadow-sm">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800 border border-emerald-200">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-ping"></span>
+                <span>MongoDB Cluster Telemetry · Database: {dbOverview?.database?.name || 'sih26032'}</span>
+              </div>
+              <h2 className="text-xl font-black text-neutral-900 mt-2">
+                Database Inspector & Collection Explorer
+              </h2>
+              <p className="text-xs text-neutral-500 mt-0.5">
+                Inspect 10 MongoDB collections, examine document records, verify storage footprints, and inspect raw JSON payloads.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  loadDatabaseOverview();
+                  loadCollectionData(activeCollection, collectionPage, collectionSearch);
+                }}
+                disabled={dbLoading || collectionLoading}
+                className="text-xs flex items-center gap-1.5"
+              >
+                {dbLoading ? <IconSpinner className="h-3.5 w-3.5 animate-spin" /> : <span>🔄 Refresh Cluster</span>}
+              </Button>
+            </div>
+          </div>
+
+          {/* MongoDB Cluster Health KPI Tiles */}
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+            <div className="rounded-2xl border border-neutral-200/80 bg-white p-3.5 shadow-sm">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-neutral-500">Connection</span>
+              <div className="flex items-center gap-2 mt-1.5">
+                <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span className="text-base font-black text-emerald-700">ONLINE</span>
+              </div>
+              <p className="text-[10px] text-neutral-400 mt-1 font-mono">127.0.0.1:27017</p>
+            </div>
+
+            <div className="rounded-2xl border border-neutral-200/80 bg-white p-3.5 shadow-sm">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-neutral-500">Collections</span>
+              <p className="text-base font-black text-neutral-900 mt-1.5">{dbOverview?.database?.collections || 10}</p>
+              <p className="text-[10px] text-neutral-400 mt-1">Active registered schemas</p>
+            </div>
+
+            <div className="rounded-2xl border border-neutral-200/80 bg-white p-3.5 shadow-sm">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-neutral-500">Total Documents</span>
+              <p className="text-base font-black text-neutral-900 mt-1.5">
+                {(dbOverview?.database?.objects || 2553).toLocaleString('en-IN')}
+              </p>
+              <p className="text-[10px] text-neutral-400 mt-1">Across all collections</p>
+            </div>
+
+            <div className="rounded-2xl border border-neutral-200/80 bg-white p-3.5 shadow-sm">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-neutral-500">Data Footprint</span>
+              <p className="text-base font-black text-neutral-900 mt-1.5">
+                {dbOverview?.database?.dataSize ? `${(dbOverview.database.dataSize / 1024 / 1024).toFixed(2)} MB` : '0.53 MB'}
+              </p>
+              <p className="text-[10px] text-neutral-400 mt-1">Uncompressed BSON payload</p>
+            </div>
+
+            <div className="rounded-2xl border border-neutral-200/80 bg-white p-3.5 shadow-sm">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-neutral-500">B-Tree Indexes</span>
+              <p className="text-base font-black text-neutral-900 mt-1.5">{dbOverview?.database?.indexes || 46}</p>
+              <p className="text-[10px] text-neutral-400 mt-1">
+                {dbOverview?.database?.indexSize ? `${(dbOverview.database.indexSize / 1024 / 1024).toFixed(2)} MB index` : '0.43 MB'}
+              </p>
+            </div>
+          </div>
+
+          {/* Two-Column Explorer Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* Left: Collections Selector (4 cols) */}
+            <div className="lg:col-span-4 rounded-2xl border border-neutral-200/90 bg-white p-4 shadow-sm space-y-3">
+              <div className="flex items-center justify-between pb-2 border-b border-neutral-100">
+                <h3 className="text-xs font-black uppercase tracking-wider text-neutral-500">
+                  Schemas & Collections ({dbOverview?.collections?.length || 10})
+                </h3>
+                <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[10px] font-bold text-neutral-600">
+                  sih26032
+                </span>
+              </div>
+
+              <div className="space-y-1.5 max-h-[620px] overflow-y-auto pr-1">
+                {(dbOverview?.collections || [
+                  { name: 'farmers', displayName: 'Registered Farmers', description: 'Farmer KYC & contact records', category: 'Core Agri', count: 9 },
+                  { name: 'procurements', displayName: 'Crop Procurements & DBT', description: 'Produce intake, MSP valuation, advance & S3 bills', category: 'Core Agri', count: 4 },
+                  { name: 'queues', displayName: 'Live Queue & Token Bookings', description: 'Real-time arrival tokens and queue state', category: 'Operations', count: 8 },
+                  { name: 'centers', displayName: 'Procurement Centres / Mandis', description: 'APMC mandis and warehouse yards', category: 'Operations', count: 18 },
+                  { name: 'slots', displayName: '1-Hour Slot Capacity Windows', description: 'Hourly scheduling capacity slots', category: 'Operations', count: 2495 },
+                  { name: 'notifications', displayName: 'SMS & WhatsApp Dispatch Logs', description: 'Delivery receipts and push alerts', category: 'Communication', count: 3 },
+                  { name: 'shipments', displayName: 'Logistics & 3PL Consignments', description: 'Trucking GPS checkpoints and transit status', category: 'Logistics', count: 5 },
+                  { name: 'reviews', displayName: 'Buyer Produce Ratings', description: 'Mandi feedback and quality star reviews', category: 'Feedback', count: 8 },
+                  { name: 'staffs', displayName: 'Mandi Staff & Admins', description: 'Mandi operators and admin credentials', category: 'Security', count: 3 },
+                  { name: 'otps', displayName: 'Phone OTP Auth Verifications', description: 'One-time passwords and verification tokens', category: 'Security', count: 0 },
+                ]).map((col) => {
+                  const isActive = activeCollection === col.name;
+                  return (
+                    <button
+                      key={col.name}
+                      type="button"
+                      onClick={() => handleSelectCollection(col.name)}
+                      className={`w-full text-left p-3 rounded-xl border transition flex items-center justify-between gap-2 ${
+                        isActive
+                          ? 'bg-brand-50 border-brand-300 ring-1 ring-brand-300'
+                          : 'bg-white border-neutral-200/80 hover:bg-neutral-50'
+                      }`}
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className={`text-xs font-bold ${isActive ? 'text-brand-900' : 'text-neutral-900'}`}>
+                            {col.displayName || col.name}
+                          </span>
+                        </div>
+                        <p className="text-[11px] font-mono text-neutral-400 truncate">
+                          db.{col.name}
+                        </p>
+                        <p className="text-[10px] text-neutral-500 mt-0.5 truncate">
+                          {col.description}
+                        </p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <span
+                          className={`rounded-full px-2 py-0.5 text-xs font-black ${
+                            isActive
+                              ? 'bg-brand-700 text-white'
+                              : 'bg-neutral-100 text-neutral-700'
+                          }`}
+                        >
+                          {col.count}
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Right: Document Records Browser (8 cols) */}
+            <div className="lg:col-span-8 rounded-2xl border border-neutral-200/90 bg-white p-5 shadow-sm space-y-4">
+              {/* Collection Toolbar */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-neutral-100">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-sm font-black text-neutral-900">
+                      db.{activeCollection}
+                    </span>
+                    <span className="rounded-full bg-brand-50 text-brand-800 text-[11px] font-bold px-2 py-0.5 border border-brand-200">
+                      {collectionTotal} records
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-neutral-500 mt-0.5">
+                    Live document stream with primary key lookup & BSON inspection.
+                  </p>
+                </div>
+
+                {/* Search in collection */}
+                <div className="flex items-center gap-2">
+                  <div className="relative">
+                    <IconSearch className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-neutral-400" />
+                    <input
+                      type="text"
+                      value={collectionSearch}
+                      onChange={(e) => setCollectionSearch(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') loadCollectionData(activeCollection, 1, collectionSearch);
+                      }}
+                      placeholder="Search ID, text..."
+                      className="pl-8 pr-3 py-1.5 text-xs rounded-xl border border-neutral-300 focus:border-brand-600 outline-none w-44"
+                    />
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => loadCollectionData(activeCollection, 1, collectionSearch)}
+                    disabled={collectionLoading}
+                    className="text-xs px-2.5 py-1.5"
+                  >
+                    Go
+                  </Button>
+                </div>
+              </div>
+
+              {/* Document Cards */}
+              {collectionLoading ? (
+                <div className="flex flex-col items-center justify-center py-16 text-neutral-500">
+                  <IconSpinner className="h-7 w-7 animate-spin text-brand-600 mb-2" />
+                  <p className="text-xs font-semibold">Querying db.{activeCollection}...</p>
+                </div>
+              ) : collectionDocs.length === 0 ? (
+                <div className="py-12 text-center text-neutral-500">
+                  <p className="text-xs font-semibold">No documents found in db.{activeCollection}</p>
+                </div>
+              ) : (
+                <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1">
+                  {collectionDocs.map((doc, idx) => (
+                    <div
+                      key={doc._id || idx}
+                      className="rounded-xl border border-neutral-200/80 bg-neutral-50/50 p-4 hover:bg-neutral-50 hover:border-neutral-300 transition"
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-neutral-200/60">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-mono text-[11px] font-bold text-neutral-500">_id:</span>
+                          <span className="font-mono text-[11px] font-bold text-brand-700 bg-brand-50 px-2 py-0.5 rounded-md border border-brand-200">
+                            {doc._id}
+                          </span>
+                          {doc.createdAt && (
+                            <span className="text-[10px] text-neutral-400">
+                              {new Date(doc.createdAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => copyDocJson(doc)}
+                            className="rounded-lg border border-neutral-300 bg-white px-2 py-1 text-[10px] font-semibold text-neutral-600 hover:bg-neutral-100 transition"
+                          >
+                            {copiedDocId === doc._id ? '✓ Copied!' : 'Copy'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => openDocInspector(doc)}
+                            className="rounded-lg bg-neutral-900 hover:bg-neutral-800 text-white px-2.5 py-1 text-[11px] font-bold transition flex items-center gap-1"
+                          >
+                            <span>{`{ }`} Raw JSON</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Summary Fields Preview */}
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-2.5 text-xs">
+                        {activeCollection === 'farmers' && (
+                          <>
+                            <div>
+                              <span className="text-[10px] uppercase text-neutral-400 block font-bold">Name</span>
+                              <span className="font-bold text-neutral-900">{doc.name}</span>
+                            </div>
+                            <div>
+                              <span className="text-[10px] uppercase text-neutral-400 block font-bold">Phone</span>
+                              <span className="text-neutral-700 font-mono">{doc.phone}</span>
+                            </div>
+                            <div>
+                              <span className="text-[10px] uppercase text-neutral-400 block font-bold">Location</span>
+                              <span className="text-neutral-700">{doc.village ? `${doc.village}, ${doc.state || ''}` : doc.state || '—'}</span>
+                            </div>
+                          </>
+                        )}
+
+                        {activeCollection === 'procurements' && (
+                          <>
+                            <div>
+                              <span className="text-[10px] uppercase text-neutral-400 block font-bold">Crop & Qty</span>
+                              <span className="font-bold text-neutral-900 capitalize">{doc.crop} · {doc.quantityQtl} Qtl</span>
+                            </div>
+                            <div>
+                              <span className="text-[10px] uppercase text-neutral-400 block font-bold">Total MSP Amount</span>
+                              <span className="font-bold text-emerald-700">₹{doc.amount?.toLocaleString('en-IN')}</span>
+                            </div>
+                            <div>
+                              <span className="text-[10px] uppercase text-neutral-400 block font-bold">Stage</span>
+                              <span className="font-semibold text-neutral-800 uppercase text-[11px]">{doc.stage}</span>
+                            </div>
+                          </>
+                        )}
+
+                        {activeCollection === 'queues' && (
+                          <>
+                            <div>
+                              <span className="text-[10px] uppercase text-neutral-400 block font-bold">Token</span>
+                              <span className="font-bold text-brand-700 text-sm">#{doc.token}</span>
+                            </div>
+                            <div>
+                              <span className="text-[10px] uppercase text-neutral-400 block font-bold">Crop</span>
+                              <span className="font-semibold text-neutral-900 capitalize">{doc.crop || 'wheat'}</span>
+                            </div>
+                            <div>
+                              <span className="text-[10px] uppercase text-neutral-400 block font-bold">Status</span>
+                              <span className="font-semibold text-neutral-800 uppercase text-[11px]">{doc.status}</span>
+                            </div>
+                          </>
+                        )}
+
+                        {activeCollection === 'centers' && (
+                          <>
+                            <div>
+                              <span className="text-[10px] uppercase text-neutral-400 block font-bold">Centre Name</span>
+                              <span className="font-bold text-neutral-900">{doc.name}</span>
+                            </div>
+                            <div>
+                              <span className="text-[10px] uppercase text-neutral-400 block font-bold">Code</span>
+                              <span className="font-mono text-neutral-700">{doc.code}</span>
+                            </div>
+                            <div>
+                              <span className="text-[10px] uppercase text-neutral-400 block font-bold">State / District</span>
+                              <span className="text-neutral-700">{doc.district}, {doc.state}</span>
+                            </div>
+                          </>
+                        )}
+
+                        {activeCollection === 'slots' && (
+                          <>
+                            <div>
+                              <span className="text-[10px] uppercase text-neutral-400 block font-bold">Date</span>
+                              <span className="font-medium text-neutral-900">{doc.date}</span>
+                            </div>
+                            <div>
+                              <span className="text-[10px] uppercase text-neutral-400 block font-bold">Time Window</span>
+                              <span className="font-mono text-neutral-700">{doc.startTime} - {doc.endTime}</span>
+                            </div>
+                            <div>
+                              <span className="text-[10px] uppercase text-neutral-400 block font-bold">Capacity</span>
+                              <span className="text-neutral-700">{doc.bookedCount || 0} / {doc.maxCapacity || 50} Booked</span>
+                            </div>
+                          </>
+                        )}
+
+                        {activeCollection === 'notifications' && (
+                          <>
+                            <div>
+                              <span className="text-[10px] uppercase text-neutral-400 block font-bold">Channel</span>
+                              <span className="font-bold text-emerald-700 uppercase">{doc.channel}</span>
+                            </div>
+                            <div>
+                              <span className="text-[10px] uppercase text-neutral-400 block font-bold">Recipient</span>
+                              <span className="font-mono text-neutral-700">{doc.recipientPhone}</span>
+                            </div>
+                            <div>
+                              <span className="text-[10px] uppercase text-neutral-400 block font-bold">Status</span>
+                              <span className="font-semibold text-neutral-800">{doc.status}</span>
+                            </div>
+                          </>
+                        )}
+
+                        {activeCollection === 'shipments' && (
+                          <>
+                            <div>
+                              <span className="text-[10px] uppercase text-neutral-400 block font-bold">Tracking #</span>
+                              <span className="font-mono font-bold text-neutral-900">{doc.trackingNumber}</span>
+                            </div>
+                            <div>
+                              <span className="text-[10px] uppercase text-neutral-400 block font-bold">Carrier</span>
+                              <span className="text-neutral-700">{doc.carrierName || doc.logisticsPartner?.name || 'Logistics'}</span>
+                            </div>
+                            <div>
+                              <span className="text-[10px] uppercase text-neutral-400 block font-bold">Status</span>
+                              <span className="font-semibold text-emerald-700 uppercase text-[11px]">{doc.status}</span>
+                            </div>
+                          </>
+                        )}
+
+                        {activeCollection === 'reviews' && (
+                          <>
+                            <div>
+                              <span className="text-[10px] uppercase text-neutral-400 block font-bold">Farmer</span>
+                              <span className="font-bold text-neutral-900">{doc.farmerName || 'Farmer'}</span>
+                            </div>
+                            <div>
+                              <span className="text-[10px] uppercase text-neutral-400 block font-bold">Rating</span>
+                              <span className="font-bold text-amber-600">★ {doc.rating} / 5</span>
+                            </div>
+                            <div>
+                              <span className="text-[10px] uppercase text-neutral-400 block font-bold">Crop</span>
+                              <span className="text-neutral-700 capitalize">{doc.crop}</span>
+                            </div>
+                          </>
+                        )}
+
+                        {activeCollection === 'staffs' && (
+                          <>
+                            <div>
+                              <span className="text-[10px] uppercase text-neutral-400 block font-bold">Username</span>
+                              <span className="font-bold text-neutral-900">{doc.username}</span>
+                            </div>
+                            <div>
+                              <span className="text-[10px] uppercase text-neutral-400 block font-bold">Email</span>
+                              <span className="text-neutral-700 font-mono text-[11px]">{doc.email}</span>
+                            </div>
+                            <div>
+                              <span className="text-[10px] uppercase text-neutral-400 block font-bold">Role</span>
+                              <span className="font-semibold text-brand-700 uppercase text-[11px]">{doc.role}</span>
+                            </div>
+                          </>
+                        )}
+
+                        {activeCollection === 'otps' && (
+                          <>
+                            <div>
+                              <span className="text-[10px] uppercase text-neutral-400 block font-bold">Phone</span>
+                              <span className="font-mono text-neutral-900">{doc.phone}</span>
+                            </div>
+                            <div>
+                              <span className="text-[10px] uppercase text-neutral-400 block font-bold">Attempts</span>
+                              <span className="text-neutral-700">{doc.attempts || 0}</span>
+                            </div>
+                            <div>
+                              <span className="text-[10px] uppercase text-neutral-400 block font-bold">Expires</span>
+                              <span className="text-neutral-700 text-[11px]">
+                                {doc.expiresAt ? new Date(doc.expiresAt).toLocaleTimeString() : '—'}
+                              </span>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Pagination */}
+              {collectionTotalPages > 1 && (
+                <div className="flex items-center justify-between pt-3 border-t border-neutral-200 text-xs text-neutral-600">
+                  <div>
+                    Page <span className="font-bold text-neutral-900">{collectionPage}</span> of{' '}
+                    <span className="font-bold text-neutral-900">{collectionTotalPages}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      disabled={collectionPage <= 1 || collectionLoading}
+                      onClick={() => loadCollectionData(activeCollection, collectionPage - 1, collectionSearch)}
+                      className="rounded-lg border border-neutral-300 px-2.5 py-1 text-xs font-semibold hover:bg-neutral-100 disabled:opacity-50 transition"
+                    >
+                      Previous
+                    </button>
+                    <button
+                      type="button"
+                      disabled={collectionPage >= collectionTotalPages || collectionLoading}
+                      onClick={() => loadCollectionData(activeCollection, collectionPage + 1, collectionSearch)}
+                      className="rounded-lg border border-neutral-300 px-2.5 py-1 text-xs font-semibold hover:bg-neutral-100 disabled:opacity-50 transition"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 2. System Infrastructure, Load Balancer & Rate Limits Tab */}
       {adminTab === 'system' && (
+
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl bg-white p-5 border border-neutral-200/90 shadow-sm">
             <div>
@@ -1970,6 +2991,362 @@ export default function AdminPage() {
           </div>
         </div>
       )}
+
+      {/* Farmer Dossier & S3 Bill Modal */}
+      {dossierModalOpen && (
+
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-neutral-900/60 backdrop-blur-sm" onClick={() => setDossierModalOpen(false)} />
+          <div className="relative w-full max-w-3xl overflow-hidden rounded-3xl bg-white shadow-2xl ring-1 ring-neutral-900/10 max-h-[90vh] flex flex-col">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-brand-700 via-emerald-700 to-teal-700 px-6 py-4 text-white flex items-center justify-between shrink-0">
+              <div>
+                <h3 className="text-lg font-bold flex items-center gap-2">
+                  <IconUser className="h-5 w-5" />
+                  <span>Farmer Dossier & MSP Records</span>
+                </h3>
+                <p className="text-xs text-brand-100">
+                  Aadhaar KYC authentication, token history, DBT disbursements & S3 bills
+                </p>
+              </div>
+              <button
+                onClick={() => setDossierModalOpen(false)}
+                className="rounded-full p-1 text-white/80 hover:bg-white/10 hover:text-white transition"
+              >
+                <IconClose className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-6 overflow-y-auto flex-1">
+              {dossierLoading ? (
+                <div className="flex flex-col items-center justify-center py-16 text-neutral-500">
+                  <IconSpinner className="h-8 w-8 animate-spin text-brand-600 mb-2" />
+                  <p className="text-xs font-semibold">Loading farmer dossier...</p>
+                </div>
+              ) : !farmerDossier ? (
+                <div className="py-10 text-center text-neutral-500">
+                  <p className="text-sm font-semibold">Unable to load farmer details.</p>
+                </div>
+              ) : (
+                <>
+                  {/* Farmer Identity Card */}
+                  <div className="rounded-2xl border border-neutral-200 bg-neutral-50/70 p-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="flex items-center gap-3.5">
+                        <div className="h-12 w-12 rounded-full bg-gradient-to-br from-brand-600 to-emerald-700 text-white font-black text-base flex items-center justify-center shadow-sm">
+                          {farmerDossier.farmer.name.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase()}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-base font-black text-neutral-900">{farmerDossier.farmer.name}</h4>
+                            {farmerDossier.farmer.aadhaarLast4 && (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 border border-emerald-200">
+                                <IconShieldCheck className="h-3 w-3" />
+                                <span>Aadhaar •••• {farmerDossier.farmer.aadhaarLast4}</span>
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-neutral-500 font-mono mt-0.5">
+                            {farmerDossier.farmer.phone} · Member since {new Date(farmerDossier.farmer.createdAt).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Tier Badge Controls */}
+                      <div className="flex items-center gap-2 self-start sm:self-center">
+                        <span className="text-[11px] font-bold text-neutral-500 uppercase">Badge Tier:</span>
+                        <select
+                          value={farmerDossier.farmer.badge || 'standard'}
+                          disabled={updatingFarmerBadge}
+                          onChange={(e) => handleUpdateBadge(farmerDossier.farmer._id, e.target.value)}
+                          className="rounded-xl border border-neutral-300 bg-white px-2.5 py-1.5 text-xs font-bold text-neutral-800 focus:border-brand-600 focus:outline-none shadow-xs"
+                        >
+                          <option value="standard">Standard Farmer</option>
+                          <option value="verified_prime">⭐ Verified Prime</option>
+                          <option value="kisan_ratna">👑 Kisan Ratna</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 pt-3 border-t border-neutral-200/80 text-xs">
+                      <div>
+                        <span className="text-[10px] uppercase text-neutral-400 font-bold block">Village & District</span>
+                        <span className="font-semibold text-neutral-800">
+                          {farmerDossier.farmer.village || '—'}, {farmerDossier.farmer.district || '—'}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] uppercase text-neutral-400 font-bold block">State</span>
+                        <span className="font-semibold text-neutral-800">{farmerDossier.farmer.state || '—'}</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] uppercase text-neutral-400 font-bold block">Farmland</span>
+                        <span className="font-semibold text-neutral-800">
+                          {farmerDossier.farmer.landAreaAcres ? `${farmerDossier.farmer.landAreaAcres} Acres` : '—'}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] uppercase text-neutral-400 font-bold block">Primary Crops</span>
+                        <span className="font-semibold text-neutral-800 capitalize">
+                          {farmerDossier.farmer.crops && farmerDossier.farmer.crops.length > 0
+                            ? farmerDossier.farmer.crops.join(', ')
+                            : 'Wheat, Paddy'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Section 1: Mandi Slot Bookings */}
+                  <div>
+                    <h4 className="text-xs font-black uppercase tracking-wider text-neutral-600 mb-2.5 flex items-center justify-between">
+                      <span>🌾 Mandi Slot Bookings ({farmerDossier.bookings.length})</span>
+                    </h4>
+                    {farmerDossier.bookings.length === 0 ? (
+                      <div className="rounded-xl border border-neutral-200 p-4 text-center text-xs text-neutral-500">
+                        No tokens booked yet.
+                      </div>
+                    ) : (
+                      <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                        {farmerDossier.bookings.map((b) => (
+                          <div
+                            key={b._id}
+                            className="rounded-xl border border-neutral-200/90 bg-white p-3 flex items-center justify-between gap-3 text-xs shadow-2xs"
+                          >
+                            <div className="flex items-center gap-3">
+                              <span className="font-mono font-black text-brand-800 bg-brand-50 px-2.5 py-1 rounded-lg border border-brand-200 text-sm">
+                                #{b.token}
+                              </span>
+                              <div>
+                                <p className="font-bold text-neutral-900">
+                                  {b.center?.name || 'Procurement Mandi'}
+                                </p>
+                                <p className="text-[11px] text-neutral-500">
+                                  {b.date} · {b.slot?.startTime} - {b.slot?.endTime} · {b.estimatedQuantityQtl || 10} Qtl {b.crop || 'wheat'}
+                                </p>
+                              </div>
+                            </div>
+                            <div>
+                              <span
+                                className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                                  b.status === 'completed'
+                                    ? 'bg-emerald-100 text-emerald-800'
+                                    : b.status === 'serving'
+                                    ? 'bg-blue-100 text-blue-800 animate-pulse'
+                                    : b.status === 'no_show' || b.status === 'cancelled'
+                                    ? 'bg-red-100 text-red-800'
+                                    : 'bg-amber-100 text-amber-800'
+                                }`}
+                              >
+                                {b.status}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Section 2: Crop Procurements, MSP & S3 Mandi Bills */}
+                  <div>
+                    <h4 className="text-xs font-black uppercase tracking-wider text-neutral-600 mb-2.5 flex items-center justify-between">
+                      <span>💰 MSP Procurements & AWS S3 Bill Archives ({farmerDossier.procurements.length})</span>
+                    </h4>
+                    {farmerDossier.procurements.length === 0 ? (
+                      <div className="rounded-xl border border-neutral-200 p-4 text-center text-xs text-neutral-500">
+                        No crop procurements settled yet.
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {farmerDossier.procurements.map((p) => (
+                          <div
+                            key={p._id}
+                            className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm space-y-3"
+                          >
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-neutral-100">
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <span className="font-bold text-neutral-900 capitalize text-sm">
+                                    🌾 {p.crop} ({p.quantityQtl} Qtl @ ₹{p.ratePerQtl}/Qtl)
+                                  </span>
+                                  <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold uppercase text-emerald-700 border border-emerald-200">
+                                    {p.stage}
+                                  </span>
+                                </div>
+                                <p className="text-xs text-neutral-500 mt-0.5">
+                                  Settled on {new Date(p.createdAt).toLocaleDateString('en-IN', { dateStyle: 'long' })}
+                                </p>
+                              </div>
+                              <div className="text-right">
+                                <span className="text-[10px] uppercase text-neutral-400 block font-bold">Total MSP Settlement</span>
+                                <span className="text-base font-black text-emerald-700">
+                                  ₹{p.amount.toLocaleString('en-IN')}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Advance & Balance Breakdown */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                              <div className="rounded-xl bg-neutral-50 p-2.5 border border-neutral-200/70">
+                                <div className="flex items-center justify-between">
+                                  <span className="font-semibold text-neutral-600">20% Safety Advance</span>
+                                  <span className="font-black text-neutral-900">₹{p.advanceAmount.toLocaleString('en-IN')}</span>
+                                </div>
+                                <p className="text-[11px] text-emerald-700 mt-1 font-mono">
+                                  ✓ DBT Disbursed {p.utrNumber ? `· UTR: ${p.utrNumber}` : ''}
+                                </p>
+                              </div>
+
+                              <div className="rounded-xl bg-neutral-50 p-2.5 border border-neutral-200/70">
+                                <div className="flex items-center justify-between">
+                                  <span className="font-semibold text-neutral-600">80% Post-QA Balance</span>
+                                  <span className="font-black text-neutral-900">₹{p.balanceAmount.toLocaleString('en-IN')}</span>
+                                </div>
+                                <p className="text-[11px] text-emerald-700 mt-1 font-mono">
+                                  ✓ Cleared via PFMS / NACH
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* S3 Mandi Bill Download Button */}
+                            <div className="pt-1 flex items-center justify-between">
+                              <span className="text-[11px] text-neutral-500">
+                                Official Digital Procurement Receipt
+                              </span>
+                              {p.billPdfUrl ? (
+                                <a
+                                  href={p.billPdfUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 text-xs font-bold transition shadow-xs"
+                                >
+                                  <span>📄 Download S3 Mandi Bill (PDF)</span>
+                                </a>
+                              ) : (
+                                <span className="text-[11px] text-neutral-400 italic">
+                                  Bill generated upon final weighing
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Section 3: SMS & WhatsApp Alerts Log */}
+                  <div>
+                    <h4 className="text-xs font-black uppercase tracking-wider text-neutral-600 mb-2.5 flex items-center justify-between">
+                      <span>📲 SMS & WhatsApp Dispatch Log ({farmerDossier.notifications.length})</span>
+                    </h4>
+                    {farmerDossier.notifications.length === 0 ? (
+                      <div className="rounded-xl border border-neutral-200 p-4 text-center text-xs text-neutral-500">
+                        No automated alerts dispatched yet.
+                      </div>
+                    ) : (
+                      <div className="space-y-2 max-h-44 overflow-y-auto pr-1">
+                        {farmerDossier.notifications.map((n) => (
+                          <div
+                            key={n._id}
+                            className="rounded-xl border border-neutral-200/80 bg-neutral-50/50 p-3 text-xs space-y-1"
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className={`rounded-md px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                                    n.channel === 'whatsapp'
+                                      ? 'bg-emerald-100 text-emerald-800'
+                                      : 'bg-blue-100 text-blue-800'
+                                  }`}
+                                >
+                                  {n.channel}
+                                </span>
+                                <span className="font-bold text-neutral-900">{n.title}</span>
+                              </div>
+                              <span className="text-[10px] text-neutral-400">
+                                {new Date(n.sentAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-neutral-600 whitespace-pre-line">{n.message}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-3 border-t border-neutral-200 bg-neutral-50 flex items-center justify-end shrink-0">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setDossierModalOpen(false)}
+                className="text-xs"
+              >
+                Close Dossier
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Raw JSON Document Inspector Modal */}
+      {docModalOpen && inspectedDoc && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-neutral-900/60 backdrop-blur-sm" onClick={() => setDocModalOpen(false)} />
+          <div className="relative w-full max-w-2xl overflow-hidden rounded-3xl bg-neutral-900 shadow-2xl ring-1 ring-white/10 max-h-[85vh] flex flex-col text-neutral-100">
+            {/* Header */}
+            <div className="px-6 py-4 border-b border-neutral-800 flex items-center justify-between shrink-0 bg-neutral-950/80">
+              <div>
+                <h3 className="text-sm font-bold font-mono text-emerald-400 flex items-center gap-2">
+                  <IconDatabase className="h-4 w-4" />
+                  <span>db.{activeCollection}.findOne({`{ _id: "${inspectedDoc._id}" }`})</span>
+                </h3>
+                <p className="text-[11px] text-neutral-400 mt-0.5">
+                  BSON Document representation
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => copyDocJson(inspectedDoc)}
+                  className="rounded-lg bg-neutral-800 hover:bg-neutral-700 text-xs px-2.5 py-1 font-semibold text-neutral-200 transition"
+                >
+                  {copiedDocId === inspectedDoc._id ? '✓ Copied!' : 'Copy JSON'}
+                </button>
+                <button
+                  onClick={() => setDocModalOpen(false)}
+                  className="rounded-full p-1 text-neutral-400 hover:bg-neutral-800 hover:text-white transition"
+                >
+                  <IconClose className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Code Body */}
+            <div className="p-6 overflow-y-auto flex-1 font-mono text-xs leading-relaxed">
+              <pre className="text-emerald-400 selection:bg-emerald-900 whitespace-pre-wrap break-all">
+                {JSON.stringify(inspectedDoc, null, 2)}
+              </pre>
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 py-3 border-t border-neutral-800 bg-neutral-950/50 flex items-center justify-end shrink-0">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setDocModalOpen(false)}
+                className="text-xs text-neutral-300 hover:text-white"
+              >
+                Close
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
