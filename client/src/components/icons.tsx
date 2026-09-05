@@ -247,3 +247,12 @@ export function IconMoon({ className = base }: IconProps) {
     </svg>
   );
 }
+
+export function IconSearch({ className = base }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} className={className}>
+      <circle cx="11" cy="11" r="7" />
+      <path strokeLinecap="round" d="m20 20-4.35-4.35" />
+    </svg>
+  );
+}
