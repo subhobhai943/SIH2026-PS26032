@@ -251,7 +251,8 @@ export async function sendTemplate(phone, templateName, data = {}) {
   // 2. Dispatch instant WhatsApp message if bot is paired
   try {
     if (isWhatsAppConnected()) {
-      sendWhatsAppMessage(phone, message).catch((err) => {
+      const waText = `🌾 *e-Mandi Govt Procurement Alert*\n*${meta.title}*\n\n${message}\n\n📄 *Track Status & Print Receipt:*\nhttps://sih-32.vercel.app/status`;
+      sendWhatsAppMessage(phone, waText).catch((err) => {
         console.warn('[whatsapp] dispatch error:', err.message);
       });
     }
