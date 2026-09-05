@@ -202,6 +202,67 @@ const TEMPLATE_METADATA = {
   paymentConfirmed: { title: '🏛️ DBT Payment Confirmation & UTR Slip', type: 'payment_confirmed' },
 };
 
+function buildWhatsAppMessage(templateName, meta, message, data = {}) {
+  const base = `🌾 *e-Mandi Govt Procurement Portal*\n`;
+  const portalUrl = 'https://sih-32.vercel.app/status';
+
+  switch (templateName) {
+    case 'bookingConfirmed':
+      return (
+        `${base}📅 *Mandi Slot Booking Confirmed!*\n\n` +
+        `• *Token Number:* #${data.token || '1'}\n` +
+        `• *Mandi Centre:* ${data.centerName || 'Central Agri Mandi'}\n` +
+        `• *Date & Time:* ${data.date || 'Today'}, ${data.startTime || '09:00 AM'}\n\n` +
+        `_Please arrive 15 minutes before your slot with your produce._\n\n` +
+        `📍 *Track Live Queue:* https://sih-32.vercel.app/queue`
+      );
+
+    case 'advancePaymentDone':
+      return (
+        `${base}💰 *20% DBT Safety Advance Credited!*\n\n` +
+        `• *Token Number:* #${data.token || '1'}\n` +
+        `• *Advance Credited:* ₹${data.advanceAmount || '4,406'}\n` +
+        `• *Total MSP Value:* ₹${data.amount || '22,030'}\n` +
+        `• *Balance Remaining:* ₹${data.balanceAmount || '17,624'}\n` +
+        `• *Transaction Ref / UTR:* ${data.paymentRef || 'ADV-CONFIRMED'}\n\n` +
+        `📄 *View Official DBT Voucher:* ${portalUrl}`
+      );
+
+    case 'paymentDone':
+    case 'paymentConfirmed':
+      return (
+        `${base}🌾 *Final DBT Settlement Released!*\n\n` +
+        `• *Token Number:* #${data.token || '1'}\n` +
+        `• *Settlement Amount:* ₹${data.amount || data.balanceAmount || '17,624'}\n` +
+        `• *UTR Reference:* ${data.utrNumber || data.paymentRef || 'SETTLE-CONFIRMED'}\n\n` +
+        `📄 *Download Full Mandi Receipt:* ${portalUrl}`
+      );
+
+    case 'procurementUpdate':
+      return (
+        `${base}📋 *Delivery & Procurement Stage Update*\n\n` +
+        `• *Token Number:* #${data.token || '1'}\n` +
+        `• *Current Stage:* *${String(data.stage || 'INSPECTION').toUpperCase()}*\n\n` +
+        `Track live status: ${portalUrl}`
+      );
+
+    case 'yourTurn':
+      return (
+        `${base}📢 *Your Turn — Proceed to Counter*\n\n` +
+        `Token #${data.token}: Please proceed to the weighing & quality testing counter at ${data.centerName || 'the mandi centre'}.`
+      );
+
+    case 'nearingTurn':
+      return (
+        `${base}🔔 *Turn Approaching Notice*\n\n` +
+        `Token #${data.token}: Only ${data.ahead || 1} farmer(s) ahead of you at ${data.centerName || 'the mandi centre'}. Please be ready near the gate.`
+      );
+
+    default:
+      return `${base}*${meta.title}*\n\n${message}\n\n📄 *Track Status:* ${portalUrl}`;
+  }
+}
+
 export async function sendTemplate(phone, templateName, data = {}) {
   const build = templates[templateName];
   if (!build) throw new Error(`Unknown SMS template '${templateName}'`);
@@ -248,16 +309,35 @@ export async function sendTemplate(phone, templateName, data = {}) {
     console.warn('[sms] In-app notification persistence error:', err.message);
   }
 
-  // 2. Dispatch instant WhatsApp message if bot is paired
-  try {
-    if (isWhatsAppConnected()) {
-      const waText = `🌾 *e-Mandi Govt Procurement Alert*\n*${meta.title}*\n\n${message}\n\n📄 *Track Status & Print Receipt:*\nhttps://sih-32.vercel.app/status`;
-      sendWhatsAppMessage(phone, waText).catch((err) => {
-        console.warn('[whatsapp] dispatch error:', err.message);
-      });
-    }
-  } catch (_) {}
+  // 2. Dispatch via WhatsApp for Payment and Delivery Status (and booking)
+  const isPaymentOrDelivery = [
+    'advancePaymentDone',
+    'paymentDone',
+    'paymentConfirmed',
+    'procurementUpdate',
+    'yourTurn',
+    'nearingTurn',
+    'bookingConfirmed',
+  ].includes(templateName);
 
-  // 3. Dispatch carrier SMS
-  return sendSMS(phone, message);
+  if (isPaymentOrDelivery && isWhatsAppConnected()) {
+    const waText = buildWhatsAppMessage(templateName, meta, message, data);
+    sendWhatsAppMessage(phone, waText).catch((err) => {
+      console.warn('[whatsapp] dispatch error:', err.message);
+    });
+  }
+
+  // 3. For Order/Slot Confirmation: Dispatch carrier SMS via Twilio using order confirmation template
+  if (templateName === 'bookingConfirmed' || templateName === 'bookingCancelled') {
+    return sendSMS(phone, message);
+  }
+
+  // If SMS provider is not Twilio (e.g. android-gateway or console), also send SMS for other templates
+  if (env.smsProvider !== 'twilio') {
+    return sendSMS(phone, message);
+  }
+
+  // For Twilio: Payment & delivery status are routed via WhatsApp (saving trial quota & avoiding template restriction)
+  console.log(`[sms:route] '${templateName}' handled via WhatsApp & In-App notification`);
+  return { provider: 'whatsapp', handled: true };
 }
