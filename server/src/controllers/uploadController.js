@@ -32,6 +32,18 @@ export const uploadImage = asyncHandler(async (req, res) => {
   }
 
   const mimeType = matches[1].toLowerCase();
+  const ALLOWED_UPLOAD_MIMES = new Map([
+    ['image/jpeg', 'jpg'],
+    ['image/jpg', 'jpg'],
+    ['image/png', 'png'],
+    ['image/webp', 'webp'],
+  ]);
+
+  const extension = ALLOWED_UPLOAD_MIMES.get(mimeType);
+  if (!extension) {
+    throw ApiError.badRequest('Forbidden image type. Only JPEG, PNG, and WebP images are permitted.');
+  }
+
   const base64Data = matches[2];
   const buffer = Buffer.from(base64Data, 'base64');
 
@@ -40,9 +52,17 @@ export const uploadImage = asyncHandler(async (req, res) => {
     throw ApiError.badRequest('Image exceeds maximum allowed size of 5MB.');
   }
 
-  let extension = 'jpg';
-  if (mimeType.includes('png')) extension = 'png';
-  else if (mimeType.includes('webp')) extension = 'webp';
+  // Deep binary magic byte verification to prevent polyglot / content-type confusion attacks
+  const isJpeg = buffer.length > 3 && buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff;
+  const isPng = buffer.length > 4 && buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e && buffer[3] === 0x47;
+  const isWebp =
+    buffer.length > 12 &&
+    buffer.subarray(0, 4).toString('ascii') === 'RIFF' &&
+    buffer.subarray(8, 12).toString('ascii') === 'WEBP';
+
+  if (!isJpeg && !isPng && !isWebp) {
+    throw ApiError.badRequest('Corrupted or invalid image binary signature. Upload rejected.');
+  }
 
   const randomId = crypto.randomBytes(8).toString('hex');
   const safeFilename = `${category}_${Date.now()}_${randomId}.${extension}`;

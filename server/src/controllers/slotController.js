@@ -9,6 +9,7 @@ import { addDaysISO, isPastDate, todayISO } from '../utils/datetime.js';
 import { nextToken } from '../services/queueService.js';
 import { broadcastQueue } from '../services/socketService.js';
 import { sendTemplate } from '../services/smsService.js';
+import { escapeRegex } from '../utils/sanitize.js';
 
 const dateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'date must be YYYY-MM-DD');
 
@@ -28,9 +29,16 @@ const bookSchema = z.object({
 export const listCenters = asyncHandler(async (req, res) => {
   const { district, crop, q } = req.query;
   const filter = { isActive: true };
-  if (district) filter.district = new RegExp(`^${String(district)}$`, 'i');
-  if (crop) filter.crops = new RegExp(`^${String(crop)}$`, 'i');
-  if (q) filter.$or = [{ name: new RegExp(String(q), 'i') }, { code: new RegExp(String(q), 'i') }];
+  if (district && typeof district === 'string') {
+    filter.district = new RegExp(`^${escapeRegex(district.trim())}$`, 'i');
+  }
+  if (crop && typeof crop === 'string') {
+    filter.crops = new RegExp(`^${escapeRegex(crop.trim())}$`, 'i');
+  }
+  if (q && typeof q === 'string') {
+    const escapedQ = escapeRegex(q.trim());
+    filter.$or = [{ name: new RegExp(escapedQ, 'i') }, { code: new RegExp(escapedQ, 'i') }];
+  }
 
   const centers = await Center.find(filter).sort({ district: 1, name: 1 }).lean();
   res.json({ ok: true, data: centers });

@@ -15,6 +15,7 @@ import { sendTemplate } from '../services/smsService.js';
 import { farmersToAlert, getQueueState } from '../services/queueService.js';
 import { ensureShipmentForQueue } from './shipmentController.js';
 import { getRateLimitMetrics } from '../middleware/rateLimiter.js';
+import { escapeRegex } from '../utils/sanitize.js';
 
 // ---------------------------------------------------------------- auth
 
@@ -32,7 +33,7 @@ export const login = asyncHandler(async (req, res) => {
 
   const staff = await Staff.findOne({
     $or: [
-      { username: { $regex: new RegExp(`^${identifier}$`, 'i') } },
+      { username: { $regex: new RegExp(`^${escapeRegex(identifier)}$`, 'i') } },
       { email: identifier.toLowerCase() },
       { email: `${identifier.toLowerCase()}@sih26032.local` },
     ],

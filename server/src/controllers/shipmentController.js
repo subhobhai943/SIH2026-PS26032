@@ -6,6 +6,7 @@ import Center from '../models/Center.js';
 import Farmer from '../models/Farmer.js';
 import { ApiError, asyncHandler } from '../utils/ApiError.js';
 import { parse } from '../utils/validate.js';
+import { escapeRegex } from '../utils/sanitize.js';
 
 const CARRIERS = [
   { name: 'Delhivery Agri Logistics', support: '1800-102-4455', prefix: 'DELH' },
@@ -190,7 +191,7 @@ export const trackShipment = asyncHandler(async (req, res) => {
   if (!query) throw ApiError.badRequest('Tracking number, Order ID, or Token is required');
 
   const farmerId = req.farmer._id;
-  const queryRegex = new RegExp(`^${query}$`, 'i');
+  const queryRegex = new RegExp(`^${escapeRegex(query)}$`, 'i');
 
   let shipment = await Shipment.findOne({
     farmer: farmerId,

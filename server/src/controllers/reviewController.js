@@ -3,6 +3,7 @@ import Review from '../models/Review.js';
 import Farmer from '../models/Farmer.js';
 import { ApiError, asyncHandler } from '../utils/ApiError.js';
 import { parse } from '../utils/validate.js';
+import { escapeRegex } from '../utils/sanitize.js';
 
 const createReviewSchema = z.object({
   farmerId: z.string().min(1, 'Farmer ID is required'),
@@ -130,12 +131,13 @@ export const listAllReviews = asyncHandler(async (req, res) => {
 /** GET /api/reviews/farmers-list — List farmers that buyers can view and review */
 export const listFarmersForReview = asyncHandler(async (req, res) => {
   const query = {};
-  if (req.query.crop) query.crops = req.query.crop;
-  if (req.query.search) {
+  if (req.query.crop && typeof req.query.crop === 'string') query.crops = req.query.crop.trim();
+  if (req.query.search && typeof req.query.search === 'string') {
+    const escaped = escapeRegex(req.query.search.trim());
     query.$or = [
-      { name: { $regex: req.query.search, $options: 'i' } },
-      { village: { $regex: req.query.search, $options: 'i' } },
-      { district: { $regex: req.query.search, $options: 'i' } },
+      { name: { $regex: escaped, $options: 'i' } },
+      { village: { $regex: escaped, $options: 'i' } },
+      { district: { $regex: escaped, $options: 'i' } },
     ];
   }
 

@@ -122,8 +122,8 @@ export async function getMedia(req, res, next) {
 
     // 2. Local Fallback Check
     // Check in server/media/<key>
-    const localMediaPath = path.join(MEDIA_DIR, s3Key);
-    if (fs.existsSync(localMediaPath)) {
+    const localMediaPath = path.resolve(MEDIA_DIR, s3Key);
+    if (localMediaPath.startsWith(MEDIA_DIR) && fs.existsSync(localMediaPath)) {
       res.set({
         'Cache-Control': 'public, max-age=31536000, immutable',
         'Content-Type': fallbackMime,
@@ -132,8 +132,8 @@ export async function getMedia(req, res, next) {
     }
 
     // Check in server/uploads/<key>
-    const localUploadPath = path.join(UPLOAD_DIR, s3Key);
-    if (fs.existsSync(localUploadPath)) {
+    const localUploadPath = path.resolve(UPLOAD_DIR, s3Key);
+    if (localUploadPath.startsWith(UPLOAD_DIR) && fs.existsSync(localUploadPath)) {
       res.set({
         'Cache-Control': 'public, max-age=31536000, immutable',
         'Content-Type': fallbackMime,

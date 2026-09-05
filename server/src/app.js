@@ -7,6 +7,7 @@ import mongoose from 'mongoose';
 import { env } from './config/env.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import { globalLimiter, trafficMonitorMiddleware } from './middleware/rateLimiter.js';
+import { mongoSanitizeMiddleware } from './utils/sanitize.js';
 import farmerRoutes from './routes/farmerRoutes.js';
 import slotRoutes from './routes/slotRoutes.js';
 import queueRoutes from './routes/queueRoutes.js';
@@ -24,6 +25,7 @@ export function createApp() {
   app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
   app.use(cors({ origin: env.clientOrigin, credentials: true }));
   app.use(express.json({ limit: '15mb' }));
+  app.use(mongoSanitizeMiddleware);
   app.use(morgan(env.nodeEnv === 'production' ? 'combined' : 'dev'));
 
   // Live traffic tracking and rate limiting
