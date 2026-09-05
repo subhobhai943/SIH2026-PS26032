@@ -60,7 +60,7 @@ export const templates = {
 };
 
 /** Send SMS via Twilio API */
-export async function sendViaTwilio(phone, message) {
+export async function sendViaTwilio(phone, message, templateKey = 'sms_order_confirmation') {
   const client = getTwilioClient();
   const to = toE164(phone);
   const from = env.twilio?.phoneNumber || process.env.TWILIO_PHONE_NUMBER;
@@ -76,9 +76,24 @@ export async function sendViaTwilio(phone, message) {
     ...(messagingServiceSid ? { messagingServiceSid } : { from }),
   };
 
-  const response = await client.messages.create(payload);
-  console.log(`[sms:twilio] -> ${to} | SID: ${response.sid} | Status: ${response.status}`);
-  return { provider: 'twilio', sid: response.sid, status: response.status };
+  try {
+    const response = await client.messages.create(payload);
+    console.log(`[sms:twilio] -> ${to} | SID: ${response.sid} | Status: ${response.status}`);
+    return { provider: 'twilio', sid: response.sid, status: response.status };
+  } catch (err) {
+    // If Twilio trial sandbox enforces predefined templates (error 572006)
+    if (err.code === 572006 || String(err.message).includes('predefined SMS templates')) {
+      console.warn(`[sms:twilio] Trial template restriction active. Retrying with predefined template '${templateKey}'...`);
+      const fallbackResponse = await client.messages.create({
+        to,
+        body: templateKey,
+        ...(messagingServiceSid ? { messagingServiceSid } : { from }),
+      });
+      console.log(`[sms:twilio:trial-template] -> ${to} | SID: ${fallbackResponse.sid} | Status: ${fallbackResponse.status}`);
+      return { provider: 'twilio', sid: fallbackResponse.sid, status: fallbackResponse.status, trialTemplate: templateKey };
+    }
+    throw err;
+  }
 }
 
 async function sendViaMsg91(phone, message) {
