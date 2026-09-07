@@ -18,6 +18,7 @@ import uploadRoutes from './routes/uploadRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
 import mediaRoutes from './routes/mediaRoutes.js';
 import whatsappRoutes from './routes/whatsappRoutes.js';
+import operatorRoutes from './routes/operatorRoutes.js';
 
 export function createApp() {
   const app = express();
@@ -79,6 +80,7 @@ export function createApp() {
   app.use('/api/reviews', reviewRoutes);
   app.use('/api/media', mediaRoutes);
   app.use('/api/whatsapp', whatsappRoutes);
+  app.use('/api/operator', operatorRoutes);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

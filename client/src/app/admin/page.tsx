@@ -1061,9 +1061,19 @@ export default function AdminPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <PageHeader eyebrow="Admin console" title="Queue & Procurement operations" subtitle="Manage farmers, weigh crops, and release 20% safety advance payments." />
-        <Button variant="ghost" size="sm" onClick={signOut}>
-          Sign out
-        </Button>
+        <div className="flex items-center gap-2">
+          <a
+            href="/operator"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-neutral-900 hover:bg-black text-emerald-400 border border-neutral-800 px-3 py-1.5 text-xs font-bold transition shadow-xs"
+            title="Open backend server operator terminal & live logs"
+          >
+            <span>🖥️ Operator Terminal</span>
+            <span className="rounded bg-emerald-950 border border-emerald-500/40 text-emerald-300 text-[10px] px-1 font-mono">CLI</span>
+          </a>
+          <Button variant="ghost" size="sm" onClick={signOut}>
+            Sign out
+          </Button>
+        </div>
       </div>
 
       {/* Admin Module Navigation Tabs */}
@@ -1170,6 +1180,15 @@ export default function AdminPage() {
           <IconStar className="h-3.5 w-3.5 text-amber-500 fill-amber-500" filled />
           <span>Buyer Produce Reviews</span>
         </button>
+
+        <a
+          href="/operator"
+          className="rounded-xl px-4 py-2.5 sm:py-2 text-xs font-bold transition flex items-center justify-center gap-1.5 bg-neutral-900 hover:bg-black text-emerald-400 border border-neutral-800 shadow-sm"
+          title="Open live terminal and backend server console"
+        >
+          <span>🖥️ Operator Terminal</span>
+          <span className="rounded bg-emerald-950 border border-emerald-500/40 text-emerald-300 text-[10px] px-1 font-mono">CLI</span>
+        </a>
       </div>
 
 
