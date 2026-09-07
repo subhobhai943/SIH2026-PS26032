@@ -1,5 +1,13 @@
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
-import { getAuth, Auth, RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
+import {
+  getAuth,
+  Auth,
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
+  ConfirmationResult,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -20,5 +28,5 @@ export function getFirebaseAuth(): Auth | null {
   return getAuth(app);
 }
 
-export { RecaptchaVerifier, signInWithPhoneNumber };
+export { RecaptchaVerifier, signInWithPhoneNumber, GoogleAuthProvider, signInWithPopup };
 export type { ConfirmationResult };

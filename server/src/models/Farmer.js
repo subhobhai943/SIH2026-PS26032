@@ -4,10 +4,13 @@ const farmerSchema = new mongoose.Schema(
   {
     phone: {
       type: String,
-      required: true,
       unique: true,
+      sparse: true,
       match: [/^[6-9]\d{9}$/, 'phone must be a 10-digit Indian mobile number'],
     },
+    email: { type: String, lowercase: true, trim: true, sparse: true },
+    googleId: { type: String, unique: true, sparse: true },
+    authProvider: { type: String, enum: ['phone', 'google'], default: 'phone' },
     name: { type: String, trim: true, default: '' },
     photoUrl: { type: String, default: '' },
     // Last 4 digits only — we never store a full Aadhaar number.
@@ -28,7 +31,7 @@ const farmerSchema = new mongoose.Schema(
 );
 
 farmerSchema.pre('save', function markProfileComplete(next) {
-  this.profileComplete = Boolean(this.name && this.village && this.district);
+  this.profileComplete = Boolean(this.name && this.village && this.district && this.phone);
   next();
 });
 

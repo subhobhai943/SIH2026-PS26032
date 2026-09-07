@@ -53,6 +53,11 @@ export type TranslationKey =
   | 'reg_mobileNumber'
   | 'reg_sendOtp'
   | 'reg_sending'
+  | 'reg_continueGoogle'
+  | 'reg_connectingGoogle'
+  | 'reg_orMobileOtp'
+  | 'reg_linkPhoneNotice'
+  | 'reg_linkAndContinue'
   | 'reg_enterOtp'
   | 'reg_otpDesc'
   | 'reg_verifyContinue'
@@ -246,6 +251,11 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     reg_mobileNumber: 'Mobile number',
     reg_sendOtp: 'Send OTP',
     reg_sending: 'Sending OTP…',
+    reg_continueGoogle: 'Continue with Google',
+    reg_connectingGoogle: 'Connecting to Google…',
+    reg_orMobileOtp: 'Or login with Mobile OTP',
+    reg_linkPhoneNotice: 'Please link your 10-digit mobile number to receive Government SMS tokens & WhatsApp Mandi bills.',
+    reg_linkAndContinue: 'Link Mobile & Continue',
     reg_enterOtp: 'Enter 6-digit OTP',
     reg_otpDesc: 'Enter the 6-digit code sent to',
     reg_verifyContinue: 'Verify & Continue',
@@ -434,6 +444,11 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     reg_mobileNumber: 'मोबाइल नंबर',
     reg_sendOtp: 'OTP भेजें',
     reg_sending: 'OTP भेजा जा रहा है…',
+    reg_continueGoogle: 'Google के साथ लॉगिन करें',
+    reg_connectingGoogle: 'Google से जुड़ रहे हैं…',
+    reg_orMobileOtp: 'या मोबाइल OTP से लॉगिन करें',
+    reg_linkPhoneNotice: 'कृपया सरकारी SMS टोकन और WhatsApp मंडी रसीद प्राप्त करने के लिए अपना 10 अंकों का मोबाइल नंबर जोड़ें।',
+    reg_linkAndContinue: 'मोबाइल नंबर जोड़ें व आगे बढ़ें',
     reg_enterOtp: '6 अंकों का OTP दर्ज करें',
     reg_otpDesc: 'इस नंबर पर भेजा गया 6 अंकों का कोड दर्ज करें:',
     reg_verifyContinue: 'सत्यापित करें और आगे बढ़ें',
@@ -622,6 +637,11 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     reg_mobileNumber: 'ਮੋਬਾਈਲ ਨੰਬਰ',
     reg_sendOtp: 'OTP ਭੇਜੋ',
     reg_sending: 'OTP ਭੇਜਿਆ ਜਾ ਰਿਹਾ ਹੈ…',
+    reg_continueGoogle: 'Google ਨਾਲ ਲੌਗਇਨ ਕਰੋ',
+    reg_connectingGoogle: 'Google ਨਾਲ ਜੁੜ ਰਿਹਾ ਹੈ…',
+    reg_orMobileOtp: 'ਜਾਂ ਮੋਬਾਈਲ OTP ਰਾਹੀਂ ਲੌਗਇਨ ਕਰੋ',
+    reg_linkPhoneNotice: 'ਸਰਕਾਰੀ SMS ਟੋਕਨ ਅਤੇ WhatsApp ਮੰਡੀ ਬਿੱਲ ਪ੍ਰਾਪਤ ਕਰਨ ਲਈ ਕਿਰਪਾ ਕਰਕੇ ਆਪਣਾ 10 ਅੰਕਾਂ ਦਾ ਮੋਬਾਈਲ ਨੰਬਰ ਜੋੜੋ।',
+    reg_linkAndContinue: 'ਮੋਬਾਈਲ ਨੰਬਰ ਜੋੜੋ ਅਤੇ ਅੱਗੇ ਵਧੋ',
     reg_enterOtp: '6 ਅੰਕਾਂ ਦਾ OTP ਦਰਜ ਕਰੋ',
     reg_otpDesc: 'ਇਸ ਨੰਬਰ ਤੇ ਭੇਜਿਆ ਗਿਆ 6 ਅੰਕਾਂ ਦਾ ਕੋਡ ਦਰਜ ਕਰੋ:',
     reg_verifyContinue: 'ਤਸਦੀਕ ਕਰੋ ਅਤੇ ਅੱਗੇ ਵਧੋ',
@@ -810,6 +830,11 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     reg_mobileNumber: 'মোবাইল নম্বর',
     reg_sendOtp: 'OTP পাঠান',
     reg_sending: 'OTP পাঠানো হচ্ছে…',
+    reg_continueGoogle: 'Google দিয়ে লগইন করুন',
+    reg_connectingGoogle: 'Google এর সাথে সংযুক্ত হচ্ছে…',
+    reg_orMobileOtp: 'অথবা মোবাইল OTP দিয়ে লগইন করুন',
+    reg_linkPhoneNotice: 'সরকারি SMS টোকেন এবং WhatsApp মান্ডি রসিদ পেতে অনুগ্রহ করে আপনার ১০ সংখ্যার মোবাইল নম্বর যুক্ত করুন।',
+    reg_linkAndContinue: 'মোবাইল নম্বর যুক্ত করুন ও এগিয়ে যান',
     reg_enterOtp: '৬ সংখ্যার OTP লিখুন',
     reg_otpDesc: 'এই নম্বরে পাঠানো ৬ সংখ্যার কোডটি লিখুন:',
     reg_verifyContinue: 'যাচাই করুন এবং এগিয়ে যান',
@@ -998,6 +1023,11 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     reg_mobileNumber: 'मोबाईल क्रमांक',
     reg_sendOtp: 'OTP पाठवा',
     reg_sending: 'OTP पाठवला जात आहे…',
+    reg_continueGoogle: 'Google सह लॉगिन करा',
+    reg_connectingGoogle: 'Google शी जोडत आहे…',
+    reg_orMobileOtp: 'किंवा मोबाईल OTP सह लॉगिन करा',
+    reg_linkPhoneNotice: 'शासकीय SMS टोकन आणि WhatsApp पावती मिळवण्यासाठी कृपया तुमचा १० अंकी मोबाईल नंबर जोडा.',
+    reg_linkAndContinue: 'मोबाईल नंबर जोडा व पुढे जा',
     reg_enterOtp: '६ अंकी OTP प्रविष्ट करा',
     reg_otpDesc: 'या क्रमांकावर पाठवलेला ६ अंकी कोड प्रविष्ट करा:',
     reg_verifyContinue: 'पडताळणी करा आणि पुढे जा',
@@ -1186,6 +1216,11 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     reg_mobileNumber: 'మొబైల్ నంబర్',
     reg_sendOtp: 'OTP పంపండి',
     reg_sending: 'OTP పంపబడుతోంది…',
+    reg_continueGoogle: 'Google తో లాగిన్ అవ్వండి',
+    reg_connectingGoogle: 'Google తో కనెక్ట్ అవుతోంది…',
+    reg_orMobileOtp: 'లేదా మొబైల్ OTP తో లాగిన్ అవ్వండి',
+    reg_linkPhoneNotice: 'ప్రభుత్వ SMS టోకెన్లు మరియు WhatsApp రసీదులను పొందడానికి దయచేసి మీ 10 అంకెల మొబైల్ నంబర్‌ను జోడించండి.',
+    reg_linkAndContinue: 'మొబైల్ నంబర్‌ను జోడించి కొనసాగించండి',
     reg_enterOtp: '6 అంకెల OTP నమోదు చేయండి',
     reg_otpDesc: 'ఈ నంబర్‌కు పంపిన 6 అంకెల కోడ్‌ను నమోదు చేయండి:',
     reg_verifyContinue: 'ధృవీకరించి కొనసాగించండి',
@@ -1374,6 +1409,11 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     reg_mobileNumber: 'மொபைல் எண்',
     reg_sendOtp: 'OTP அனுப்புக',
     reg_sending: 'OTP அனுப்பப்படுகிறது…',
+    reg_continueGoogle: 'Google மூலம் உள்நுழைக',
+    reg_connectingGoogle: 'Google உடன் இணைகிறது…',
+    reg_orMobileOtp: 'அல்லது மொபைல் OTP மூலம் உள்நுழைக',
+    reg_linkPhoneNotice: 'அரசு SMS டோக்கன்கள் மற்றும் WhatsApp மண்டி ரசீதுகளைப் பெற உங்கள் 10 இலக்க மொபைல் எண்ணை இணைக்கவும்.',
+    reg_linkAndContinue: 'மொபைல் எண்ணை இணைத்து தொடரவும்',
     reg_enterOtp: '6 இலக்க OTP-ஐ உள்ளிடவும்',
     reg_otpDesc: 'இந்த எண்ணிற்கு அனுப்பப்பட்ட 6 இலக்கக் குறியீட்டை உள்ளிடவும்:',
     reg_verifyContinue: 'சரிபார்த்து தொடரவும்',

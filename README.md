@@ -117,7 +117,8 @@ flowchart TD
 ## 🚀 Key Modules & Capabilities
 
 ### 1. Farmer Registration & Biometric KYC
-* Mobile OTP verification via **Firebase Auth** with automatic reCAPTCHA v3 bot deterrence.
+* Dual authentication options: 1-click **Continue with Google** via Firebase Auth or Mobile OTP with automatic reCAPTCHA v3 bot deterrence.
+* Seamless mobile linking for Google users ensuring 100% Mandi SMS Gate Pass and WhatsApp receipt delivery.
 * Live front-camera selfie capture for Mandi Gate Pass identity cards.
 * Client-side HTML5 canvas compression ensuring image payloads remain under 100KB on low-bandwidth rural networks.
 * Accessible 4-step wizard with 48px+ touch targets optimized for mobile field conditions.
@@ -280,6 +281,7 @@ NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
 | **Auth** | `POST` | `/api/farmers/otp/request` | Public | Send mobile login OTP (tight rate limit) |
 | **Auth** | `POST` | `/api/farmers/otp/verify` | Public | Verify OTP and issue farmer JWT |
 | **Auth** | `POST` | `/api/farmers/firebase/verify` | Public | Verify Firebase phone ID token |
+| **Auth** | `POST` | `/api/farmers/google/verify` | Public | Verify Firebase Google ID token & link profile |
 | **Profile** | `GET` | `/api/farmers/me` | Farmer | Retrieve authenticated farmer dossier |
 | **Profile** | `PUT` | `/api/farmers/me` | Farmer | Update farmer profile & KYC details |
 | **Media** | `POST` | `/api/upload` | Farmer | Upload selfie or crop photo to AWS S3 |

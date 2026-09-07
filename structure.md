@@ -270,7 +270,7 @@ The frontend adheres to the **Accessible & Ethical** archetype (UI/UX Pro Max):
 | Route | Page File | Primary Purpose & Key Capabilities |
 |---|---|---|
 | `/` | [`src/app/page.tsx`](file:///home/ubuntu/SIH2026-PS26032/client/src/app/page.tsx) | **Landing & Gateway:** Multilingual hero banner, real-time platform metrics counter, 3-step farmer journey explainer, live queue teaser card, farmer testimonials, and official DoCA links. |
-| `/register` | [`src/app/register/page.tsx`](file:///home/ubuntu/SIH2026-PS26032/client/src/app/register/page.tsx) | **Farmer KYC Onboarding:** 4-step wizard: (1) Mobile Phone OTP verification via Firebase Auth, (2) Personal Details & Aadhaar number, (3) Land Record & Bank details for PFMS DBT, (4) Live front-camera selfie capture with in-browser compression. |
+| `/register` | [`src/app/register/page.tsx`](file:///home/ubuntu/SIH2026-PS26032/client/src/app/register/page.tsx) | **Farmer KYC Onboarding:** Dual-authentication onboarding: (1) 1-click **Continue with Google** via Firebase Auth or Mobile OTP verification with reCAPTCHA v3 bot deterrence, (2) Seamless mobile linking for Google accounts to receive Mandi SMS gate passes, (3) Mandatory biometric photo capture with client-side canvas compression, (4) Farmer profile & address dossier. |
 | `/booking` | [`src/app/booking/page.tsx`](file:///home/ubuntu/SIH2026-PS26032/client/src/app/booking/page.tsx) | **Slot Scheduling & MSP Calculator:** Discovery of 18 nationwide procurement centres across 13 states with state filter pills. Live rolling 7-day slot availability calendar. Real-time MSP value calculator (Wheat ₹2,275, Paddy ₹2,183, Maize ₹2,090) showing the 20% advance payout. Crop lot sample camera photo upload. |
 | `/queue` | [`src/app/queue/page.tsx`](file:///home/ubuntu/SIH2026-PS26032/client/src/app/queue/page.tsx) | **Live Token Queue Board:** Real-time Socket.io token board. Mandi search bar with interactive search modal supporting fuzzy search by center name, code, state, or address. State filter chips. Shows current called token, assigned lane, and estimated wait times. |
 | `/status` | [`src/app/status/page.tsx`](file:///home/ubuntu/SIH2026-PS26032/client/src/app/status/page.tsx) | **Procurement Tracker & Bill Download:** 5-stage visual progress tracker (`BOOKED` → `ARRIVED` → `WEIGHED` → `APPROVED` → `PAID`). Shows 20% DBT Advance payment status with PFMS reference and 80% balance settlement. One-click button to download the official AWS S3 Mandi Bill PDF. Printable gate pass slip. |
@@ -577,8 +577,9 @@ sequenceDiagram
 
 ### 6.1 Authentication Mechanics
 - **Farmer Authentication:**
-  - Phone verification via **Firebase Auth** with reCAPTCHA v3 bot deterrence.
-  - Server-side Firebase ID token verification using Firebase Admin SDK.
+  - Dual options on `/register`: 1-click **Continue with Google** (`signInWithPopup(auth, GoogleAuthProvider)`) and Mobile OTP verification with reCAPTCHA v3 bot deterrence.
+  - Server-side Firebase ID token verification using Firebase Admin SDK (`verifyFirebaseToken` and `verifyFirebaseGoogleToken`).
+  - Automatic account linking across Google UID, email, and phone number with sparse MongoDB indexing.
   - Issues signed JWT tokens (`HS256`, 7-day lifespan) containing the farmer's MongoDB `_id` and verified phone number.
   - All protected farmer routes are shielded by the [`requireFarmer`](file:///home/ubuntu/SIH2026-PS26032/server/src/middleware/auth.js) middleware.
 - **Staff & Admin Authentication:**

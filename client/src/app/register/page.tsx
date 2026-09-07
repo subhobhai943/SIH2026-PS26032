@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import gsap from 'gsap';
 import { api, setToken, getToken, clearToken } from '@/lib/api';
 import { Alert, Button, Card, PageHeader, TextField } from '@/components/ui';
-import { IconPhone, IconStatus, IconCamera, IconUpload, IconUser, IconCheck } from '@/components/icons';
+import { IconPhone, IconStatus, IconCamera, IconUpload, IconUser, IconCheck, IconGoogle } from '@/components/icons';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
 import { compressImage } from '@/lib/imageUtils';
 import { prefersReducedMotion } from '@/lib/animations';
@@ -13,6 +13,8 @@ import {
   getFirebaseAuth,
   RecaptchaVerifier,
   signInWithPhoneNumber,
+  GoogleAuthProvider,
+  signInWithPopup,
   type ConfirmationResult,
 } from '@/lib/firebase';
 
@@ -22,8 +24,16 @@ declare global {
   }
 }
 
-type Step = 'phone' | 'otp' | 'photo' | 'profile' | 'done';
-const STEP_ORDER: Step[] = ['phone', 'otp', 'photo', 'profile', 'done'];
+type Step = 'phone' | 'otp' | 'phone_link' | 'photo' | 'profile' | 'done';
+
+const STEP_NUM_MAP: Record<Step, number> = {
+  phone: 1,
+  otp: 2,
+  phone_link: 2,
+  photo: 3,
+  profile: 4,
+  done: 5,
+};
 
 export default function RegisterPage() {
   const { t } = useTranslation();
@@ -33,6 +43,9 @@ export default function RegisterPage() {
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [googleUser, setGoogleUser] = useState<{ name?: string; email?: string; photoUrl?: string } | null>(null);
+  const [linkPhoneInput, setLinkPhoneInput] = useState('');
   const [existingUser, setExistingUser] = useState<any | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const stepCardRef = useRef<HTMLDivElement>(null);
@@ -88,6 +101,121 @@ export default function RegisterPage() {
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+
+  async function handleGoogleSignIn() {
+    setError(null);
+    setGoogleLoading(true);
+    try {
+      if (!isFirebaseConfigured) {
+        throw new Error('Firebase authentication is not configured in client environment.');
+      }
+      const auth = getFirebaseAuth();
+      if (!auth) throw new Error('Firebase Auth initialization failed');
+
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      const result = await signInWithPopup(auth, provider);
+      const idToken = await result.user.getIdToken();
+
+      const data = await api.post<{
+        token: string;
+        isNew: boolean;
+        isProfileComplete?: boolean;
+        hasPhoto?: boolean;
+        needsPhone?: boolean;
+        farmer?: any;
+      }>('/farmers/google/verify', { idToken });
+
+      setToken(data.token);
+
+      const f = data.farmer;
+      const gName = f?.name || result.user.displayName || '';
+      const gEmail = f?.email || result.user.email || '';
+      const gPhoto = f?.photoUrl || result.user.photoURL || '';
+
+      if (f) {
+        setProfile({
+          name: gName,
+          village: f.village || '',
+          district: f.district || '',
+          state: f.state || '',
+          photoUrl: gPhoto,
+        });
+        if (gPhoto) {
+          setPhotoPreview(gPhoto);
+        }
+        if (f.phone) {
+          setPhone(f.phone);
+        }
+      }
+
+      setGoogleUser({
+        name: gName,
+        email: gEmail,
+        photoUrl: gPhoto,
+      });
+
+      if (data.needsPhone) {
+        setStep('phone_link');
+      } else if (!gPhoto) {
+        setStep('photo');
+      } else if (!f?.village?.trim() || !f?.district?.trim()) {
+        setStep('profile');
+      } else {
+        setStep('done');
+      }
+    } catch (err: any) {
+      if (err.code === 'auth/popup-closed-by-user') {
+        return;
+      }
+      if (err.code === 'auth/popup-blocked') {
+        setError('Popup was blocked by your browser. Please allow popups for Google Sign-In.');
+        return;
+      }
+      setError(err.message || 'Google Sign-In failed. Please try again or use Mobile OTP.');
+    } finally {
+      setGoogleLoading(false);
+    }
+  }
+
+  async function handleLinkPhone(e: React.FormEvent) {
+    e.preventDefault();
+    if (!/^[6-9]\d{9}$/.test(linkPhoneInput)) {
+      setError('Please enter a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9.');
+      return;
+    }
+    setError(null);
+    setLoading(true);
+    try {
+      const updatedFarmer = await api.put<any>('/farmers/me', { phone: linkPhoneInput });
+      setPhone(linkPhoneInput);
+      if (updatedFarmer) {
+        setProfile((prev) => ({
+          ...prev,
+          name: prev.name || updatedFarmer.name || '',
+          village: prev.village || updatedFarmer.village || '',
+          district: prev.district || updatedFarmer.district || '',
+          state: prev.state || updatedFarmer.state || '',
+          photoUrl: prev.photoUrl || updatedFarmer.photoUrl || '',
+        }));
+        if (updatedFarmer.photoUrl && !photoPreview) {
+          setPhotoPreview(updatedFarmer.photoUrl);
+        }
+      }
+
+      if (!profile.photoUrl && !updatedFarmer?.photoUrl) {
+        setStep('photo');
+      } else if (!profile.village?.trim() || !profile.district?.trim() || !updatedFarmer?.village?.trim()) {
+        setStep('profile');
+      } else {
+        setStep('done');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to link mobile number. Please check the number and try again.');
+    } finally {
+      setLoading(false);
+    }
+  }
 
   async function requestOtp(e: React.FormEvent) {
     e.preventDefault();
@@ -222,6 +350,7 @@ export default function RegisterPage() {
   const stepLabels: Record<Step, string> = {
     phone: t('reg_stepPhone'),
     otp: t('reg_stepOtp'),
+    phone_link: t('reg_mobileNumber'),
     photo: t('reg_stepPhoto'),
     profile: t('reg_stepProfile'),
     done: t('reg_allSet'),
@@ -268,9 +397,16 @@ export default function RegisterPage() {
                 <h3 className="text-lg font-extrabold text-neutral-900 dark:text-neutral-100 truncate">
                   {existingUser.name || 'Registered Farmer'}
                 </h3>
-                <p className="text-xs font-mono font-semibold text-neutral-600 dark:text-neutral-400">
-                  📱 +91 {existingUser.phone}
-                </p>
+                {existingUser.email && (
+                  <p className="text-xs text-neutral-600 dark:text-neutral-400 truncate">
+                    ✉️ {existingUser.email}
+                  </p>
+                )}
+                {existingUser.phone && (
+                  <p className="text-xs font-mono font-semibold text-neutral-600 dark:text-neutral-400">
+                    📱 +91 {existingUser.phone}
+                  </p>
+                )}
                 {(existingUser.village || existingUser.district) && (
                   <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate">
                     📍 {existingUser.village ? `${existingUser.village}, ` : ''}{existingUser.district} ({existingUser.state})
@@ -320,7 +456,14 @@ export default function RegisterPage() {
     );
   }
 
-  const currentStepNum = STEP_ORDER.indexOf(step) + 1;
+  const currentStepNum = STEP_NUM_MAP[step] || 1;
+
+  const DISPLAY_STEPS = [
+    { id: 'phone', label: t('reg_stepPhone'), num: 1 },
+    { id: 'otp', label: t('reg_stepOtp'), num: 2 },
+    { id: 'photo', label: t('reg_stepPhoto'), num: 3 },
+    { id: 'profile', label: t('reg_stepProfile'), num: 4 },
+  ];
 
   return (
     <div className="mx-auto max-w-lg">
@@ -331,52 +474,53 @@ export default function RegisterPage() {
       />
 
       {/* Accessible Stepper Bar */}
-      <div className="mb-4 sm:mb-6 rounded-2xl bg-white p-3 sm:p-3.5 border border-neutral-200 shadow-sm">
+      <div className="mb-4 sm:mb-6 rounded-2xl bg-white dark:bg-neutral-900 p-3 sm:p-3.5 border border-neutral-200 dark:border-neutral-800 shadow-sm">
         {/* Mobile Stepper Header: Step X of 4 */}
         <div className="flex sm:hidden items-center justify-between mb-2">
-          <span className="text-xs font-bold text-brand-700">
-            Step {currentStepNum} of 4: {stepLabels[step] || 'Done'}
+          <span className="text-xs font-bold text-brand-700 dark:text-brand-400">
+            Step {Math.min(currentStepNum, 4)} of 4: {stepLabels[step] || 'Done'}
           </span>
           <span className="text-[11px] font-medium text-neutral-400">
-            {Math.round((currentStepNum / 4) * 100)}%
+            {Math.round((Math.min(currentStepNum, 4) / 4) * 100)}%
           </span>
         </div>
         {/* Progress bar on mobile */}
-        <div className="h-1.5 w-full bg-neutral-100 rounded-full overflow-hidden sm:hidden">
+        <div className="h-1.5 w-full bg-neutral-100 dark:bg-neutral-800 rounded-full overflow-hidden sm:hidden">
           <div
             className="h-full bg-brand-600 transition-all duration-300 rounded-full"
-            style={{ width: `${Math.min(100, (currentStepNum / 4) * 100)}%` }}
+            style={{ width: `${Math.min(100, (Math.min(currentStepNum, 4) / 4) * 100)}%` }}
           />
         </div>
 
         {/* Desktop Stepper */}
         <div className="hidden sm:flex items-center justify-between gap-1">
-          {STEP_ORDER.slice(0, 4).map((s, idx) => {
-            const stepNum = idx + 1;
-            const isPassed = stepNum < currentStepNum;
-            const isCurrent = stepNum === currentStepNum;
+          {DISPLAY_STEPS.map((s, idx) => {
+            const isPassed = s.num < currentStepNum;
+            const isCurrent = s.num === currentStepNum;
 
             return (
-              <div key={s} className="flex flex-1 items-center gap-1.5 min-w-0">
+              <div key={s.id} className="flex flex-1 items-center gap-1.5 min-w-0">
                 <div
                   className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold transition ${
                     isPassed
                       ? 'bg-emerald-600 text-white'
                       : isCurrent
-                      ? 'bg-brand-600 text-white ring-4 ring-brand-100'
-                      : 'bg-neutral-100 text-neutral-500'
+                      ? 'bg-brand-600 text-white ring-4 ring-brand-100 dark:ring-brand-900/50'
+                      : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-500'
                   }`}
                 >
-                  {isPassed ? <IconCheck className="h-4 w-4" /> : stepNum}
+                  {isPassed ? <IconCheck className="h-4 w-4" /> : s.num}
                 </div>
                 <span
                   className={`truncate text-xs font-semibold ${
-                    isCurrent ? 'text-brand-700' : isPassed ? 'text-neutral-700' : 'text-neutral-400'
+                    isCurrent ? 'text-brand-700 dark:text-brand-400' : isPassed ? 'text-neutral-700 dark:text-neutral-300' : 'text-neutral-400'
                   }`}
                 >
-                  {stepLabels[s]}
+                  {s.label}
                 </span>
-                {idx < 3 && <div className={`h-0.5 flex-1 rounded ${isPassed ? 'bg-emerald-500' : 'bg-neutral-200'}`} />}
+                {idx < DISPLAY_STEPS.length - 1 && (
+                  <div className={`h-0.5 flex-1 rounded ${isPassed ? 'bg-emerald-500' : 'bg-neutral-200 dark:bg-neutral-700'}`} />
+                )}
               </div>
             );
           })}
@@ -391,45 +535,74 @@ export default function RegisterPage() {
           </div>
         )}
 
-        {/* STEP 1: Phone */}
+        {/* STEP 1: Phone or Google Sign-In */}
         {step === 'phone' && (
-          <form onSubmit={requestOtp} className="space-y-4">
-            <div className="rounded-xl bg-blue-50/80 p-3 text-xs text-blue-900 border border-blue-200 flex items-center gap-2">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white font-bold text-[11px]">1</span>
-              <span>Enter your 10-digit mobile number to receive a secure login OTP.</span>
+          <div className="space-y-5">
+            {/* Option A: Continue with Google */}
+            <div className="space-y-2">
+              <button
+                type="button"
+                disabled={googleLoading || loading}
+                onClick={handleGoogleSignIn}
+                className="w-full flex items-center justify-center gap-3 rounded-xl border-2 border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-750 py-3.5 px-4 text-sm font-bold text-neutral-800 dark:text-neutral-100 shadow-sm transition hover:border-neutral-300 hover:shadow active:scale-[0.99] disabled:opacity-60 cursor-pointer"
+              >
+                <IconGoogle className="h-5 w-5 shrink-0" />
+                <span>{googleLoading ? t('reg_connectingGoogle') : t('reg_continueGoogle')}</span>
+              </button>
+              <p className="text-[11px] text-center text-neutral-500 dark:text-neutral-400">
+                ⚡ 1-click fast login with your verified Google account
+              </p>
             </div>
 
-            <div className="flex items-center gap-2 text-brand-600">
-              <IconPhone className="h-5 w-5" />
-              <span className="text-sm font-semibold text-neutral-700">{t('reg_mobileNumber')}</span>
+            {/* Divider */}
+            <div className="relative flex items-center justify-center my-3">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-neutral-200 dark:border-neutral-700" />
+              </div>
+              <div className="relative bg-white dark:bg-neutral-900 px-3 text-xs font-semibold uppercase tracking-wider text-neutral-500">
+                {t('reg_orMobileOtp')}
+              </div>
             </div>
-            <div className="relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-semibold text-neutral-400">
-                +91
-              </span>
-              <input
-                required
-                pattern="[6-9][0-9]{9}"
-                maxLength={10}
-                inputMode="numeric"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
-                placeholder="9876543210"
-                className="w-full rounded-xl border border-neutral-300 py-3 pl-12 pr-4 text-base font-medium tracking-wider text-neutral-900 placeholder:text-neutral-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
-              />
-            </div>
-            <div id="recaptcha-container" />
-            <Button type="submit" loading={loading} className="w-full py-3 text-base">
-              {loading ? t('reg_sending') : t('reg_sendOtp')}
-            </Button>
-          </form>
+
+            {/* Option B: Mobile Number OTP */}
+            <form onSubmit={requestOtp} className="space-y-4">
+              <div className="rounded-xl bg-blue-50/80 dark:bg-blue-950/40 p-3 text-xs text-blue-900 dark:text-blue-200 border border-blue-200 dark:border-blue-800 flex items-center gap-2">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white font-bold text-[11px]">1</span>
+                <span>Enter your 10-digit mobile number to receive a secure login OTP.</span>
+              </div>
+
+              <div className="flex items-center gap-2 text-brand-600 dark:text-brand-400">
+                <IconPhone className="h-5 w-5" />
+                <span className="text-sm font-semibold text-neutral-700 dark:text-neutral-300">{t('reg_mobileNumber')}</span>
+              </div>
+              <div className="relative">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-semibold text-neutral-400">
+                  +91
+                </span>
+                <input
+                  required
+                  pattern="[6-9][0-9]{9}"
+                  maxLength={10}
+                  inputMode="numeric"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
+                  placeholder="9876543210"
+                  className="w-full rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 py-3 pl-12 pr-4 text-base font-medium tracking-wider text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
+                />
+              </div>
+              <div id="recaptcha-container" />
+              <Button type="submit" loading={loading} className="w-full py-3 text-base">
+                {loading ? t('reg_sending') : t('reg_sendOtp')}
+              </Button>
+            </form>
+          </div>
         )}
 
         {/* STEP 2: OTP */}
         {step === 'otp' && (
           <form onSubmit={verifyOtp} className="space-y-4">
-            <p className="text-sm text-neutral-600">
-              {t('reg_otpDesc')} <span className="font-semibold text-neutral-900">+91 {phone}</span>.
+            <p className="text-sm text-neutral-600 dark:text-neutral-300">
+              {t('reg_otpDesc')} <span className="font-semibold text-neutral-900 dark:text-neutral-100">+91 {phone}</span>.
             </p>
             <TextField
               required
@@ -447,11 +620,92 @@ export default function RegisterPage() {
             <button
               type="button"
               onClick={() => setStep('phone')}
-              className="w-full text-center text-xs font-medium text-neutral-400 hover:text-neutral-600"
+              className="w-full text-center text-xs font-medium text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition"
             >
               {t('reg_wrongNumber')}
             </button>
           </form>
+        )}
+
+        {/* STEP 2-ALT: Link Mobile Number for Google accounts */}
+        {step === 'phone_link' && (
+          <div className="space-y-4">
+            {googleUser && (
+              <div className="flex items-center gap-3 rounded-xl bg-neutral-50 dark:bg-neutral-800 p-3.5 border border-neutral-200 dark:border-neutral-700">
+                {googleUser.photoUrl ? (
+                  <img
+                    src={googleUser.photoUrl}
+                    alt={googleUser.name || 'Google User'}
+                    className="h-11 w-11 rounded-full object-cover ring-2 ring-emerald-500/30 shrink-0"
+                  />
+                ) : (
+                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 font-bold shrink-0">
+                    G
+                  </div>
+                )}
+                <div className="min-w-0 flex-1">
+                  <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">✓ Google Account Connected</span>
+                  <p className="text-sm font-extrabold text-neutral-900 dark:text-neutral-100 truncate">
+                    {googleUser.name || 'Verified Google User'}
+                  </p>
+                  {googleUser.email && (
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400 truncate">
+                      {googleUser.email}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            <div className="rounded-xl bg-amber-50 dark:bg-amber-950/40 p-3.5 border border-amber-200 dark:border-amber-800 text-xs text-amber-900 dark:text-amber-200 space-y-1">
+              <p className="font-bold flex items-center gap-1.5 text-amber-800 dark:text-amber-300">
+                <span>📢</span> Mandi Gate Pass Requirement
+              </p>
+              <p className="opacity-90">
+                {t('reg_linkPhoneNotice')}
+              </p>
+            </div>
+
+            <form onSubmit={handleLinkPhone} className="space-y-4">
+              <div>
+                <label className="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-1.5 block">
+                  {t('reg_mobileNumber')}
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-semibold text-neutral-400">
+                    +91
+                  </span>
+                  <input
+                    required
+                    pattern="[6-9][0-9]{9}"
+                    maxLength={10}
+                    inputMode="numeric"
+                    value={linkPhoneInput}
+                    onChange={(e) => setLinkPhoneInput(e.target.value.replace(/\D/g, ''))}
+                    placeholder="9876543210"
+                    className="w-full rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 py-3 pl-12 pr-4 text-base font-medium tracking-wider text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
+                  />
+                </div>
+              </div>
+
+              <Button type="submit" loading={loading} className="w-full py-3 text-base">
+                {loading ? t('reg_saving') : `${t('reg_linkAndContinue')} →`}
+              </Button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  clearToken();
+                  setExistingUser(null);
+                  setGoogleUser(null);
+                  setStep('phone');
+                }}
+                className="w-full text-center text-xs font-medium text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition pt-1"
+              >
+                ← Use a different login method
+              </button>
+            </form>
+          </div>
         )}
 
         {/* STEP 3: Farmer Photo Upload */}
@@ -658,11 +912,14 @@ export default function RegisterPage() {
               <p className="text-lg font-bold text-neutral-900">{t('reg_allSet')}</p>
               <p className="mt-1 text-sm text-neutral-500">{t('reg_accountReady')}</p>
             </div>
-            <div className="rounded-xl bg-neutral-50 p-4 text-xs text-neutral-600 border border-neutral-200 text-left space-y-1.5">
-              <div className="font-semibold text-neutral-900">Registered Beneficiary:</div>
-              <div>Name: <span className="font-medium text-neutral-800">{profile.name || 'Farmer'}</span></div>
-              <div>Phone: <span className="font-medium text-neutral-800">+91 {phone || 'Verified'}</span></div>
-              <div>Mandi Verification: <span className="text-emerald-700 font-semibold">Active · 20% DBT Guarantee Enabled</span></div>
+            <div className="rounded-xl bg-neutral-50 dark:bg-neutral-800 p-4 text-xs text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-700 text-left space-y-1.5">
+              <div className="font-semibold text-neutral-900 dark:text-neutral-100">Registered Beneficiary:</div>
+              <div>Name: <span className="font-medium text-neutral-800 dark:text-neutral-200">{profile.name || 'Farmer'}</span></div>
+              {googleUser?.email && (
+                <div>Email: <span className="font-medium text-neutral-800 dark:text-neutral-200">{googleUser.email}</span></div>
+              )}
+              <div>Phone: <span className="font-medium text-neutral-800 dark:text-neutral-200">+91 {phone || 'Verified'}</span></div>
+              <div>Mandi Verification: <span className="text-emerald-700 dark:text-emerald-400 font-semibold">Active · 20% DBT Guarantee Enabled</span></div>
             </div>
             <div className="space-y-2">
               <Button onClick={() => (window.location.href = '/booking')} className="w-full py-3 text-base">
