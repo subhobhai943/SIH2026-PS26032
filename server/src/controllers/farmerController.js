@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import bcrypt from 'bcryptjs';
+import mongoose from 'mongoose';
 import { z } from 'zod';
 import { env } from '../config/env.js';
 import Farmer from '../models/Farmer.js';
@@ -359,20 +360,27 @@ export const getNotifications = asyncHandler(async (req, res) => {
 export const markAllNotificationsRead = asyncHandler(async (req, res) => {
   const farmerId = req.farmer._id;
   const phone = req.farmer.phone;
-  const filter = phone ? { $or: [{ farmer: farmerId }, { phone }], read: false } : { farmer: farmerId, read: false };
+  const baseFilter = phone ? { $or: [{ farmer: farmerId }, { phone }] } : { farmer: farmerId };
+  const filter = { ...baseFilter, read: { $ne: true } };
 
-  await Notification.updateMany(filter, { $set: { read: true } });
+  const result = await Notification.updateMany(filter, { $set: { read: true } });
 
-  res.json({ ok: true, data: { marked: true } });
+  res.json({ ok: true, data: { marked: true, modifiedCount: result.modifiedCount || 0 } });
 });
 
 /** PATCH /api/farmers/me/notifications/:id/read */
 export const markNotificationRead = asyncHandler(async (req, res) => {
+  const { id } = req.params;
   const farmerId = req.farmer._id;
   const phone = req.farmer.phone;
+
+  if (!mongoose.isValidObjectId(id)) {
+    return res.json({ ok: true, data: { _id: id, read: true, fallback: true } });
+  }
+
   const filter = phone
-    ? { _id: req.params.id, $or: [{ farmer: farmerId }, { phone }] }
-    : { _id: req.params.id, farmer: farmerId };
+    ? { _id: id, $or: [{ farmer: farmerId }, { phone }] }
+    : { _id: id, farmer: farmerId };
 
   const notification = await Notification.findOneAndUpdate(
     filter,
@@ -380,7 +388,9 @@ export const markNotificationRead = asyncHandler(async (req, res) => {
     { new: true }
   );
 
-  if (!notification) throw ApiError.notFound('Notification not found');
+  if (!notification) {
+    return res.json({ ok: true, data: { _id: id, read: true, notFoundInPersonal: true } });
+  }
   res.json({ ok: true, data: notification });
 });
 
