@@ -13,6 +13,8 @@ router.post('/otp/verify', otpLimiter, farmerController.verifyOtp);
 router.post('/firebase/verify', otpLimiter, farmerController.verifyFirebase);
 router.post('/google/verify', otpLimiter, farmerController.verifyGoogle);
 
+router.get('/public/announcements', farmerController.getPublicAnnouncements);
+
 router.get('/me', requireFarmer, farmerController.getProfile);
 router.put('/me', requireFarmer, farmerController.updateProfile);
 router.put('/me/push-token', requireFarmer, farmerController.registerPushToken);

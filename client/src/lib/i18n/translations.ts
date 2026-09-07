@@ -11,6 +11,10 @@ export type TranslationKey =
   | 'nav_changeLanguage'
   | 'nav_selectLanguage'
   | 'nav_myProfile'
+  | 'nav_notifications'
+  | 'nav_markAllRead'
+  | 'nav_noNotifications'
+  | 'nav_gatePassReceipts'
 
   // Language Modal
   | 'modal_welcome'
@@ -213,6 +217,10 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     nav_changeLanguage: 'Language',
     nav_selectLanguage: 'Choose Language',
     nav_myProfile: 'My Profile',
+    nav_notifications: 'Notifications',
+    nav_markAllRead: 'Mark all read',
+    nav_noNotifications: 'No notifications yet. SMS receipts and payment updates will appear here.',
+    nav_gatePassReceipts: 'SMS & DBT Receipts',
 
     modal_welcome: 'Welcome / स्वागत है / ਜੀ ਆਇਆਂ ਨੂੰ',
     modal_selectLanguage: 'Select your preferred language',
@@ -407,6 +415,10 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     nav_changeLanguage: 'भाषा',
     nav_selectLanguage: 'भाषा चुनें',
     nav_myProfile: 'मेरी प्रोफाइल',
+    nav_notifications: 'सूचनाएं एवं रसीदें',
+    nav_markAllRead: 'सभी पढ़ा हुआ चिह्नित करें',
+    nav_noNotifications: 'कोई नई सूचना नहीं है। एसएमएस रसीदें और डीबीटी भुगतान यहां दिखेंगे।',
+    nav_gatePassReceipts: 'एसएमएस व डीबीटी रसीदें',
 
     modal_welcome: 'किसान खरीद कतार पोर्टल में स्वागत है',
     modal_selectLanguage: 'कृपया अपनी पसंदीदा भाषा चुनें',
@@ -601,6 +613,10 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     nav_changeLanguage: 'ਭਾਸ਼ਾ',
     nav_selectLanguage: 'ਭਾਸ਼ਾ ਚੁਣੋ',
     nav_myProfile: 'ਮੇਰੀ ਪ੍ਰੋਫਾਈਲ',
+    nav_notifications: 'ਸੂਚਨਾਵਾਂ ਅਤੇ ਰਸੀਦਾਂ',
+    nav_markAllRead: 'ਸਭ ਪੜ੍ਹਿਆ ਨਿਸ਼ਾਨਬੱਧ ਕਰੋ',
+    nav_noNotifications: 'ਅਜੇ ਕੋਈ ਸੂਚਨਾ ਨਹੀਂ ਹੈ। ਐਸਐਮਐਸ ਰਸੀਦਾਂ ਇੱਥੇ ਦਿਖਾਈ ਦੇਣਗੀਆਂ।',
+    nav_gatePassReceipts: 'ਐਸਐਮਐਸ ਅਤੇ ਡੀਬੀਟੀ ਰਸੀਦਾਂ',
 
     modal_welcome: 'ਕਿਸਾਨ ਖਰੀਦ ਕਤਾਰ ਪੋਰਟਲ ਵਿੱਚ ਜੀ ਆਇਆਂ ਨੂੰ',
     modal_selectLanguage: 'ਕਿਰਪਾ ਕਰਕੇ ਆਪਣੀ ਪਸੰਦੀਦਾ ਭਾਸ਼ਾ ਚੁਣੋ',
@@ -795,6 +811,10 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     nav_changeLanguage: 'ভাষা',
     nav_selectLanguage: 'ভাষা নির্বাচন',
     nav_myProfile: 'আমার প্রোফাইল',
+    nav_notifications: 'বিজ্ঞপ্তি ও রসিদ',
+    nav_markAllRead: 'সব পঠিত চিহ্নিত করুন',
+    nav_noNotifications: 'এখনও কোনো বিজ্ঞপ্তি নেই। এসএমএস রসিদ ও ডিবিটি আপডেট এখানে আসবে।',
+    nav_gatePassReceipts: 'এসএমএস ও ডিবিটি রসিদ',
 
     modal_welcome: 'কৃষক সংগ্রহ কিউ পোর্টালে স্বাগতম',
     modal_selectLanguage: 'আপনার পছন্দের ভাষা নির্বাচন করুন',
@@ -989,6 +1009,10 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     nav_changeLanguage: 'भाषा',
     nav_selectLanguage: 'भाषा निवडा',
     nav_myProfile: 'माझे प्रोफाईल',
+    nav_notifications: 'सूचना आणि पावत्या',
+    nav_markAllRead: 'सर्व वाचलेले चिन्हांकित करा',
+    nav_noNotifications: 'अद्याप कोणत्याही सूचना नाहीत. एसएमएस पावत्या आणि डीबीटी अपडेट येथे दिसतील.',
+    nav_gatePassReceipts: 'एसएमएस व डीबीटी पावत्या',
 
     modal_welcome: 'शेतकरी खरेदी रांग पोर्टलवर आपले स्वागत आहे',
     modal_selectLanguage: 'कृपया आपली पसंतीची भाषा निवडा',
@@ -1183,6 +1207,10 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     nav_changeLanguage: 'భాష',
     nav_selectLanguage: 'భాషను ఎంచుకోండి',
     nav_myProfile: 'నా ప్రొఫైల్',
+    nav_notifications: 'నోటిఫికేషన్లు & రసీదులు',
+    nav_markAllRead: 'అన్నీ చదివినట్లు గుర్తించు',
+    nav_noNotifications: 'ఇంకా నోటిఫికేషన్‌లు లేవు. SMS రసీదులు మరియు DBT నవీకరణలు ఇక్కడ కనిపిస్తాయి.',
+    nav_gatePassReceipts: 'SMS & DBT రసీదులు',
 
     modal_welcome: 'రైతు సేకరణ క్యూ పోర్టల్‌కు స్వాగతం',
     modal_selectLanguage: 'దయచేసి మీ ప్రాధాన్య భాషను ఎంచుకోండి',
@@ -1377,6 +1405,10 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     nav_changeLanguage: 'மொழி',
     nav_selectLanguage: 'மொழியைத் தேர்வு செய்க',
     nav_myProfile: 'என் சுயவிவரம்',
+    nav_notifications: 'அறிவிப்புகள் & ரசீதுகள்',
+    nav_markAllRead: 'அனைத்தும் படித்ததாகக் குறிக்கவும்',
+    nav_noNotifications: 'இன்னும் அறிவிப்புகள் இல்லை. எஸ்எம்எஸ் ரசீதுகள் மற்றும் டிபிடி விவரங்கள் இங்கே தோன்றும்.',
+    nav_gatePassReceipts: 'எஸ்எம்எஸ் மற்றும் டிபிடி ரசீதுகள்',
 
     modal_welcome: 'விவசாயிகள் கொள்முதல் வரிசை போர்ட்டலுக்கு நல்வரவு',
     modal_selectLanguage: 'உங்கள் விருப்பமான மொழியைத் தேர்ந்தெடுக்கவும்',

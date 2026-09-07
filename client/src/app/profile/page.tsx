@@ -406,30 +406,30 @@ export default function FarmerProfilePage() {
         </div>
 
         {/* Quick KPI Stat Counter */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y sm:divide-y-0 divide-neutral-200 dark:divide-neutral-800 bg-neutral-50 dark:bg-neutral-850 p-3 sm:p-4 text-center text-xs">
-          <div className="p-2">
-            <span className="block text-xl font-extrabold text-neutral-900 dark:text-neutral-100">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 bg-neutral-50/90 dark:bg-neutral-850/90 p-3 sm:p-4 text-center text-xs">
+          <div className="p-3 rounded-xl bg-white dark:bg-neutral-800/80 border border-neutral-200/60 dark:border-neutral-700/60 shadow-2xs">
+            <span className="block text-xl sm:text-2xl font-black text-neutral-900 dark:text-neutral-100">
               {bookings.length}
             </span>
-            <span className="text-[11px] text-neutral-500 font-medium">Total Bookings</span>
+            <span className="text-[11px] text-neutral-500 dark:text-neutral-400 font-medium">Total Bookings</span>
           </div>
-          <div className="p-2">
-            <span className="block text-xl font-extrabold text-brand-600 dark:text-brand-400">
+          <div className="p-3 rounded-xl bg-white dark:bg-neutral-800/80 border border-neutral-200/60 dark:border-neutral-700/60 shadow-2xs">
+            <span className="block text-xl sm:text-2xl font-black text-brand-600 dark:text-brand-400">
               {activeBookings.length}
             </span>
-            <span className="text-[11px] text-neutral-500 font-medium">Active Slots</span>
+            <span className="text-[11px] text-neutral-500 dark:text-neutral-400 font-medium">Active Slots</span>
           </div>
-          <div className="p-2">
-            <span className="block text-xl font-extrabold text-emerald-600 dark:text-emerald-400">
+          <div className="p-3 rounded-xl bg-white dark:bg-neutral-800/80 border border-neutral-200/60 dark:border-neutral-700/60 shadow-2xs">
+            <span className="block text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400">
               {completedBookings.length}
             </span>
-            <span className="text-[11px] text-neutral-500 font-medium">Completed Deliveries</span>
+            <span className="text-[11px] text-neutral-500 dark:text-neutral-400 font-medium">Completed Deliveries</span>
           </div>
-          <div className="p-2">
-            <span className="block text-xl font-extrabold text-neutral-900 dark:text-neutral-100">
+          <div className="p-3 rounded-xl bg-white dark:bg-neutral-800/80 border border-neutral-200/60 dark:border-neutral-700/60 shadow-2xs">
+            <span className="block text-xl sm:text-2xl font-black text-neutral-900 dark:text-neutral-100">
               {farmer.landAreaAcres || 5.2}
             </span>
-            <span className="text-[11px] text-neutral-500 font-medium">Farm Land (Acres)</span>
+            <span className="text-[11px] text-neutral-500 dark:text-neutral-400 font-medium">Farm Land (Acres)</span>
           </div>
         </div>
       </Card>

@@ -239,16 +239,72 @@ export const registerPushToken = asyncHandler(async (req, res) => {
   res.json({ ok: true, data: { registered: true } });
 });
 
+/** GET /api/farmers/public/announcements — public procurement notices & advisories */
+export const getPublicAnnouncements = asyncHandler(async (req, res) => {
+  res.json({
+    ok: true,
+    data: [
+      {
+        _id: 'notice-rabi-2026',
+        title: '🌾 Rabi 2026-27 Procurement Open (रबी उपार्जन सक्रिय)',
+        message: 'Official Government MSP procurement is live across all 18 Mandis. Wheat MSP: ₹2,425/Qtl, Mustard MSP: ₹5,950/Qtl. 20% instant DBT advance guaranteed within 2 hours of arrival.',
+        type: 'general',
+        phone: 'Portal',
+        createdAt: new Date().toISOString(),
+        read: false,
+        isPublic: true,
+      },
+      {
+        _id: 'notice-dbt-fastpay',
+        title: '⚡ PFMS 2-Hour 20% DBT Advance (डीबीटी गारंटी)',
+        message: 'Aadhaar-seeded bank accounts receive 20% produce value immediately upon digital weighment at Mandi weighbridge.',
+        type: 'payment_advance',
+        phone: 'PFMS-DBT',
+        createdAt: new Date(Date.now() - 3600000).toISOString(),
+        read: false,
+        isPublic: true,
+      },
+      {
+        _id: 'notice-slot-pass',
+        title: '📱 Digital Gate Pass & SMS Token (डिजिटल गेट पास)',
+        message: 'Book your time slot in advance to bypass highway tractor congestion. Show digital QR or SMS token at Mandi security entry.',
+        type: 'booking_confirmed',
+        phone: 'GatePass',
+        createdAt: new Date(Date.now() - 7200000).toISOString(),
+        read: false,
+        isPublic: true,
+      },
+    ],
+  });
+});
+
 /** GET /api/farmers/me/notifications */
 export const getNotifications = asyncHandler(async (req, res) => {
   const farmerId = req.farmer._id;
   const phone = req.farmer.phone;
   const filter = phone ? { $or: [{ farmer: farmerId }, { phone }] } : { farmer: farmerId };
 
-  const notifications = await Notification.find(filter)
+  let notifications = await Notification.find(filter)
     .sort({ createdAt: -1 })
     .limit(50)
     .lean();
+
+  if (notifications.length === 0) {
+    try {
+      const welcome = await Notification.create({
+        farmer: farmerId,
+        phone: phone || req.farmer.email || 'Portal',
+        type: 'general',
+        title: '🌾 Welcome to National e-Mandi Portal (ई-उपार्जन में स्वागत है)',
+        message: `Namaste ${req.farmer.name || 'Kisan Bandhu'}! Your farmer portal dossier is verified for Rabi 2026-27. Book procurement slots across 18 Mandis and receive 20% instant DBT safety payouts directly to your Aadhaar-seeded bank account within 2 hours.`,
+        data: { welcome: true },
+        read: false,
+      });
+      notifications = [welcome.toObject()];
+    } catch (err) {
+      console.warn('Auto-seed notification warning:', err);
+    }
+  }
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
