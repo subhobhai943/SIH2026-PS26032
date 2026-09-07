@@ -10,6 +10,7 @@ export type TranslationKey =
   | 'nav_loginRegister'
   | 'nav_changeLanguage'
   | 'nav_selectLanguage'
+  | 'nav_myProfile'
 
   // Language Modal
   | 'modal_welcome'
@@ -211,6 +212,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     nav_loginRegister: 'Register / Sign In',
     nav_changeLanguage: 'Language',
     nav_selectLanguage: 'Choose Language',
+    nav_myProfile: 'My Profile',
 
     modal_welcome: 'Welcome / स्वागत है / ਜੀ ਆਇਆਂ ਨੂੰ',
     modal_selectLanguage: 'Select your preferred language',
@@ -404,6 +406,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     nav_loginRegister: 'पंजीकरण / लॉगिन',
     nav_changeLanguage: 'भाषा',
     nav_selectLanguage: 'भाषा चुनें',
+    nav_myProfile: 'मेरी प्रोफाइल',
 
     modal_welcome: 'किसान खरीद कतार पोर्टल में स्वागत है',
     modal_selectLanguage: 'कृपया अपनी पसंदीदा भाषा चुनें',
@@ -597,6 +600,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     nav_loginRegister: 'ਰਜਿਸਟਰ / ਲਾਗਇਨ',
     nav_changeLanguage: 'ਭਾਸ਼ਾ',
     nav_selectLanguage: 'ਭਾਸ਼ਾ ਚੁਣੋ',
+    nav_myProfile: 'ਮੇਰੀ ਪ੍ਰੋਫਾਈਲ',
 
     modal_welcome: 'ਕਿਸਾਨ ਖਰੀਦ ਕਤਾਰ ਪੋਰਟਲ ਵਿੱਚ ਜੀ ਆਇਆਂ ਨੂੰ',
     modal_selectLanguage: 'ਕਿਰਪਾ ਕਰਕੇ ਆਪਣੀ ਪਸੰਦੀਦਾ ਭਾਸ਼ਾ ਚੁਣੋ',
@@ -790,6 +794,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     nav_loginRegister: 'নিবন্ধন / সাইন ইন',
     nav_changeLanguage: 'ভাষা',
     nav_selectLanguage: 'ভাষা নির্বাচন',
+    nav_myProfile: 'আমার প্রোফাইল',
 
     modal_welcome: 'কৃষক সংগ্রহ কিউ পোর্টালে স্বাগতম',
     modal_selectLanguage: 'আপনার পছন্দের ভাষা নির্বাচন করুন',
@@ -983,6 +988,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     nav_loginRegister: 'नोंदणी / साइन इन',
     nav_changeLanguage: 'भाषा',
     nav_selectLanguage: 'भाषा निवडा',
+    nav_myProfile: 'माझे प्रोफाईल',
 
     modal_welcome: 'शेतकरी खरेदी रांग पोर्टलवर आपले स्वागत आहे',
     modal_selectLanguage: 'कृपया आपली पसंतीची भाषा निवडा',
@@ -1176,6 +1182,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     nav_loginRegister: 'నమోదు / సైన్ ఇన్',
     nav_changeLanguage: 'భాష',
     nav_selectLanguage: 'భాషను ఎంచుకోండి',
+    nav_myProfile: 'నా ప్రొఫైల్',
 
     modal_welcome: 'రైతు సేకరణ క్యూ పోర్టల్‌కు స్వాగతం',
     modal_selectLanguage: 'దయచేసి మీ ప్రాధాన్య భాషను ఎంచుకోండి',
@@ -1369,6 +1376,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     nav_loginRegister: 'பதிவு / உள்நுழைவு',
     nav_changeLanguage: 'மொழி',
     nav_selectLanguage: 'மொழியைத் தேர்வு செய்க',
+    nav_myProfile: 'என் சுயவிவரம்',
 
     modal_welcome: 'விவசாயிகள் கொள்முதல் வரிசை போர்ட்டலுக்கு நல்வரவு',
     modal_selectLanguage: 'உங்கள் விருப்பமான மொழியைத் தேர்ந்தெடுக்கவும்',

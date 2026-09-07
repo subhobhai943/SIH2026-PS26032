@@ -55,14 +55,33 @@ export function SiteHeader() {
     }
   };
 
+  const toggleNotifications = () => {
+    const next = !notifOpen;
+    setNotifOpen(next);
+    if (next && isLoggedIn) {
+      api
+        .get<{ notifications: any[]; unreadCount: number }>('/farmers/me/notifications')
+        .then((res) => {
+          setNotifications(res?.notifications || []);
+          setUnreadCount(res?.unreadCount || 0);
+        })
+        .catch(() => {});
+    }
+  };
+
   useEffect(() => {
     fetchFarmerAndNotifs();
 
     function handleClickOutside(event: MouseEvent) {
+      const target = event.target as HTMLElement | null;
       if (langDropdownRef.current && !langDropdownRef.current.contains(event.target as Node)) {
         setLangMenuOpen(false);
       }
-      if (notifDropdownRef.current && !notifDropdownRef.current.contains(event.target as Node)) {
+      if (
+        notifDropdownRef.current &&
+        !notifDropdownRef.current.contains(event.target as Node) &&
+        !target?.closest?.('.notif-toggle-btn')
+      ) {
         setNotifOpen(false);
       }
     }
@@ -74,7 +93,7 @@ export function SiteHeader() {
       window.removeEventListener('auth:change', fetchFarmerAndNotifs);
       window.removeEventListener('storage', fetchFarmerAndNotifs);
     };
-  }, [pathname]);
+  }, [pathname, isLoggedIn]);
 
   const handleMarkAllRead = async () => {
     try {
@@ -317,8 +336,8 @@ export function SiteHeader() {
               <div className="relative" ref={notifDropdownRef}>
                 <button
                   type="button"
-                  onClick={() => setNotifOpen(!notifOpen)}
-                  className="relative flex items-center justify-center h-8 w-8 rounded-xl border border-neutral-200 bg-neutral-50 text-neutral-700 hover:border-brand-300 hover:bg-white dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 transition"
+                  onClick={toggleNotifications}
+                  className="notif-toggle-btn relative flex items-center justify-center h-8 w-8 rounded-xl border border-neutral-200 bg-neutral-50 text-neutral-700 hover:border-brand-300 hover:bg-white dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 transition cursor-pointer"
                   aria-label="Notifications"
                 >
                   <IconBell className="h-4 w-4" />
@@ -341,7 +360,7 @@ export function SiteHeader() {
                       {unreadCount > 0 && (
                         <button
                           onClick={handleMarkAllRead}
-                          className="text-[11px] font-semibold text-brand-700 dark:text-brand-400 hover:underline"
+                          className="text-[11px] font-semibold text-brand-700 dark:text-brand-400 hover:underline cursor-pointer"
                         >
                           Mark all read
                         </button>
@@ -351,6 +370,7 @@ export function SiteHeader() {
                     <div className="max-h-80 overflow-y-auto divide-y divide-neutral-100 dark:divide-neutral-800">
                       {notifications.length === 0 ? (
                         <div className="p-6 text-center text-xs text-neutral-500">
+                          <span className="text-2xl block mb-1.5">📭</span>
                           No notifications yet. SMS receipts and payment updates will appear here.
                         </div>
                       ) : (
@@ -365,7 +385,7 @@ export function SiteHeader() {
                               <span className="font-bold text-neutral-900 dark:text-neutral-100 truncate">
                                 {n.title}
                               </span>
-                              <span className="text-[10px] text-neutral-400 shrink-0">
+                              <span className="text-[10px] text-neutral-400 shrink-0 font-mono">
                                 {new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                               </span>
                             </div>
@@ -404,12 +424,21 @@ export function SiteHeader() {
 
               {/* Farmer Profile Pill */}
               <a
-                href="/status"
+                href="/profile"
                 className="flex items-center gap-1.5 rounded-xl border border-emerald-300 bg-emerald-50 px-2.5 py-1.5 text-xs font-bold text-emerald-900 hover:bg-emerald-100 dark:border-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-200 transition"
-                title="View Farmer Dossier"
+                title={t('nav_myProfile')}
               >
-                <span className="text-sm">👤</span>
-                <span className="max-w-[90px] truncate">{farmer?.name || farmer?.phone || 'Farmer'}</span>
+                {farmer?.photoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={farmer.photoUrl}
+                    alt={farmer.name || 'Farmer'}
+                    className="h-4.5 w-4.5 rounded-full object-cover ring-1 ring-emerald-500/40 shrink-0"
+                  />
+                ) : (
+                  <span className="text-xs">👤</span>
+                )}
+                <span className="max-w-[90px] truncate">{farmer?.name || farmer?.phone || t('nav_myProfile')}</span>
               </a>
 
               {/* Sign Out Button */}
@@ -421,7 +450,7 @@ export function SiteHeader() {
                   setFarmer(null);
                   window.location.href = '/';
                 }}
-                className="rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-xs font-semibold text-neutral-600 hover:bg-neutral-100 hover:text-red-600 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700 dark:hover:text-red-400 transition"
+                className="rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-xs font-semibold text-neutral-600 hover:bg-neutral-100 hover:text-red-600 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-700 dark:hover:text-red-400 transition cursor-pointer"
               >
                 Sign Out
               </button>
@@ -438,17 +467,17 @@ export function SiteHeader() {
 
         {/* Mobile controls */}
         <div className="flex items-center gap-1.5 md:hidden">
-          {/* Mobile Notifications */}
+          {/* Mobile Notifications Bell */}
           {isLoggedIn && (
             <button
               type="button"
-              onClick={() => setNotifOpen(!notifOpen)}
-              className="relative flex items-center justify-center h-8 w-8 rounded-lg border border-neutral-200 bg-neutral-50 text-neutral-700 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
+              onClick={toggleNotifications}
+              className="notif-toggle-btn relative flex items-center justify-center h-8 w-8 rounded-lg border border-neutral-200 bg-neutral-50 text-neutral-700 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 cursor-pointer"
               aria-label="Notifications"
             >
               <IconBell className="h-4 w-4" />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 text-[9px] font-extrabold text-white">
+                <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 text-[9px] font-extrabold text-white animate-pulse">
                   {unreadCount}
                 </span>
               )}
@@ -475,9 +504,151 @@ export function SiteHeader() {
         </div>
       </div>
 
+      {/* Mobile Notifications Modal Drawer (Visible on mobile when notifOpen is true) */}
+      {notifOpen && (
+        <div
+          className="fixed inset-0 z-50 flex flex-col justify-end bg-black/60 backdrop-blur-xs p-0 md:hidden"
+          onClick={() => setNotifOpen(false)}
+        >
+          <div
+            className="w-full max-h-[85vh] rounded-t-3xl border-t border-neutral-200 bg-white shadow-2xl dark:border-neutral-800 dark:bg-neutral-900 flex flex-col overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-4 py-3.5 bg-neutral-50 dark:bg-neutral-800/80 border-b border-neutral-200 dark:border-neutral-700">
+              <div className="flex items-center gap-2">
+                <span className="text-base">🔔</span>
+                <span className="text-xs font-bold text-neutral-900 dark:text-neutral-100">
+                  SMS & DBT Receipts (एसएमएस व रसीदें)
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                {unreadCount > 0 && (
+                  <button
+                    onClick={handleMarkAllRead}
+                    className="text-xs font-semibold text-brand-700 dark:text-brand-400 hover:underline px-2 py-1 rounded"
+                  >
+                    Mark read
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setNotifOpen(false)}
+                  className="p-1 rounded-lg text-neutral-500 hover:bg-neutral-200 dark:hover:bg-neutral-700"
+                  aria-label="Close"
+                >
+                  <IconClose className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto divide-y divide-neutral-100 dark:divide-neutral-800 p-2">
+              {notifications.length === 0 ? (
+                <div className="py-12 text-center text-xs text-neutral-500">
+                  <span className="text-3xl block mb-2">📭</span>
+                  No notifications yet. SMS receipts and payment updates will appear here.
+                </div>
+              ) : (
+                notifications.map((n) => (
+                  <div
+                    key={n._id}
+                    className={`p-3.5 transition text-xs rounded-xl mb-1.5 ${
+                      !n.read ? 'bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200/50' : 'bg-neutral-50 dark:bg-neutral-800/50'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <span className="font-bold text-neutral-900 dark:text-neutral-100 truncate">
+                        {n.title}
+                      </span>
+                      <span className="text-[10px] text-neutral-400 shrink-0 font-mono">
+                        {new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                    <p className="text-neutral-700 dark:text-neutral-300 leading-relaxed font-mono text-[11px] bg-white/80 dark:bg-neutral-900/80 p-2.5 rounded-lg border border-neutral-200 dark:border-neutral-700">
+                      {n.message}
+                    </p>
+                    <div className="mt-2 flex items-center justify-between text-[11px]">
+                      <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold flex items-center gap-1">
+                        ✓ SMS Sent to +91 {n.phone}
+                      </span>
+                      <a
+                        href="/status"
+                        onClick={() => setNotifOpen(false)}
+                        className="font-bold text-brand-700 dark:text-brand-400 hover:underline"
+                      >
+                        View Voucher ➔
+                      </a>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="p-3 border-t border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50 text-center">
+              <a
+                href="/status"
+                onClick={() => setNotifOpen(false)}
+                className="block w-full py-2 text-xs font-bold text-brand-700 dark:text-brand-400 hover:underline"
+              >
+                View Full DBT Payment & Queue Dossier ➔
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Mobile menu — full-width slide-down */}
       {open && (
         <nav ref={mobileMenuRef} className="border-t border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900 px-3 py-2 md:hidden safe-bottom">
+          {/* Authenticated Farmer Card in Mobile Menu */}
+          {isLoggedIn && (
+            <div className="mb-2.5 p-3 rounded-2xl bg-gradient-to-r from-emerald-50 to-brand-50/50 dark:from-emerald-950/50 dark:to-neutral-800/80 border border-emerald-200 dark:border-emerald-800 flex items-center justify-between shadow-xs">
+              <div className="flex items-center gap-2.5 min-w-0">
+                {farmer?.photoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={farmer.photoUrl}
+                    alt={farmer?.name || 'Farmer'}
+                    className="h-10 w-10 rounded-xl object-cover ring-2 ring-emerald-500/30 shrink-0"
+                  />
+                ) : (
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200 font-bold shrink-0 text-lg">
+                    🌾
+                  </div>
+                )}
+                <div className="min-w-0 flex-1">
+                  <div className="text-xs font-extrabold text-neutral-900 dark:text-neutral-100 truncate">
+                    {farmer?.name || 'Registered Farmer'}
+                  </div>
+                  <div className="text-[11px] font-mono text-neutral-600 dark:text-neutral-400 truncate">
+                    {farmer?.phone ? `+91 ${farmer.phone}` : (farmer as any)?.email || 'Verified Account'}
+                  </div>
+                </div>
+              </div>
+              <a
+                href="/profile"
+                onClick={() => setOpen(false)}
+                className="shrink-0 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-2 text-xs font-extrabold shadow-xs transition flex items-center gap-1"
+              >
+                <span>{t('nav_myProfile')}</span>
+                <span>➔</span>
+              </a>
+            </div>
+          )}
+
+          {isLoggedIn && (
+            <a
+              href="/profile"
+              onClick={() => setOpen(false)}
+              className={`mobile-nav-link block rounded-lg px-3 py-3 text-sm font-semibold transition ${
+                pathname === '/profile'
+                  ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300'
+                  : 'text-neutral-700 hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-neutral-800'
+              }`}
+            >
+              👤 {t('nav_myProfile')} (मेरी प्रोफाइल)
+            </a>
+          )}
+
           {navLinks.map((link) => (
             <a
               key={link.href}

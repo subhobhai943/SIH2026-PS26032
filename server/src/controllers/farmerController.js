@@ -243,10 +243,9 @@ export const registerPushToken = asyncHandler(async (req, res) => {
 export const getNotifications = asyncHandler(async (req, res) => {
   const farmerId = req.farmer._id;
   const phone = req.farmer.phone;
+  const filter = phone ? { $or: [{ farmer: farmerId }, { phone }] } : { farmer: farmerId };
 
-  const notifications = await Notification.find({
-    $or: [{ farmer: farmerId }, { phone }],
-  })
+  const notifications = await Notification.find(filter)
     .sort({ createdAt: -1 })
     .limit(50)
     .lean();
@@ -266,11 +265,9 @@ export const getNotifications = asyncHandler(async (req, res) => {
 export const markAllNotificationsRead = asyncHandler(async (req, res) => {
   const farmerId = req.farmer._id;
   const phone = req.farmer.phone;
+  const filter = phone ? { $or: [{ farmer: farmerId }, { phone }], read: false } : { farmer: farmerId, read: false };
 
-  await Notification.updateMany(
-    { $or: [{ farmer: farmerId }, { phone }], read: false },
-    { $set: { read: true } }
-  );
+  await Notification.updateMany(filter, { $set: { read: true } });
 
   res.json({ ok: true, data: { marked: true } });
 });
@@ -279,9 +276,12 @@ export const markAllNotificationsRead = asyncHandler(async (req, res) => {
 export const markNotificationRead = asyncHandler(async (req, res) => {
   const farmerId = req.farmer._id;
   const phone = req.farmer.phone;
+  const filter = phone
+    ? { _id: req.params.id, $or: [{ farmer: farmerId }, { phone }] }
+    : { _id: req.params.id, farmer: farmerId };
 
   const notification = await Notification.findOneAndUpdate(
-    { _id: req.params.id, $or: [{ farmer: farmerId }, { phone }] },
+    filter,
     { $set: { read: true } },
     { new: true }
   );
