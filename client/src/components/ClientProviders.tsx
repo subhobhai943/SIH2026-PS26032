@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { usePathname } from 'next/navigation';
 import { LanguageProvider } from '@/lib/i18n/LanguageContext';
 import { ThemeProvider } from '@/lib/theme/ThemeContext';
 import { LanguageModal } from '@/components/LanguageModal';
@@ -8,6 +9,21 @@ import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
 
 export function ClientProviders({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const isStaffArea = Boolean(pathname?.startsWith('/admin') || pathname?.startsWith('/operator'));
+
+  if (isStaffArea) {
+    return (
+      <ThemeProvider>
+        <LanguageProvider>
+          <div className="relative min-h-screen flex flex-col w-full bg-neutral-100 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
+            {children}
+          </div>
+        </LanguageProvider>
+      </ThemeProvider>
+    );
+  }
+
   return (
     <ThemeProvider>
       <LanguageProvider>

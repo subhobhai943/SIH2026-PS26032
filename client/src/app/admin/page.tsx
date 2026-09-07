@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { Alert, Button, Card, EmptyState, PageHeader, StatTile, StatusBadge, TextField } from '@/components/ui';
 import {
   IconAdmin,
@@ -204,6 +205,7 @@ type DatabaseOverview = {
 
 export default function AdminPage() {
   const [token, setToken] = useState<string | null>(null);
+  const [staffUser, setStaffUser] = useState<{ name?: string; role?: string; username?: string; email?: string } | null>(null);
   const [usernameOrEmail, setUsernameOrEmail] = useState('');
   const [password, setPassword] = useState('');
   const [failedAttempts, setFailedAttempts] = useState(0);
@@ -318,7 +320,12 @@ export default function AdminPage() {
 
 
   useEffect(() => {
-    setToken(window.localStorage.getItem(ADMIN_TOKEN_KEY));
+    const savedToken = window.localStorage.getItem(ADMIN_TOKEN_KEY);
+    setToken(savedToken);
+    try {
+      const savedStaff = window.localStorage.getItem('sih26032_admin_staff');
+      if (savedStaff) setStaffUser(JSON.parse(savedStaff));
+    } catch {}
   }, []);
 
   const loadCenters = async () => {
@@ -377,7 +384,11 @@ export default function AdminPage() {
       setFailedAttempts(0);
       window.localStorage.setItem(ADMIN_TOKEN_KEY, body.data.token);
       setToken(body.data.token);
-      if (body.data.staff.center) setCenterId(body.data.staff.center);
+      if (body.data.staff) {
+        window.localStorage.setItem('sih26032_admin_staff', JSON.stringify(body.data.staff));
+        setStaffUser(body.data.staff);
+      }
+      if (body.data?.staff?.center) setCenterId(body.data.staff.center);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -987,56 +998,82 @@ export default function AdminPage() {
 
   function signOut() {
     window.localStorage.removeItem(ADMIN_TOKEN_KEY);
+    window.localStorage.removeItem('sih26032_admin_staff');
     setToken(null);
+    setStaffUser(null);
     setQueue(null);
   }
 
   if (!token) {
     return (
-      <div className="mx-auto max-w-sm">
-        <PageHeader
-          eyebrow="Staff & System Access"
-          title="Procurement centre login"
-          subtitle="Sign in to manage farmer queues, approve produce, release DBT payments, and monitor load balancers."
-        />
-        <Card className="p-6 shadow-md border border-neutral-200">
-          {error && (
-            <div className="mb-4">
-              <Alert>{error}</Alert>
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-neutral-100 dark:bg-neutral-950">
+        <div className="w-full max-w-md">
+          {/* Staff Brand Header */}
+          <div className="text-center mb-6">
+            <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/10 border border-amber-500/30 text-2xl shadow-inner mb-3">
+              🏛️
             </div>
-          )}
+            <div className="flex items-center justify-center gap-1.5 mb-2">
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-700">
+                Staff Admin Portal · Restricted
+              </span>
+            </div>
+            <h1 className="text-2xl font-black text-neutral-900 dark:text-white tracking-tight">
+              Procurement Centre Login
+            </h1>
+            <p className="mt-1.5 text-xs text-neutral-600 dark:text-neutral-400 max-w-sm mx-auto">
+              Sign in to manage farmer queues, approve produce, release DBT payments, and monitor load balancers.
+            </p>
+          </div>
 
-          {failedAttempts >= 3 && !lockoutUntil && (
-            <div className="mb-4 rounded-2xl bg-red-50/90 p-3.5 border border-red-200 text-xs text-red-900">
-              <div className="flex items-center gap-1.5 font-bold">
-                <IconShieldCheck className="h-4 w-4 text-red-700" />
-                <span>Warning: {failedAttempts} failed attempts detected</span>
+          <Card className="p-6 sm:p-8 shadow-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
+            {error && (
+              <div className="mb-4">
+                <Alert>{error}</Alert>
               </div>
-              <p className="mt-1 text-red-800">Your account may be locked after continued failed attempts.</p>
-            </div>
-          )}
+            )}
 
-          <form onSubmit={login} className="space-y-4">
-            <TextField
-              label="Username or Email"
-              value={usernameOrEmail}
-              onChange={(e) => setUsernameOrEmail(e.target.value)}
-              placeholder="Enter your username or email"
-              disabled={!!lockoutUntil}
-            />
-            <TextField
-              label="Password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              disabled={!!lockoutUntil}
-            />
-            <Button type="submit" loading={loginLoading} disabled={!!lockoutUntil} className="w-full">
-              <IconAdmin className="h-4 w-4" /> Sign In to Admin Console
-            </Button>
-          </form>
-        </Card>
+            {failedAttempts >= 3 && !lockoutUntil && (
+              <div className="mb-4 rounded-2xl bg-red-50/90 dark:bg-red-950/40 p-3.5 border border-red-200 dark:border-red-900 text-xs text-red-900 dark:text-red-300">
+                <div className="flex items-center gap-1.5 font-bold">
+                  <IconShieldCheck className="h-4 w-4 text-red-700 dark:text-red-400" />
+                  <span>Warning: {failedAttempts} failed attempts detected</span>
+                </div>
+                <p className="mt-1 text-red-800 dark:text-red-400">Your account may be locked after continued failed attempts.</p>
+              </div>
+            )}
+
+            <form onSubmit={login} className="space-y-4">
+              <TextField
+                label="Username or Email"
+                value={usernameOrEmail}
+                onChange={(e) => setUsernameOrEmail(e.target.value)}
+                placeholder="Enter your username or email"
+                disabled={!!lockoutUntil}
+              />
+              <TextField
+                label="Password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                disabled={!!lockoutUntil}
+              />
+              <Button type="submit" loading={loginLoading} disabled={!!lockoutUntil} className="w-full">
+                <IconAdmin className="h-4 w-4" /> Sign In to Admin Console
+              </Button>
+            </form>
+          </Card>
+
+          <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-neutral-500 dark:text-neutral-400 px-2">
+            <Link href="/" className="hover:text-neutral-900 dark:hover:text-white transition flex items-center gap-1">
+              ← Return to Citizen Mandi Portal
+            </Link>
+            <Link href="/operator" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition flex items-center gap-1 font-mono font-medium">
+              Operator Terminal [CLI] ➔
+            </Link>
+          </div>
+        </div>
       </div>
     );
   }
@@ -1058,23 +1095,75 @@ export default function AdminPage() {
   const totalDailyCapacity = centers.reduce((sum, c) => sum + (c.dailyCapacity || 200), 0);
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <PageHeader eyebrow="Admin console" title="Queue & Procurement operations" subtitle="Manage farmers, weigh crops, and release 20% safety advance payments." />
-        <div className="flex items-center gap-2">
-          <a
-            href="/operator"
-            className="inline-flex items-center gap-1.5 rounded-xl bg-neutral-900 hover:bg-black text-emerald-400 border border-neutral-800 px-3 py-1.5 text-xs font-bold transition shadow-xs"
-            title="Open backend server operator terminal & live logs"
-          >
-            <span>🖥️ Operator Terminal</span>
-            <span className="rounded bg-emerald-950 border border-emerald-500/40 text-emerald-300 text-[10px] px-1 font-mono">CLI</span>
-          </a>
-          <Button variant="ghost" size="sm" onClick={signOut}>
-            Sign out
-          </Button>
+    <div className="min-h-screen bg-neutral-100 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 flex flex-col font-sans">
+      {/* Top Administrative Bar */}
+      <header className="border-b border-neutral-200 dark:border-neutral-800 bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md px-4 sm:px-6 py-2.5 sticky top-0 z-40 shadow-xs">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
+          {/* Brand & Staff Badges */}
+          <div className="flex items-center gap-3 min-w-0">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/10 border border-amber-500/30 text-lg shadow-xs shrink-0">
+              🏛️
+            </span>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <h1 className="text-sm sm:text-base font-black text-neutral-900 dark:text-white tracking-tight truncate">
+                  Smart Mandi Admin
+                </h1>
+                <span className="rounded bg-amber-100 dark:bg-amber-950/80 border border-amber-300 dark:border-amber-700/60 text-amber-800 dark:text-amber-300 px-1.5 py-0.2 text-[10px] font-mono font-bold uppercase tracking-wider">
+                  {staffUser?.role || 'STAFF ADMIN'}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 text-[11px] font-mono text-neutral-500 dark:text-neutral-400 truncate">
+                <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                  ONLINE
+                </span>
+                <span>·</span>
+                <span>Center: {centers.find((c) => c._id === centerId)?.name || 'Central Office'}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Switchers & User Actions */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <Link
+              href="/operator"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-neutral-900 hover:bg-black text-emerald-400 border border-neutral-800 px-3 py-1.5 text-xs font-bold transition shadow-xs"
+              title="Open backend server operator terminal & live logs"
+            >
+              <span>🖥️ Operator Terminal</span>
+              <span className="rounded bg-emerald-950 border border-emerald-500/40 text-emerald-300 text-[10px] px-1 font-mono">CLI</span>
+            </Link>
+
+            <Link
+              href="/"
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-750 text-neutral-700 dark:text-neutral-200 px-3 py-1.5 text-xs font-semibold transition shadow-xs"
+              title="View public citizen mandi website"
+            >
+              <span>🌐 Citizen View</span>
+            </Link>
+
+            <div className="h-6 w-px bg-neutral-200 dark:border-neutral-800 hidden sm:block" />
+
+            <div className="flex items-center gap-2">
+              <span className="hidden md:inline text-xs font-semibold text-neutral-700 dark:text-neutral-300 truncate max-w-[120px]">
+                {staffUser?.name || staffUser?.username || 'Admin'}
+              </span>
+              <Button variant="ghost" size="sm" onClick={signOut} className="text-xs">
+                Sign Out
+              </Button>
+            </div>
+          </div>
         </div>
-      </div>
+      </header>
+
+      {/* Main Administrative Container */}
+      <main className="max-w-7xl mx-auto w-full flex-1 p-4 sm:p-6 space-y-6">
+        <PageHeader
+          eyebrow="Admin console"
+          title="Queue & Procurement operations"
+          subtitle="Manage farmers, weigh crops, and release 20% safety advance payments."
+        />
 
       {/* Admin Module Navigation Tabs */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 border-b border-neutral-200 pb-3 flex-wrap">
@@ -4112,6 +4201,7 @@ export default function AdminPage() {
           </div>
         </div>
       )}
+      </main>
     </div>
   );
 }
