@@ -22,6 +22,7 @@ import Notification from '../models/Notification.js';
 import Shipment from '../models/Shipment.js';
 import Review from '../models/Review.js';
 import Otp from '../models/Otp.js';
+import Announcement from '../models/Announcement.js';
 
 // ---------------------------------------------------------------- auth
 
@@ -758,6 +759,7 @@ export const getDatabaseOverview = asyncHandler(async (req, res) => {
     notifications: { label: 'Digital SMS & WA Audit', icon: '📲', description: 'Transactional SMS receipts, WhatsApp bot dispatches, and delivery logs' },
     shipments: { label: '3rd-Party Logistics', icon: '🚚', description: 'Delhivery / carrier consignments, vehicle numbers, drivers, and GPS transit checkpoints' },
     reviews: { label: 'Buyer Quality Ratings', icon: '⭐', description: 'Grain inspection feedback and farmer reputation ratings from bulk buyers and FCI officers' },
+    announcements: { label: 'Announcements & Advisories', icon: '📢', description: 'Official Government advisories, MSP bulletins, weather warnings, and urgent Mandi broadcasts' },
     staffs: { label: 'Staff & Operators', icon: '🛡️', description: 'Admin, operator, and weighing clerk credentials with center-level scoping' },
     otps: { label: 'Phone Verification OTPs', icon: '🔐', description: 'Temporary OTP audit logs with expiration TTL indexes' },
   };
@@ -932,5 +934,135 @@ export const getDocumentDetails = asyncHandler(async (req, res) => {
   if (!doc) throw ApiError.notFound('Document not found');
 
   res.json({ ok: true, data: sanitizeDocument(doc, name) });
+});
+
+// ---------------------------------------------------------------- announcements
+
+const announcementSchema = z.object({
+  title: z.string().min(3, 'Title must be at least 3 characters').max(150),
+  message: z.string().min(5, 'Message must be at least 5 characters').max(1000),
+  type: z
+    .enum(['general', 'msp', 'payment_advance', 'booking_confirmed', 'weather', 'emergency', 'logistics'])
+    .default('general'),
+  priority: z.enum(['low', 'normal', 'high', 'urgent']).default('normal'),
+  isActive: z.boolean().default(true),
+  targetAudience: z.enum(['all', 'farmers', 'staff', 'public']).default('all'),
+  state: z.string().optional().default('All India'),
+  crop: z.string().optional().default('All Crops'),
+  authorName: z.string().optional(),
+});
+
+/** GET /api/admin/announcements — List all announcements with filtering and statistics */
+export const listAnnouncements = asyncHandler(async (req, res) => {
+  const { search, type, status, priority } = req.query;
+
+  const filter = {};
+
+  if (search && typeof search === 'string' && search.trim()) {
+    const s = escapeRegex(search.trim());
+    filter.$or = [
+      { title: { $regex: s, $options: 'i' } },
+      { message: { $regex: s, $options: 'i' } },
+      { state: { $regex: s, $options: 'i' } },
+    ];
+  }
+
+  if (type && type !== 'all') {
+    filter.type = type;
+  }
+
+  if (priority && priority !== 'all') {
+    filter.priority = priority;
+  }
+
+  if (status === 'active') {
+    filter.isActive = true;
+  } else if (status === 'inactive') {
+    filter.isActive = false;
+  }
+
+  const announcements = await Announcement.find(filter)
+    .sort({ priority: -1, createdAt: -1 })
+    .lean();
+
+  const total = await Announcement.countDocuments();
+  const activeCount = await Announcement.countDocuments({ isActive: true });
+  const urgentCount = await Announcement.countDocuments({ priority: { $in: ['urgent', 'high'] }, isActive: true });
+
+  res.json({
+    ok: true,
+    data: {
+      announcements,
+      stats: {
+        total,
+        activeCount,
+        inactiveCount: total - activeCount,
+        urgentCount,
+      },
+    },
+  });
+});
+
+/** POST /api/admin/announcements — Create a new announcement */
+export const createAnnouncement = asyncHandler(async (req, res) => {
+  const payload = parse(announcementSchema, req.body);
+
+  const announcement = await Announcement.create({
+    ...payload,
+    authorName: req.staff?.name || payload.authorName || 'Admin Staff',
+  });
+
+  res.status(201).json({
+    ok: true,
+    data: announcement,
+  });
+});
+
+/** PUT /api/admin/announcements/:id — Update existing announcement */
+export const updateAnnouncement = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const payload = parse(announcementSchema.partial(), req.body);
+
+  const announcement = await Announcement.findByIdAndUpdate(
+    id,
+    { $set: payload },
+    { new: true, runValidators: true }
+  );
+
+  if (!announcement) throw ApiError.notFound('Announcement not found');
+
+  res.json({
+    ok: true,
+    data: announcement,
+  });
+});
+
+/** PATCH /api/admin/announcements/:id/toggle — Toggle active/inactive status */
+export const toggleAnnouncement = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const announcement = await Announcement.findById(id);
+  if (!announcement) throw ApiError.notFound('Announcement not found');
+
+  announcement.isActive = !announcement.isActive;
+  await announcement.save();
+
+  res.json({
+    ok: true,
+    data: announcement,
+  });
+});
+
+/** DELETE /api/admin/announcements/:id — Delete announcement */
+export const deleteAnnouncement = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const announcement = await Announcement.findByIdAndDelete(id);
+  if (!announcement) throw ApiError.notFound('Announcement not found');
+
+  res.json({
+    ok: true,
+    data: { deleted: true, id },
+  });
 });
 

@@ -151,6 +151,28 @@ type FarmerDossier = {
   }>;
 };
 
+type AnnouncementItem = {
+  _id: string;
+  title: string;
+  message: string;
+  type: string;
+  priority: 'low' | 'normal' | 'high' | 'urgent';
+  isActive: boolean;
+  targetAudience: string;
+  state: string;
+  crop: string;
+  authorName?: string;
+  createdAt: string;
+  updatedAt?: string;
+};
+
+type AnnouncementStats = {
+  total: number;
+  activeCount: number;
+  inactiveCount: number;
+  urgentCount: number;
+};
+
 type DatabaseCollectionInfo = {
   name: string;
   displayName: string;
@@ -188,7 +210,7 @@ export default function AdminPage() {
   const [lockoutUntil, setLockoutUntil] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loginLoading, setLoginLoading] = useState(false);
-  const [adminTab, setAdminTab] = useState<'queue' | 'users' | 'database' | 'system' | 'reviews' | 'centers'>('queue');
+  const [adminTab, setAdminTab] = useState<'queue' | 'users' | 'database' | 'system' | 'reviews' | 'centers' | 'announcements'>('queue');
   const [systemMetrics, setSystemMetrics] = useState<any>(null);
 
   const [metricsLoading, setMetricsLoading] = useState(false);
@@ -219,6 +241,29 @@ export default function AdminPage() {
     openTime: '08:00',
     closeTime: '17:00',
     contactPhone: '',
+  });
+
+  // Announcements Management state
+  const [announcements, setAnnouncements] = useState<AnnouncementItem[]>([]);
+  const [announcementsStats, setAnnouncementsStats] = useState<AnnouncementStats | null>(null);
+  const [announcementsLoading, setAnnouncementsLoading] = useState(false);
+  const [announcementModalOpen, setAnnouncementModalOpen] = useState(false);
+  const [editingAnnouncement, setEditingAnnouncement] = useState<AnnouncementItem | null>(null);
+  const [announcementActionLoading, setAnnouncementActionLoading] = useState<string | null>(null);
+  const [announcementFeedback, setAnnouncementFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [announcementSearch, setAnnouncementSearch] = useState('');
+  const [announcementTypeFilter, setAnnouncementTypeFilter] = useState('all');
+  const [announcementPriorityFilter, setAnnouncementPriorityFilter] = useState('all');
+  const [announcementStatusFilter, setAnnouncementStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [announcementForm, setAnnouncementForm] = useState({
+    title: '',
+    message: '',
+    type: 'general',
+    priority: 'normal' as 'low' | 'normal' | 'high' | 'urgent',
+    isActive: true,
+    targetAudience: 'all',
+    state: 'All India',
+    crop: 'All Crops',
   });
 
   // Crop Purchase & 20% Advance modal state
@@ -348,6 +393,139 @@ export default function AdminPage() {
     const body = await res.json();
     if (!res.ok || !body.ok) throw new Error(body?.error?.message || 'Request failed');
     return body.data;
+  }
+
+  async function loadAnnouncements() {
+    setAnnouncementsLoading(true);
+    setAnnouncementFeedback(null);
+    try {
+      const params = new URLSearchParams();
+      if (announcementSearch.trim()) params.set('search', announcementSearch.trim());
+      if (announcementTypeFilter !== 'all') params.set('type', announcementTypeFilter);
+      if (announcementPriorityFilter !== 'all') params.set('priority', announcementPriorityFilter);
+      if (announcementStatusFilter !== 'all') params.set('status', announcementStatusFilter);
+
+      const data = await callAuthed(`/admin/announcements?${params.toString()}`);
+      setAnnouncements(data?.announcements || []);
+      setAnnouncementsStats(data?.stats || null);
+    } catch (err: any) {
+      setAnnouncementFeedback({ type: 'error', message: err.message || 'Failed to load announcements' });
+    } finally {
+      setAnnouncementsLoading(false);
+    }
+  }
+
+  async function handleToggleAnnouncement(id: string) {
+    setAnnouncementActionLoading(id);
+    try {
+      const updated = await callAuthed(`/admin/announcements/${id}/toggle`, { method: 'PATCH' });
+      setAnnouncements((prev) => prev.map((a) => (a._id === id ? { ...a, isActive: updated.isActive } : a)));
+      setAnnouncementsStats((prev) => {
+        if (!prev) return prev;
+        const diff = updated.isActive ? 1 : -1;
+        return {
+          ...prev,
+          activeCount: Math.max(0, prev.activeCount + diff),
+          inactiveCount: Math.max(0, prev.inactiveCount - diff),
+        };
+      });
+      setAnnouncementFeedback({
+        type: 'success',
+        message: `Announcement ${updated.isActive ? 'activated (live on portal)' : 'deactivated (hidden)'}`,
+      });
+      setTimeout(() => setAnnouncementFeedback(null), 3000);
+    } catch (err: any) {
+      setAnnouncementFeedback({ type: 'error', message: err.message || 'Failed to toggle status' });
+    } finally {
+      setAnnouncementActionLoading(null);
+    }
+  }
+
+  async function handleDeleteAnnouncement(id: string) {
+    if (!window.confirm('Are you sure you want to permanently delete this announcement?')) return;
+    setAnnouncementActionLoading(id);
+    try {
+      await callAuthed(`/admin/announcements/${id}`, { method: 'DELETE' });
+      setAnnouncements((prev) => prev.filter((a) => a._id !== id));
+      setAnnouncementsStats((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          total: Math.max(0, prev.total - 1),
+          activeCount: Math.max(0, prev.activeCount - 1),
+        };
+      });
+      setAnnouncementFeedback({ type: 'success', message: 'Announcement deleted successfully' });
+      setTimeout(() => setAnnouncementFeedback(null), 3000);
+    } catch (err: any) {
+      setAnnouncementFeedback({ type: 'error', message: err.message || 'Failed to delete announcement' });
+    } finally {
+      setAnnouncementActionLoading(null);
+    }
+  }
+
+  function openCreateAnnouncementModal() {
+    setEditingAnnouncement(null);
+    setAnnouncementForm({
+      title: '',
+      message: '',
+      type: 'general',
+      priority: 'normal',
+      isActive: true,
+      targetAudience: 'all',
+      state: 'All India',
+      crop: 'All Crops',
+    });
+    setAnnouncementModalOpen(true);
+  }
+
+  function openEditAnnouncementModal(item: AnnouncementItem) {
+    setEditingAnnouncement(item);
+    setAnnouncementForm({
+      title: item.title,
+      message: item.message,
+      type: item.type,
+      priority: item.priority,
+      isActive: item.isActive,
+      targetAudience: item.targetAudience || 'all',
+      state: item.state || 'All India',
+      crop: item.crop || 'All Crops',
+    });
+    setAnnouncementModalOpen(true);
+  }
+
+  async function handleSaveAnnouncement(e: React.FormEvent) {
+    e.preventDefault();
+    if (!announcementForm.title.trim() || !announcementForm.message.trim()) {
+      setAnnouncementFeedback({ type: 'error', message: 'Title and message are required' });
+      return;
+    }
+
+    setAnnouncementActionLoading('save');
+    try {
+      if (editingAnnouncement) {
+        const updated = await callAuthed(`/admin/announcements/${editingAnnouncement._id}`, {
+          method: 'PUT',
+          body: JSON.stringify(announcementForm),
+        });
+        setAnnouncements((prev) => prev.map((a) => (a._id === editingAnnouncement._id ? updated : a)));
+        setAnnouncementFeedback({ type: 'success', message: 'Announcement updated successfully' });
+      } else {
+        const created = await callAuthed('/admin/announcements', {
+          method: 'POST',
+          body: JSON.stringify(announcementForm),
+        });
+        setAnnouncements((prev) => [created, ...prev]);
+        setAnnouncementFeedback({ type: 'success', message: 'Announcement published successfully' });
+      }
+      setAnnouncementModalOpen(false);
+      loadAnnouncements();
+      setTimeout(() => setAnnouncementFeedback(null), 4000);
+    } catch (err: any) {
+      setAnnouncementFeedback({ type: 'error', message: err.message || 'Failed to save announcement' });
+    } finally {
+      setAnnouncementActionLoading(null);
+    }
   }
 
   async function loadQueue() {
@@ -497,6 +675,7 @@ export default function AdminPage() {
     if (token && adminTab === 'system') loadSystemMetrics();
     if (token && adminTab === 'reviews') loadAdminReviews();
     if (token && adminTab === 'users') loadFarmers(1);
+    if (token && adminTab === 'announcements') loadAnnouncements();
     if (token && adminTab === 'database') {
       loadDatabaseOverview();
       loadCollectionData(activeCollection, 1, collectionSearch);
@@ -944,6 +1123,20 @@ export default function AdminPage() {
           }`}
         >
           <span>🏛️ Procurement Centres ({centers.length})</span>
+        </button>
+<button
+          type="button"
+          onClick={() => {
+            setAdminTab('announcements');
+            loadAnnouncements();
+          }}
+          className={`rounded-xl px-4 py-2.5 sm:py-2 text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+            adminTab === 'announcements'
+              ? 'bg-brand-700 text-white shadow-sm'
+              : 'bg-white text-neutral-600 hover:bg-neutral-100 border border-neutral-200'
+          }`}
+        >
+          <span>📢 Announcements ({announcementsStats?.activeCount ?? announcements.length})</span>
         </button>
 
         <button
@@ -2862,6 +3055,560 @@ export default function AdminPage() {
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* 5. Announcements & Mandi Advisories Control Tab */}
+      {adminTab === 'announcements' && (
+        <div className="space-y-6">
+          {/* Header Banner */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl bg-white p-5 border border-neutral-200/90 shadow-sm">
+            <div>
+              <h2 className="text-xl font-black text-neutral-900 flex items-center gap-2">
+                <span>📢</span> Official Announcements & Procurement Advisories
+              </h2>
+              <p className="text-xs text-neutral-500 mt-0.5">
+                Central government advisory broadcasting console. Publish real-time MSP updates, 20% DBT safety advance alerts, weather warnings, and gate pass tokens directly to all farmers' notification bells.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={loadAnnouncements}
+                className="text-xs"
+                disabled={announcementsLoading}
+              >
+                🔄 Refresh
+              </Button>
+              <Button
+                size="sm"
+                onClick={openCreateAnnouncementModal}
+                className="text-xs flex items-center gap-1.5"
+              >
+                <span>+ Create Announcement</span>
+              </Button>
+            </div>
+          </div>
+
+          {announcementFeedback && (
+            <div
+              className={`p-3.5 rounded-xl text-xs font-semibold flex items-center justify-between border ${
+                announcementFeedback.type === 'success'
+                  ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                  : 'bg-red-50 text-red-800 border-red-300'
+              }`}
+            >
+              <span>{announcementFeedback.message}</span>
+              <button
+                type="button"
+                onClick={() => setAnnouncementFeedback(null)}
+                className="text-neutral-500 hover:text-neutral-700 font-bold ml-2"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
+          {/* KPI Stat Cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-neutral-500">Total Advisories</span>
+                <span className="text-base">📢</span>
+              </div>
+              <div className="mt-2 flex items-baseline gap-2">
+                <span className="text-2xl sm:text-3xl font-black text-neutral-900">
+                  {announcementsStats?.total ?? announcements.length}
+                </span>
+                <span className="text-[11px] text-neutral-400">Recorded</span>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-4 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-emerald-800">Live on Portal</span>
+                <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              </div>
+              <div className="mt-2 flex items-baseline gap-2">
+                <span className="text-2xl sm:text-3xl font-black text-emerald-900">
+                  {announcementsStats?.activeCount ?? announcements.filter((a) => a.isActive).length}
+                </span>
+                <span className="text-[11px] font-bold text-emerald-700">Active / Visible</span>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-neutral-500">Drafts / Inactive</span>
+                <span className="text-base">📁</span>
+              </div>
+              <div className="mt-2 flex items-baseline gap-2">
+                <span className="text-2xl sm:text-3xl font-black text-neutral-700">
+                  {announcementsStats?.inactiveCount ?? announcements.filter((a) => !a.isActive).length}
+                </span>
+                <span className="text-[11px] text-neutral-400">Hidden</span>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-red-200 bg-red-50/50 p-4 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-red-800">Urgent / High Priority</span>
+                <span className="text-base">🚨</span>
+              </div>
+              <div className="mt-2 flex items-baseline gap-2">
+                <span className="text-2xl sm:text-3xl font-black text-red-900">
+                  {announcementsStats?.urgentCount ??
+                    announcements.filter((a) => (a.priority === 'urgent' || a.priority === 'high') && a.isActive).length}
+                </span>
+                <span className="text-[11px] font-bold text-red-700">Broadcast Alert</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Search and Filters Bar */}
+          <div className="rounded-2xl bg-white p-4 border border-neutral-200 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+            <div className="relative flex-1">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 text-sm">
+                🔍
+              </span>
+              <input
+                type="text"
+                value={announcementSearch}
+                onChange={(e) => setAnnouncementSearch(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') loadAnnouncements();
+                }}
+                placeholder="Search advisories by title, message, or state..."
+                className="w-full rounded-xl border border-neutral-300 py-2 pl-9 pr-8 text-xs font-medium focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
+              />
+              {announcementSearch && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAnnouncementSearch('');
+                    setTimeout(loadAnnouncements, 50);
+                  }}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 text-xs"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <select
+                value={announcementTypeFilter}
+                onChange={(e) => {
+                  setAnnouncementTypeFilter(e.target.value);
+                  setTimeout(loadAnnouncements, 50);
+                }}
+                className="rounded-xl border border-neutral-300 py-2 px-2.5 text-xs font-medium focus:border-brand-500 focus:outline-none"
+              >
+                <option value="all">All Categories</option>
+                <option value="msp">🌾 MSP Rates</option>
+                <option value="payment_advance">💰 20% DBT Advance</option>
+                <option value="booking_confirmed">🎫 Gate Pass & Slots</option>
+                <option value="weather">🌧️ Weather & Harvest</option>
+                <option value="emergency">🚨 Emergency Alerts</option>
+                <option value="logistics">🚚 Logistics & 3PL</option>
+                <option value="general">📢 General Notices</option>
+              </select>
+
+              <select
+                value={announcementPriorityFilter}
+                onChange={(e) => {
+                  setAnnouncementPriorityFilter(e.target.value);
+                  setTimeout(loadAnnouncements, 50);
+                }}
+                className="rounded-xl border border-neutral-300 py-2 px-2.5 text-xs font-medium focus:border-brand-500 focus:outline-none"
+              >
+                <option value="all">All Priorities</option>
+                <option value="urgent">Urgent</option>
+                <option value="high">High</option>
+                <option value="normal">Normal</option>
+                <option value="low">Low</option>
+              </select>
+
+              <div className="flex items-center rounded-xl bg-neutral-100 p-1 border border-neutral-200 text-xs font-bold">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAnnouncementStatusFilter('all');
+                    setTimeout(loadAnnouncements, 50);
+                  }}
+                  className={`px-2.5 py-1 rounded-lg transition ${
+                    announcementStatusFilter === 'all'
+                      ? 'bg-white text-neutral-900 shadow-2xs'
+                      : 'text-neutral-600 hover:text-neutral-900'
+                  }`}
+                >
+                  All
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAnnouncementStatusFilter('active');
+                    setTimeout(loadAnnouncements, 50);
+                  }}
+                  className={`px-2.5 py-1 rounded-lg transition ${
+                    announcementStatusFilter === 'active'
+                      ? 'bg-white text-emerald-800 shadow-2xs'
+                      : 'text-neutral-600 hover:text-neutral-900'
+                  }`}
+                >
+                  Active Only
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAnnouncementStatusFilter('inactive');
+                    setTimeout(loadAnnouncements, 50);
+                  }}
+                  className={`px-2.5 py-1 rounded-lg transition ${
+                    announcementStatusFilter === 'inactive'
+                      ? 'bg-white text-neutral-800 shadow-2xs'
+                      : 'text-neutral-600 hover:text-neutral-900'
+                  }`}
+                >
+                  Inactive
+                </button>
+              </div>
+
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={loadAnnouncements}
+                className="text-xs"
+              >
+                Filter
+              </Button>
+            </div>
+          </div>
+
+          {/* Announcements Grid / List */}
+          {announcementsLoading ? (
+            <div className="py-16 text-center">
+              <IconSpinner className="mx-auto h-8 w-8 animate-spin text-brand-600" />
+              <p className="text-xs font-semibold text-neutral-500 mt-2">Loading announcements...</p>
+            </div>
+          ) : announcements.length === 0 ? (
+            <div className="rounded-2xl bg-white border border-neutral-200 p-12 text-center">
+              <span className="text-4xl block mb-2">📢</span>
+              <h3 className="text-base font-bold text-neutral-800">No Announcements Found</h3>
+              <p className="text-xs text-neutral-500 mt-1 max-w-sm mx-auto">
+                No advisories match your current filter criteria. Create a new official broadcast for farmers.
+              </p>
+              <Button
+                onClick={openCreateAnnouncementModal}
+                size="sm"
+                className="mt-4 text-xs"
+              >
+                + Create Announcement
+              </Button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {announcements.map((item) => {
+                const isUrgent = item.priority === 'urgent';
+                const isHigh = item.priority === 'high';
+                return (
+                  <div
+                    key={item._id}
+                    className={`rounded-2xl border bg-white p-5 shadow-xs transition flex flex-col justify-between ${
+                      item.isActive
+                        ? isUrgent
+                          ? 'border-red-300 ring-1 ring-red-200'
+                          : isHigh
+                          ? 'border-amber-300'
+                          : 'border-neutral-200 hover:border-brand-300'
+                        : 'border-neutral-200 opacity-60 bg-neutral-50/60'
+                    }`}
+                  >
+                    <div>
+                      {/* Top Badges and Active Switch */}
+                      <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {/* Priority Pill */}
+                          <span
+                            className={`rounded-full px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide border flex items-center gap-1 ${
+                              item.priority === 'urgent'
+                                ? 'bg-red-100 text-red-800 border-red-300 animate-pulse'
+                                : item.priority === 'high'
+                                ? 'bg-amber-100 text-amber-800 border-amber-300'
+                                : item.priority === 'low'
+                                ? 'bg-neutral-100 text-neutral-700 border-neutral-200'
+                                : 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                            }`}
+                          >
+                            {item.priority === 'urgent' && <span>⚡</span>}
+                            <span>{item.priority}</span>
+                          </span>
+
+                          {/* Category Pill */}
+                          <span className="rounded-lg bg-neutral-100 text-neutral-700 border border-neutral-200 px-2 py-0.5 text-[10px] font-bold">
+                            {item.type === 'msp' && '🌾 MSP Rates'}
+                            {item.type === 'payment_advance' && '💰 20% DBT Advance'}
+                            {item.type === 'booking_confirmed' && '🎫 Gate Pass'}
+                            {item.type === 'weather' && '🌧️ Weather'}
+                            {item.type === 'emergency' && '🚨 Emergency'}
+                            {item.type === 'logistics' && '🚚 Logistics'}
+                            {item.type === 'general' && '📢 Notice'}
+                          </span>
+
+                          {/* State Tag */}
+                          <span className="rounded-lg bg-blue-50 text-blue-800 border border-blue-200 px-2 py-0.5 text-[10px] font-bold">
+                            📍 {item.state || 'All India'}
+                          </span>
+                        </div>
+
+                        {/* Quick Live Toggle Switch */}
+                        <button
+                          type="button"
+                          onClick={() => handleToggleAnnouncement(item._id)}
+                          disabled={announcementActionLoading === item._id}
+                          className={`rounded-full px-2.5 py-1 text-[11px] font-extrabold transition flex items-center gap-1.5 border cursor-pointer ${
+                            item.isActive
+                              ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100 shadow-2xs'
+                              : 'bg-neutral-100 text-neutral-500 border-neutral-300 hover:bg-neutral-200'
+                          }`}
+                          title={item.isActive ? 'Click to deactivate / hide from portal' : 'Click to activate / show on portal'}
+                        >
+                          <span
+                            className={`h-2 w-2 rounded-full ${
+                              item.isActive ? 'bg-emerald-500 animate-pulse' : 'bg-neutral-400'
+                            }`}
+                          />
+                          <span>{item.isActive ? 'LIVE ON PORTAL' : 'HIDDEN / DRAFT'}</span>
+                        </button>
+                      </div>
+
+                      {/* Announcement Title */}
+                      <h3 className="text-sm sm:text-base font-extrabold text-neutral-900 leading-snug">
+                        {item.title}
+                      </h3>
+
+                      {/* Message Content */}
+                      <p className="mt-2 text-xs font-mono text-neutral-700 bg-neutral-50 p-3 rounded-xl border border-neutral-200/80 leading-relaxed whitespace-pre-wrap">
+                        {item.message}
+                      </p>
+
+                      {/* Metadata Details */}
+                      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-neutral-500">
+                        <span>👤 By: <strong>{item.authorName || 'Admin'}</strong></span>
+                        <span>🎯 Audience: <strong>{item.targetAudience}</strong></span>
+                        <span>🌾 Crop: <strong>{item.crop || 'All Crops'}</strong></span>
+                        <span>🕒 {new Date(item.createdAt).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</span>
+                      </div>
+                    </div>
+
+                    {/* Bottom Actions */}
+                    <div className="mt-4 pt-3 border-t border-neutral-100 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => openEditAnnouncementModal(item)}
+                          className="rounded-lg bg-neutral-100 hover:bg-neutral-200 text-neutral-700 px-3 py-1.5 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                        >
+                          <span>✎ Edit</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleToggleAnnouncement(item._id)}
+                          disabled={announcementActionLoading === item._id}
+                          className="rounded-lg border border-neutral-200 hover:bg-neutral-100 text-neutral-600 px-3 py-1.5 text-xs font-semibold transition cursor-pointer"
+                        >
+                          {item.isActive ? 'Deactivate' : 'Publish Live'}
+                        </button>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteAnnouncement(item._id)}
+                        disabled={announcementActionLoading === item._id}
+                        className="rounded-lg text-red-600 hover:bg-red-50 px-2.5 py-1.5 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                      >
+                        <span>🗑️ Delete</span>
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Create / Edit Announcement Modal */}
+      {announcementModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="fixed inset-0 bg-neutral-900/60 backdrop-blur-sm"
+            onClick={() => setAnnouncementModalOpen(false)}
+          />
+          <div className="relative w-full max-w-xl overflow-hidden rounded-3xl bg-white shadow-2xl ring-1 ring-neutral-900/10">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-brand-700 via-emerald-700 to-teal-700 px-6 py-4 text-white flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-bold flex items-center gap-2">
+                  <span>📢</span>
+                  <span>{editingAnnouncement ? 'Edit Announcement' : 'Create New Announcement'}</span>
+                </h3>
+                <p className="text-xs text-brand-100">
+                  Broadcast advisories directly to all farmers and notification bells.
+                </p>
+              </div>
+              <button
+                onClick={() => setAnnouncementModalOpen(false)}
+                className="rounded-full p-1 text-white/80 hover:bg-white/10 hover:text-white cursor-pointer"
+              >
+                <IconClose className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Modal Form */}
+            <form onSubmit={handleSaveAnnouncement} className="p-6 space-y-4">
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-700 mb-1">
+                  Advisory Title *
+                </label>
+                <input
+                  type="text"
+                  required
+                  maxLength={150}
+                  value={announcementForm.title}
+                  onChange={(e) => setAnnouncementForm((p) => ({ ...p, title: e.target.value }))}
+                  placeholder="e.g. 🌾 Wheat MSP Procurement Live across All 18 Mandis"
+                  className="w-full rounded-xl border border-neutral-300 py-2.5 px-3 text-sm font-semibold focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-700 mb-1">
+                    Category / Type *
+                  </label>
+                  <select
+                    value={announcementForm.type}
+                    onChange={(e) => setAnnouncementForm((p) => ({ ...p, type: e.target.value }))}
+                    className="w-full rounded-xl border border-neutral-300 py-2.5 px-3 text-sm font-medium focus:border-brand-500 focus:outline-none"
+                  >
+                    <option value="general">📢 General Notice</option>
+                    <option value="msp">🌾 MSP Procurement Rates</option>
+                    <option value="payment_advance">💰 20% DBT Advance</option>
+                    <option value="booking_confirmed">🎫 Gate Pass & Slots</option>
+                    <option value="weather">🌧️ Weather & Moisture</option>
+                    <option value="emergency">🚨 Emergency Warning</option>
+                    <option value="logistics">🚚 Logistics & Transport</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-700 mb-1">
+                    Priority Level *
+                  </label>
+                  <select
+                    value={announcementForm.priority}
+                    onChange={(e) =>
+                      setAnnouncementForm((p) => ({
+                        ...p,
+                        priority: e.target.value as 'low' | 'normal' | 'high' | 'urgent',
+                      }))
+                    }
+                    className="w-full rounded-xl border border-neutral-300 py-2.5 px-3 text-sm font-medium focus:border-brand-500 focus:outline-none"
+                  >
+                    <option value="normal">Normal (Standard Bulletin)</option>
+                    <option value="high">High (Featured Advisory)</option>
+                    <option value="urgent">Urgent (Red Alert Banner)</option>
+                    <option value="low">Low (Informational)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-700 mb-1">
+                    Target State / Mandi Region
+                  </label>
+                  <input
+                    type="text"
+                    value={announcementForm.state}
+                    onChange={(e) => setAnnouncementForm((p) => ({ ...p, state: e.target.value }))}
+                    placeholder="e.g. All India, Punjab, Haryana, etc."
+                    className="w-full rounded-xl border border-neutral-300 py-2 px-3 text-xs font-medium focus:border-brand-500 focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-700 mb-1">
+                    Relevant Crop Lots
+                  </label>
+                  <input
+                    type="text"
+                    value={announcementForm.crop}
+                    onChange={(e) => setAnnouncementForm((p) => ({ ...p, crop: e.target.value }))}
+                    placeholder="e.g. All Crops, Wheat, Mustard, Paddy"
+                    className="w-full rounded-xl border border-neutral-300 py-2 px-3 text-xs font-medium focus:border-brand-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-700">
+                    Advisory Body & Instructions *
+                  </label>
+                  <span className="text-[10px] text-neutral-400 font-mono">
+                    {announcementForm.message.length} / 1000 characters
+                  </span>
+                </div>
+                <textarea
+                  required
+                  rows={4}
+                  maxLength={1000}
+                  value={announcementForm.message}
+                  onChange={(e) => setAnnouncementForm((p) => ({ ...p, message: e.target.value }))}
+                  placeholder="Provide precise procurement directives, MSP numbers, tractor gate rules, or bank settlement updates..."
+                  className="w-full rounded-xl border border-neutral-300 p-3 text-xs font-mono text-neutral-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
+                />
+              </div>
+
+              {/* Active on Portal checkbox */}
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50/70 border border-emerald-200">
+                <input
+                  type="checkbox"
+                  id="announcementIsActive"
+                  checked={announcementForm.isActive}
+                  onChange={(e) => setAnnouncementForm((p) => ({ ...p, isActive: e.target.checked }))}
+                  className="h-4 w-4 rounded text-brand-600 focus:ring-brand-500"
+                />
+                <label htmlFor="announcementIsActive" className="text-xs font-bold text-emerald-950 cursor-pointer">
+                  Publish Immediately on Farmer Portal (तुरंत पोर्टल पर सक्रिय करें)
+                </label>
+              </div>
+
+              {/* Modal Actions */}
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-neutral-200">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setAnnouncementModalOpen(false)}
+                  className="text-xs"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  size="sm"
+                  loading={announcementActionLoading === 'save'}
+                  className="text-xs font-bold px-5"
+                >
+                  {editingAnnouncement ? 'Save Changes' : 'Publish Announcement'}
+                </Button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 

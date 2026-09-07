@@ -5,6 +5,7 @@ import { env } from '../config/env.js';
 import Farmer from '../models/Farmer.js';
 import Otp from '../models/Otp.js';
 import Notification from '../models/Notification.js';
+import Announcement from '../models/Announcement.js';
 import { signToken } from '../middleware/auth.js';
 import { ApiError, asyncHandler } from '../utils/ApiError.js';
 import { parse } from '../utils/validate.js';
@@ -241,40 +242,77 @@ export const registerPushToken = asyncHandler(async (req, res) => {
 
 /** GET /api/farmers/public/announcements — public procurement notices & advisories */
 export const getPublicAnnouncements = asyncHandler(async (req, res) => {
-  res.json({
-    ok: true,
-    data: [
+  let announcements = await Announcement.find({ isActive: true })
+    .sort({ priority: -1, createdAt: -1 })
+    .lean();
+
+  if (announcements.length === 0) {
+    const defaults = [
       {
-        _id: 'notice-rabi-2026',
         title: '🌾 Rabi 2026-27 Procurement Open (रबी उपार्जन सक्रिय)',
         message: 'Official Government MSP procurement is live across all 18 Mandis. Wheat MSP: ₹2,425/Qtl, Mustard MSP: ₹5,950/Qtl. 20% instant DBT advance guaranteed within 2 hours of arrival.',
-        type: 'general',
-        phone: 'Portal',
-        createdAt: new Date().toISOString(),
-        read: false,
-        isPublic: true,
+        type: 'msp',
+        priority: 'high',
+        isActive: true,
+        targetAudience: 'all',
+        state: 'All India',
+        crop: 'Wheat, Mustard',
+        authorName: 'Admin Central Mandi Board',
       },
       {
-        _id: 'notice-dbt-fastpay',
         title: '⚡ PFMS 2-Hour 20% DBT Advance (डीबीटी गारंटी)',
         message: 'Aadhaar-seeded bank accounts receive 20% produce value immediately upon digital weighment at Mandi weighbridge.',
         type: 'payment_advance',
-        phone: 'PFMS-DBT',
-        createdAt: new Date(Date.now() - 3600000).toISOString(),
-        read: false,
-        isPublic: true,
+        priority: 'high',
+        isActive: true,
+        targetAudience: 'farmers',
+        state: 'All India',
+        crop: 'All Crops',
+        authorName: 'DBT Financial Unit',
       },
       {
-        _id: 'notice-slot-pass',
         title: '📱 Digital Gate Pass & SMS Token (डिजिटल गेट पास)',
         message: 'Book your time slot in advance to bypass highway tractor congestion. Show digital QR or SMS token at Mandi security entry.',
         type: 'booking_confirmed',
-        phone: 'GatePass',
-        createdAt: new Date(Date.now() - 7200000).toISOString(),
-        read: false,
-        isPublic: true,
+        priority: 'normal',
+        isActive: true,
+        targetAudience: 'farmers',
+        state: 'All India',
+        crop: 'All Crops',
+        authorName: 'Logistics Control Wing',
       },
-    ],
+      {
+        title: '🌧️ Weather & Moisture Advisory for Rabi Harvest',
+        message: 'Dry conditions forecast for next 5 days across Punjab, Haryana, and Western UP. Maintain grain moisture below 12% for Grade A MSP procurement.',
+        type: 'weather',
+        priority: 'normal',
+        isActive: true,
+        targetAudience: 'farmers',
+        state: 'Northern Region',
+        crop: 'Wheat',
+        authorName: 'Agri Meteorology Cell',
+      },
+    ];
+    announcements = await Announcement.insertMany(defaults);
+  }
+
+  // Format with isPublic flag for frontend compatibility
+  const formatted = announcements.map((a) => ({
+    _id: String(a._id),
+    title: a.title,
+    message: a.message,
+    type: a.type,
+    priority: a.priority,
+    state: a.state,
+    crop: a.crop,
+    authorName: a.authorName,
+    createdAt: a.createdAt,
+    isPublic: true,
+  }));
+
+  res.json({
+    ok: true,
+    data: formatted,
   });
 });
 

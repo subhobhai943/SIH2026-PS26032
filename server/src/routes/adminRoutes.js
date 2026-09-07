@@ -38,4 +38,11 @@ router.get('/database/overview', requireStaff('admin'), adminController.getDatab
 router.get('/database/collection/:name', requireStaff('admin'), adminController.getCollectionData);
 router.get('/database/collection/:name/:id', requireStaff('admin'), adminController.getDocumentDetails);
 
+// Announcements Management & Control
+router.get('/announcements', requireStaff(), adminController.listAnnouncements);
+router.post('/announcements', requireStaff('admin'), adminController.createAnnouncement);
+router.put('/announcements/:id', requireStaff('admin'), adminController.updateAnnouncement);
+router.patch('/announcements/:id/toggle', requireStaff('admin'), adminController.toggleAnnouncement);
+router.delete('/announcements/:id', requireStaff('admin'), adminController.deleteAnnouncement);
+
 export default router;
