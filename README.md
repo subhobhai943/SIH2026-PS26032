@@ -7,6 +7,7 @@
 > **Ministry:** Ministry of Consumer Affairs, Food & Public Distribution  
 > **Department:** Department of Consumer Affairs (DoCA)  
 > **Production Deployment:** [https://sih-32.vercel.app](https://sih-32.vercel.app)  
+> **Judges & Evaluators Brief:** Read [PROJECT_OVERVIEW.md](./PROJECT_OVERVIEW.md) for non-technical project details, pitch defense, economic impact, and 10+ judge FAQs.  
 > **Architecture Specification:** See [structure.md](./structure.md) for full directory tree, schemas, and sequence diagrams.
 
 ---
