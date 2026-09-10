@@ -226,6 +226,13 @@ export const callNext = asyncHandler(async (req, res) => {
   entry.servingStartedAt = new Date();
   await entry.save();
 
+  const crop = entry.crop || 'wheat';
+  const qty = entry.estimatedQuantityQtl || 10;
+  const rate = getDefaultCropRate(crop);
+  const amount = Math.round(qty * rate * 100) / 100;
+  const adv = Math.round(amount * 0.2 * 100) / 100;
+  const bal = Math.round((amount - adv) * 100) / 100;
+
   await Procurement.findOneAndUpdate(
     { queueEntry: entry._id },
     {
@@ -234,7 +241,13 @@ export const callNext = asyncHandler(async (req, res) => {
         farmer: entry.farmer._id,
         center: entry.center._id,
         date: entry.date,
-        crop: entry.crop,
+        crop,
+        quantityQtl: qty,
+        ratePerQtl: rate,
+        qualityGrade: 'A',
+        amount,
+        advanceAmount: adv,
+        balanceAmount: bal,
         stage: 'arrived',
         timeline: [{ stage: 'arrived', by: req.staff._id }],
       },
@@ -242,16 +255,18 @@ export const callNext = asyncHandler(async (req, res) => {
     { upsert: true, new: true }
   );
 
-  await sendTemplate(entry.farmer.phone, 'yourTurn', { token: entry.token, centerName: entry.center.name });
+  sendTemplate(entry.farmer.phone, 'yourTurn', { token: entry.token, centerName: entry.center.name }).catch((err) =>
+    console.warn('[callNext] Notification error:', err.message)
+  );
   const state = await broadcastQueue(String(entry.center._id), entry.date);
   notifyFarmer(String(entry.farmer._id), 'queue:your-turn', { token: entry.token });
 
   for (const upcoming of farmersToAlert(state)) {
-    await sendTemplate(upcoming.farmer.phone, 'nearingTurn', {
+    sendTemplate(upcoming.farmer.phone, 'nearingTurn', {
       token: upcoming.token,
       ahead: upcoming.ahead,
       centerName: entry.center.name,
-    });
+    }).catch((err) => console.warn('[callNext:nearingTurn] Notification error:', err.message));
   }
 
   res.json({ ok: true, data: entry });
@@ -283,6 +298,28 @@ export const setQueueStatus = asyncHandler(async (req, res) => {
 
 // ---------------------------------------------------------------- procurement
 
+export const DEFAULT_CROP_RATES = {
+  wheat: 2275,
+  paddy: 2203,
+  maize: 2090,
+  mustard: 5650,
+  cotton: 7122,
+  soybean: 4892,
+  gram: 5440,
+  pulses: 6950,
+  cumin: 18500,
+  onion: 1950,
+};
+
+export function getDefaultCropRate(cropName) {
+  if (!cropName) return 2275;
+  const key = String(cropName).trim().toLowerCase();
+  for (const [k, rate] of Object.entries(DEFAULT_CROP_RATES)) {
+    if (key.includes(k)) return rate;
+  }
+  return 2275;
+}
+
 const procurementSchema = z.object({
   stage: z.enum(PROCUREMENT_STAGES).optional(),
   quantityQtl: z.number().min(0).optional(),
@@ -303,17 +340,38 @@ export const getProcurementDetails = asyncHandler(async (req, res) => {
   resolveCenterScope(req.staff, entry.center._id);
 
   let procurement = await Procurement.findOne({ queueEntry: entry._id });
+  const crop = entry.crop || 'wheat';
+  const qty = entry.estimatedQuantityQtl || 10;
+  const rate = getDefaultCropRate(crop);
+  const amount = Math.round(qty * rate * 100) / 100;
+  const adv = Math.round(amount * 0.2 * 100) / 100;
+  const bal = Math.round((amount - adv) * 100) / 100;
+
   if (!procurement) {
     procurement = await Procurement.create({
       queueEntry: entry._id,
       farmer: entry.farmer._id,
       center: entry.center._id,
       date: entry.date,
-      crop: entry.crop || 'wheat',
-      quantityQtl: entry.estimatedQuantityQtl || 10,
+      crop,
+      quantityQtl: qty,
+      ratePerQtl: rate,
+      qualityGrade: 'A',
+      amount,
+      advanceAmount: adv,
+      balanceAmount: bal,
       stage: 'arrived',
       timeline: [{ stage: 'arrived', by: req.staff._id }],
     });
+  } else if (!procurement.ratePerQtl || procurement.ratePerQtl <= 0 || !procurement.amount || procurement.amount <= 0) {
+    procurement.crop = procurement.crop || crop;
+    procurement.quantityQtl = procurement.quantityQtl || qty;
+    procurement.ratePerQtl = procurement.ratePerQtl || rate;
+    procurement.qualityGrade = procurement.qualityGrade || 'A';
+    procurement.amount = Math.round(procurement.quantityQtl * procurement.ratePerQtl * 100) / 100;
+    procurement.advanceAmount = Math.round(procurement.amount * 0.2 * 100) / 100;
+    procurement.balanceAmount = Math.round((procurement.amount - procurement.advanceAmount) * 100) / 100;
+    await procurement.save();
   }
 
   res.json({ ok: true, data: { entry, procurement } });
@@ -389,10 +447,37 @@ export const payAdvance = asyncHandler(async (req, res) => {
   resolveCenterScope(req.staff, entry.center._id);
 
   let procurement = await Procurement.findOne({ queueEntry: entry._id });
-  if (!procurement) throw ApiError.badRequest('Procurement record not found, weigh and approve crop first');
+  const crop = req.body.crop || procurement?.crop || entry.crop || 'wheat';
+  const qty = Number(req.body.quantityQtl) || procurement?.quantityQtl || entry.estimatedQuantityQtl || 10;
+  const rate = Number(req.body.ratePerQtl) || procurement?.ratePerQtl || getDefaultCropRate(crop);
+  const amount = Math.round(qty * rate * 100) / 100;
+  const adv = Math.round(amount * 0.2 * 100) / 100;
+  const bal = Math.round((amount - adv) * 100) / 100;
 
-  if (procurement.amount <= 0) {
-    throw ApiError.badRequest('Total amount must be greater than 0 before paying advance');
+  if (!procurement) {
+    procurement = await Procurement.create({
+      queueEntry: entry._id,
+      farmer: entry.farmer._id,
+      center: entry.center._id,
+      date: entry.date,
+      crop,
+      quantityQtl: qty,
+      ratePerQtl: rate,
+      qualityGrade: req.body.qualityGrade || 'A',
+      amount,
+      advanceAmount: adv,
+      balanceAmount: bal,
+      stage: 'arrived',
+      timeline: [{ stage: 'arrived', by: req.staff._id }],
+    });
+  } else {
+    procurement.crop = crop;
+    procurement.quantityQtl = qty;
+    procurement.ratePerQtl = rate;
+    if (req.body.qualityGrade) procurement.qualityGrade = req.body.qualityGrade;
+    procurement.amount = amount;
+    procurement.advanceAmount = adv;
+    procurement.balanceAmount = bal;
   }
 
   const ref = req.body.paymentRef || `ADV-${Date.now().toString().slice(-6)}`;
@@ -409,13 +494,13 @@ export const payAdvance = asyncHandler(async (req, res) => {
 
   await procurement.save();
 
-  await sendTemplate(entry.farmer.phone, 'advancePaymentDone', {
+  sendTemplate(entry.farmer.phone, 'advancePaymentDone', {
     amount: procurement.amount,
     advanceAmount: procurement.advanceAmount,
     balanceAmount: procurement.balanceAmount,
     paymentRef: ref,
     token: entry.token,
-  });
+  }).catch((err) => console.warn('[payAdvance] Notification dispatch error:', err.message));
 
   try { await ensureShipmentForQueue(entry._id); } catch (_) {}
   await broadcastQueue(String(entry.center._id || entry.center), entry.date);
@@ -430,7 +515,38 @@ export const payBalance = asyncHandler(async (req, res) => {
   resolveCenterScope(req.staff, entry.center._id);
 
   let procurement = await Procurement.findOne({ queueEntry: entry._id });
-  if (!procurement) throw ApiError.badRequest('Procurement record not found');
+  const crop = req.body.crop || procurement?.crop || entry.crop || 'wheat';
+  const qty = Number(req.body.quantityQtl) || procurement?.quantityQtl || entry.estimatedQuantityQtl || 10;
+  const rate = Number(req.body.ratePerQtl) || procurement?.ratePerQtl || getDefaultCropRate(crop);
+  const amount = Math.round(qty * rate * 100) / 100;
+  const adv = Math.round(amount * 0.2 * 100) / 100;
+  const bal = Math.round((amount - adv) * 100) / 100;
+
+  if (!procurement) {
+    procurement = await Procurement.create({
+      queueEntry: entry._id,
+      farmer: entry.farmer._id,
+      center: entry.center._id,
+      date: entry.date,
+      crop,
+      quantityQtl: qty,
+      ratePerQtl: rate,
+      qualityGrade: req.body.qualityGrade || 'A',
+      amount,
+      advanceAmount: adv,
+      balanceAmount: bal,
+      stage: 'arrived',
+      timeline: [{ stage: 'arrived', by: req.staff._id }],
+    });
+  } else {
+    procurement.crop = crop;
+    procurement.quantityQtl = qty;
+    procurement.ratePerQtl = rate;
+    if (req.body.qualityGrade) procurement.qualityGrade = req.body.qualityGrade;
+    procurement.amount = amount;
+    procurement.advanceAmount = adv;
+    procurement.balanceAmount = bal;
+  }
 
   const ref = req.body.paymentRef || `BAL-${Date.now().toString().slice(-6)}`;
   procurement.balanceStatus = 'paid';
@@ -456,29 +572,26 @@ export const payBalance = asyncHandler(async (req, res) => {
 
   await procurement.save();
 
-  // Generate official Mandi Bill PDF and upload to S3
-  try {
-    const billPdfUrl = await generateAndUploadBill(procurement._id);
-    procurement.billPdfUrl = billPdfUrl;
-  } catch (err) {
+  // Generate official Mandi Bill PDF and upload to S3 (non-blocking for fast UI response)
+  generateAndUploadBill(procurement._id).catch((err) => {
     console.warn('[adminController] Bill PDF generation warning on payBalance:', err.message);
-  }
+  });
 
   if (procurement.paymentConfirmed) {
-    await sendTemplate(entry.farmer.phone, 'paymentConfirmed', {
+    sendTemplate(entry.farmer.phone, 'paymentConfirmed', {
       token: entry.token,
       amount: procurement.amount,
       advanceAmount: procurement.advanceAmount,
       balanceAmount: procurement.balanceAmount,
       utrNumber: procurement.utrNumber,
       billPdfUrl: procurement.billPdfUrl,
-    });
+    }).catch((err) => console.warn('[payBalance] Notification error:', err.message));
   } else {
-    await sendTemplate(entry.farmer.phone, 'paymentDone', {
+    sendTemplate(entry.farmer.phone, 'paymentDone', {
       amount: procurement.balanceAmount || procurement.amount,
       paymentRef: ref,
       billPdfUrl: procurement.billPdfUrl,
-    });
+    }).catch((err) => console.warn('[payBalance] Notification error:', err.message));
   }
 
   try { await ensureShipmentForQueue(entry._id); } catch (_) {}
@@ -494,10 +607,37 @@ export const confirmPayment = asyncHandler(async (req, res) => {
   resolveCenterScope(req.staff, entry.center._id);
 
   let procurement = await Procurement.findOne({ queueEntry: entry._id });
-  if (!procurement) throw ApiError.badRequest('Procurement record not found');
+  const crop = req.body.crop || procurement?.crop || entry.crop || 'wheat';
+  const qty = Number(req.body.quantityQtl) || procurement?.quantityQtl || entry.estimatedQuantityQtl || 10;
+  const rate = Number(req.body.ratePerQtl) || procurement?.ratePerQtl || getDefaultCropRate(crop);
+  const amount = Math.round(qty * rate * 100) / 100;
+  const adv = Math.round(amount * 0.2 * 100) / 100;
+  const bal = Math.round((amount - adv) * 100) / 100;
 
-  if (procurement.amount <= 0) {
-    throw ApiError.badRequest('Total produce value must be greater than 0');
+  if (!procurement) {
+    procurement = await Procurement.create({
+      queueEntry: entry._id,
+      farmer: entry.farmer._id,
+      center: entry.center._id,
+      date: entry.date,
+      crop,
+      quantityQtl: qty,
+      ratePerQtl: rate,
+      qualityGrade: req.body.qualityGrade || 'A',
+      amount,
+      advanceAmount: adv,
+      balanceAmount: bal,
+      stage: 'arrived',
+      timeline: [{ stage: 'arrived', by: req.staff._id }],
+    });
+  } else {
+    procurement.crop = crop;
+    procurement.quantityQtl = qty;
+    procurement.ratePerQtl = rate;
+    if (req.body.qualityGrade) procurement.qualityGrade = req.body.qualityGrade;
+    procurement.amount = amount;
+    procurement.advanceAmount = adv;
+    procurement.balanceAmount = bal;
   }
 
   const now = Date.now();
@@ -536,25 +676,23 @@ export const confirmPayment = asyncHandler(async (req, res) => {
 
   await procurement.save();
 
-  // Generate official Mandi Bill PDF and upload to S3
-  try {
-    const billPdfUrl = await generateAndUploadBill(procurement._id);
-    procurement.billPdfUrl = billPdfUrl;
-  } catch (err) {
+  // Generate official Mandi Bill PDF and upload to S3 (non-blocking for fast response)
+  generateAndUploadBill(procurement._id).catch((err) => {
     console.warn('[adminController] Bill PDF generation warning on confirmPayment:', err.message);
-  }
+  });
 
-  // Send DBT Payment Confirmation SMS & WhatsApp
-  await sendTemplate(entry.farmer.phone, 'paymentConfirmed', {
+  // Send DBT Payment Confirmation SMS & WhatsApp non-blocking
+  sendTemplate(entry.farmer.phone, 'paymentConfirmed', {
     token: entry.token,
     amount: procurement.amount,
     advanceAmount: procurement.advanceAmount,
     balanceAmount: procurement.balanceAmount,
     utrNumber: procurement.utrNumber,
     billPdfUrl: procurement.billPdfUrl,
-  });
+  }).catch((err) => console.warn('[confirmPayment] Notification dispatch error:', err.message));
 
   try { await ensureShipmentForQueue(entry._id); } catch (_) {}
+  await broadcastQueue(String(entry.center._id || entry.center), entry.date);
 
   res.json({ ok: true, data: procurement });
 });

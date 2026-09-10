@@ -59,13 +59,20 @@ export function requireStaff(...roles) {
  * Returns the centre id the request is allowed to operate on.
  */
 export function resolveCenterScope(staff, requestedCenterId) {
+  const targetId = requestedCenterId?._id
+    ? String(requestedCenterId._id)
+    : requestedCenterId
+    ? String(requestedCenterId)
+    : '';
+
   if (staff.role === 'admin') {
-    if (!requestedCenterId) throw ApiError.badRequest('centerId is required for admin users');
-    return String(requestedCenterId);
+    if (!targetId) throw ApiError.badRequest('centerId is required for admin users');
+    return targetId;
   }
   if (!staff.center) throw ApiError.forbidden('No centre assigned to this account');
-  if (requestedCenterId && String(requestedCenterId) !== String(staff.center)) {
+  const staffCenterId = String(staff.center?._id || staff.center);
+  if (targetId && targetId !== staffCenterId) {
     throw ApiError.forbidden('You can only manage your own centre');
   }
-  return String(staff.center);
+  return staffCenterId;
 }

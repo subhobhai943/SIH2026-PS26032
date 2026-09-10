@@ -33,6 +33,13 @@ const DEFAULT_RATES: Record<string, number> = {
   wheat: 2275,
   paddy: 2203,
   maize: 2090,
+  mustard: 5650,
+  cotton: 7122,
+  soybean: 4892,
+  gram: 5440,
+  pulses: 6950,
+  cumin: 18500,
+  onion: 1950,
 };
 
 type Center = {
@@ -273,6 +280,8 @@ export default function AdminPage() {
   const [procurement, setProcurement] = useState<ProcurementData | null>(null);
   const [procLoading, setProcLoading] = useState(false);
   const [procMessage, setProcMessage] = useState<string | null>(null);
+  const [procError, setProcError] = useState<string | null>(null);
+  const [procSubmittingAction, setProcSubmittingAction] = useState<string | null>(null);
 
   // 3rd-Party Logistics & Tracking state
   const [shipment, setShipment] = useState<any>(null);
@@ -708,23 +717,24 @@ export default function AdminPage() {
     }
   }
 
-  const checkIn = (id: string) => runAction(id, () => callAuthed(`/admin/queue/${id}/check-in`, { method: 'POST' }));
-  const callNext = (id: string) => runAction(id, () => callAuthed(`/admin/queue/${id}/call-next`, { method: 'POST' }));
+  const checkIn = (id: string) => runAction('checkin-' + id, () => callAuthed(`/admin/queue/${id}/check-in`, { method: 'POST' }));
+  const callNext = (id: string) => runAction('callnext-' + id, () => callAuthed(`/admin/queue/${id}/call-next`, { method: 'POST' }));
   const markNoShow = (id: string) =>
-    runAction(id, () => callAuthed(`/admin/queue/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status: 'no_show' }) }));
+    runAction('noshow-' + id, () => callAuthed(`/admin/queue/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status: 'no_show' }) }));
 
   async function openProcurementModal(entry: QueueEntry) {
     setSelectedEntry(entry);
     setProcMessage(null);
+    setProcError(null);
     setProcLoading(true);
     try {
       const data = await callAuthed(`/admin/procurement/${entry._id}`);
       const cropName = data.procurement.crop || entry.crop || 'wheat';
       const rate = data.procurement.ratePerQtl || DEFAULT_RATES[cropName] || 2275;
       const qty = data.procurement.quantityQtl || entry.estimatedQuantityQtl || 10;
-      const amount = Math.round(qty * rate * 100) / 100;
-      const adv = Math.round(amount * 0.2 * 100) / 100;
-      const bal = Math.round((amount - adv) * 100) / 100;
+      const amount = data.procurement.amount || Math.round(qty * rate * 100) / 100;
+      const adv = data.procurement.advanceAmount || Math.round(amount * 0.2 * 100) / 100;
+      const bal = data.procurement.balanceAmount || Math.round((amount - adv) * 100) / 100;
 
       setProcurement({
         ...data.procurement,
@@ -732,8 +742,8 @@ export default function AdminPage() {
         ratePerQtl: rate,
         quantityQtl: qty,
         amount,
-        advanceAmount: data.procurement.advanceAmount || adv,
-        balanceAmount: data.procurement.balanceAmount || bal,
+        advanceAmount: adv,
+        balanceAmount: bal,
         qualityGrade: data.procurement.qualityGrade || 'A',
       });
 
@@ -751,6 +761,7 @@ export default function AdminPage() {
         setShipment(null);
       }
     } catch (err: any) {
+      setProcError(err.message || 'Failed to load procurement details');
       setError(err.message);
     } finally {
       setProcLoading(false);
@@ -768,12 +779,15 @@ export default function AdminPage() {
   async function saveProcurementStage(stage: string) {
     if (!selectedEntry || !procurement) return;
     setProcLoading(true);
+    setProcSubmittingAction(stage);
     setProcMessage(null);
+    setProcError(null);
     try {
       const res = await callAuthed(`/admin/procurement/${selectedEntry._id}`, {
         method: 'PATCH',
         body: JSON.stringify({
           stage,
+          crop: procurement.crop,
           quantityQtl: procurement.quantityQtl,
           ratePerQtl: procurement.ratePerQtl,
           qualityGrade: procurement.qualityGrade,
@@ -783,77 +797,105 @@ export default function AdminPage() {
       setProcMessage(`Status updated to ${stage.toUpperCase()}!`);
       await loadQueue();
     } catch (err: any) {
+      setProcError(err.message || `Failed to update status to ${stage}`);
       setError(err.message);
     } finally {
       setProcLoading(false);
+      setProcSubmittingAction(null);
     }
   }
 
   async function payAdvance() {
     if (!selectedEntry || !procurement) return;
     setProcLoading(true);
+    setProcSubmittingAction('advance');
     setProcMessage(null);
+    setProcError(null);
     try {
       const res = await callAuthed(`/admin/procurement/${selectedEntry._id}/pay-advance`, {
         method: 'POST',
         body: JSON.stringify({
+          crop: procurement.crop,
           quantityQtl: procurement.quantityQtl,
           ratePerQtl: procurement.ratePerQtl,
+          qualityGrade: procurement.qualityGrade,
         }),
       });
       setProcurement(res);
-      setProcMessage(`Success! 20% Safety Advance of ₹${res.advanceAmount} released to farmer. Ref: ${res.advancePaymentRef}`);
+      setProcMessage(`Success! 20% Safety Advance of ₹${res.advanceAmount?.toLocaleString?.() || res.advanceAmount} released to farmer. Ref: ${res.advancePaymentRef}`);
       await loadQueue();
     } catch (err: any) {
+      setProcError(err.message || 'Failed to release 20% advance');
       setError(err.message);
     } finally {
       setProcLoading(false);
+      setProcSubmittingAction(null);
     }
   }
 
   async function payBalance() {
     if (!selectedEntry || !procurement) return;
     setProcLoading(true);
+    setProcSubmittingAction('balance');
     setProcMessage(null);
+    setProcError(null);
     try {
       const res = await callAuthed(`/admin/procurement/${selectedEntry._id}/pay-balance`, {
         method: 'POST',
+        body: JSON.stringify({
+          crop: procurement.crop,
+          quantityQtl: procurement.quantityQtl,
+          ratePerQtl: procurement.ratePerQtl,
+          qualityGrade: procurement.qualityGrade,
+        }),
       });
       setProcurement(res);
-      setProcMessage(`Success! Final 80% Payment of ₹${res.balanceAmount} released. Ref: ${res.paymentRef}`);
+      setProcMessage(`Success! Final 80% Payment of ₹${res.balanceAmount?.toLocaleString?.() || res.balanceAmount} released. Ref: ${res.paymentRef}`);
       await loadQueue();
     } catch (err: any) {
+      setProcError(err.message || 'Failed to release final 80% balance');
       setError(err.message);
     } finally {
       setProcLoading(false);
+      setProcSubmittingAction(null);
     }
   }
 
   async function confirmDbtPayment() {
     if (!selectedEntry || !procurement) return;
     setProcLoading(true);
+    setProcSubmittingAction('confirm');
     setProcMessage(null);
+    setProcError(null);
     try {
       const res = await callAuthed(`/admin/procurement/${selectedEntry._id}/confirm-payment`, {
         method: 'POST',
         body: JSON.stringify({
+          crop: procurement.crop,
+          quantityQtl: procurement.quantityQtl,
+          ratePerQtl: procurement.ratePerQtl,
+          qualityGrade: procurement.qualityGrade,
           bankName: 'State Bank of India (DBT Linked)',
         }),
       });
       setProcurement(res);
-      setProcMessage(`DBT Payment Confirmed! ₹${res.amount} settled to farmer bank account. UTR: ${res.utrNumber}`);
+      setProcMessage(`DBT Payment Confirmed! ₹${res.amount?.toLocaleString?.() || res.amount} settled to farmer bank account. UTR: ${res.utrNumber}`);
       await loadQueue();
     } catch (err: any) {
+      setProcError(err.message || 'Failed to confirm DBT payment');
       setError(err.message);
     } finally {
       setProcLoading(false);
+      setProcSubmittingAction(null);
     }
   }
 
   async function generateBillPdf() {
     if (!selectedEntry || !procurement) return;
     setProcLoading(true);
+    setProcSubmittingAction('bill');
     setProcMessage(null);
+    setProcError(null);
     try {
       const res = await callAuthed(`/admin/procurement/${selectedEntry._id}/generate-bill`, {
         method: 'POST',
@@ -865,9 +907,11 @@ export default function AdminPage() {
       }
       await loadQueue();
     } catch (err: any) {
+      setProcError(err.message || 'Failed to generate bill PDF');
       setError(err.message);
     } finally {
       setProcLoading(false);
+      setProcSubmittingAction(null);
     }
   }
 
@@ -1372,11 +1416,11 @@ export default function AdminPage() {
                         <td className="px-5 py-3">
                           <div className="flex flex-wrap items-center gap-2">
                             {entry.status === 'booked' && (
-                              <Button size="sm" variant="secondary" loading={actionLoading === entry._id} onClick={() => checkIn(entry._id)}>
+                              <Button size="sm" variant="secondary" loading={actionLoading === 'checkin-' + entry._id} onClick={() => checkIn(entry._id)}>
                                 Check In
                               </Button>
                             )}
-                            <Button size="sm" loading={actionLoading === entry._id} onClick={() => callNext(entry._id)}>
+                            <Button size="sm" loading={actionLoading === 'callnext-' + entry._id} onClick={() => callNext(entry._id)}>
                               Call Next
                             </Button>
                             <button
@@ -1395,7 +1439,7 @@ export default function AdminPage() {
                                 <span>📄 Bill</span>
                               </a>
                             )}
-                            <Button size="sm" variant="danger" loading={actionLoading === entry._id} onClick={() => markNoShow(entry._id)}>
+                            <Button size="sm" variant="danger" loading={actionLoading === 'noshow-' + entry._id} onClick={() => markNoShow(entry._id)}>
                               No-Show
                             </Button>
                           </div>
@@ -1432,6 +1476,7 @@ export default function AdminPage() {
 
             {/* Content */}
             <div className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+              {procError && <Alert tone="error">{procError}</Alert>}
               {procMessage && <Alert tone="success">{procMessage}</Alert>}
 
               {procurement && (
@@ -1449,9 +1494,16 @@ export default function AdminPage() {
                         }}
                         className="w-full rounded-xl border border-neutral-300 bg-white px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
                       >
-                        <option value="wheat">Wheat (गेहूं)</option>
-                        <option value="paddy">Paddy (धान)</option>
-                        <option value="maize">Maize (मक्का)</option>
+                        <option value="wheat">Wheat (गेहूं) - ₹2,275</option>
+                        <option value="paddy">Paddy (धान) - ₹2,203</option>
+                        <option value="maize">Maize (मक्का) - ₹2,090</option>
+                        <option value="mustard">Mustard (सरसों) - ₹5,650</option>
+                        <option value="cotton">Cotton (कपास) - ₹7,122</option>
+                        <option value="soybean">Soybean (सोयाबीन) - ₹4,892</option>
+                        <option value="gram">Gram / Chana (चना) - ₹5,440</option>
+                        <option value="pulses">Pulses (दालें) - ₹6,950</option>
+                        <option value="cumin">Cumin / Jeera (जीरा) - ₹18,500</option>
+                        <option value="onion">Onion (प्याज) - ₹1,950</option>
                       </select>
                     </div>
 
@@ -1533,7 +1585,8 @@ export default function AdminPage() {
                       <Button
                         size="sm"
                         variant="secondary"
-                        loading={procLoading}
+                        loading={procSubmittingAction === 'weighed'}
+                        disabled={procLoading}
                         onClick={() => saveProcurementStage('weighed')}
                       >
                         Mark Weighed
@@ -1541,7 +1594,8 @@ export default function AdminPage() {
                       <Button
                         size="sm"
                         variant="secondary"
-                        loading={procLoading}
+                        loading={procSubmittingAction === 'approved'}
+                        disabled={procLoading}
                         onClick={() => saveProcurementStage('approved')}
                       >
                         Approve Quality (A Grade)
@@ -1584,9 +1638,9 @@ export default function AdminPage() {
                               type="button"
                               disabled={procLoading}
                               onClick={generateBillPdf}
-                              className="inline-flex items-center gap-1 rounded-lg border border-emerald-300 bg-white hover:bg-emerald-50 text-emerald-900 px-2.5 py-1.5 text-xs font-semibold transition"
+                              className="inline-flex items-center gap-1 rounded-lg border border-emerald-300 bg-white hover:bg-emerald-50 text-emerald-900 px-2.5 py-1.5 text-xs font-semibold transition cursor-pointer"
                             >
-                              <span>{procurement.billPdfUrl ? '🔄 Regenerate' : '📄 Generate Bill (PDF)'}</span>
+                              <span>{procSubmittingAction === 'bill' ? 'Generating...' : procurement.billPdfUrl ? '🔄 Regenerate' : '📄 Generate Bill (PDF)'}</span>
                             </button>
                           </div>
                         </div>
@@ -1598,20 +1652,40 @@ export default function AdminPage() {
                             type="button"
                             disabled={procLoading || procurement.advanceStatus === 'paid'}
                             onClick={payAdvance}
-                            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white shadow-md transition hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white shadow-md transition hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                           >
-                            <IconRupee className="h-4 w-4" />
-                            {procurement.advanceStatus === 'paid' ? '20% Advance Already Paid' : `Release 20% Advance (₹${procurement.advanceAmount})`}
+                            {procSubmittingAction === 'advance' ? (
+                              <IconSpinner className="h-4 w-4 animate-spin text-white" />
+                            ) : (
+                              <IconRupee className="h-4 w-4" />
+                            )}
+                            <span>
+                              {procSubmittingAction === 'advance'
+                                ? 'Releasing 20% Advance...'
+                                : procurement.advanceStatus === 'paid'
+                                ? '20% Advance Already Paid'
+                                : `Release 20% Advance (₹${procurement.advanceAmount.toLocaleString()})`}
+                            </span>
                           </button>
 
                           <button
                             type="button"
                             disabled={procLoading || procurement.balanceStatus === 'paid'}
                             onClick={payBalance}
-                            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-neutral-900 px-4 py-2.5 text-xs font-bold text-white shadow-md transition hover:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-neutral-900 px-4 py-2.5 text-xs font-bold text-white shadow-md transition hover:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                           >
-                            <IconWheat className="h-4 w-4" />
-                            {procurement.balanceStatus === 'paid' ? 'Final 80% Settled' : `Release Final 80% (₹${procurement.balanceAmount})`}
+                            {procSubmittingAction === 'balance' ? (
+                              <IconSpinner className="h-4 w-4 animate-spin text-white" />
+                            ) : (
+                              <IconWheat className="h-4 w-4" />
+                            )}
+                            <span>
+                              {procSubmittingAction === 'balance'
+                                ? 'Releasing Final 80%...'
+                                : procurement.balanceStatus === 'paid'
+                                ? 'Final 80% Settled'
+                                : `Release Final 80% (₹${procurement.balanceAmount.toLocaleString()})`}
+                            </span>
                           </button>
                         </div>
 
@@ -1619,10 +1693,18 @@ export default function AdminPage() {
                           type="button"
                           disabled={procLoading}
                           onClick={confirmDbtPayment}
-                          className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-700 to-emerald-700 px-4 py-2.5 text-xs font-bold text-white shadow-md transition hover:from-brand-800 hover:to-emerald-800 disabled:opacity-50"
+                          className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-700 to-emerald-700 px-4 py-2.5 text-xs font-bold text-white shadow-md transition hover:from-brand-800 hover:to-emerald-800 disabled:opacity-50 cursor-pointer"
                         >
-                          <IconShieldCheck className="h-4 w-4 text-emerald-300" />
-                          <span>Confirm & Settle Full DBT Payment (₹{procurement.amount.toLocaleString()})</span>
+                          {procSubmittingAction === 'confirm' ? (
+                            <IconSpinner className="h-4 w-4 animate-spin text-emerald-300" />
+                          ) : (
+                            <IconShieldCheck className="h-4 w-4 text-emerald-300" />
+                          )}
+                          <span>
+                            {procSubmittingAction === 'confirm'
+                              ? 'Confirming & Settling DBT Payment...'
+                              : `Confirm & Settle Full DBT Payment (₹${procurement.amount.toLocaleString()})`}
+                          </span>
                         </button>
 
                         {procurement.amount > 0 && (
