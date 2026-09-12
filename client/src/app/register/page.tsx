@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import gsap from 'gsap';
 import { api, setToken, getToken, clearToken } from '@/lib/api';
 import { Alert, Button, Card, PageHeader, TextField } from '@/components/ui';
-import { IconPhone, IconStatus, IconCamera, IconUpload, IconUser, IconCheck, IconGoogle } from '@/components/icons';
+import { IconPhone, IconStatus, IconCamera, IconUpload, IconUser, IconCheck, IconGoogle, IconShieldCheck } from '@/components/icons';
 import { useTranslation } from '@/lib/i18n/LanguageContext';
 import { compressImage } from '@/lib/imageUtils';
 import { prefersReducedMotion } from '@/lib/animations';
@@ -24,15 +24,16 @@ declare global {
   }
 }
 
-type Step = 'phone' | 'otp' | 'phone_link' | 'photo' | 'profile' | 'done';
+type Step = 'phone' | 'otp' | 'phone_link' | 'photo' | 'aadhaar' | 'profile' | 'done';
 
 const STEP_NUM_MAP: Record<Step, number> = {
   phone: 1,
   otp: 2,
   phone_link: 2,
   photo: 3,
-  profile: 4,
-  done: 5,
+  aadhaar: 4,
+  profile: 5,
+  done: 6,
 };
 
 export default function RegisterPage() {
@@ -344,10 +345,12 @@ export default function RegisterPage() {
         }
       }
 
-      // Mandatory Photo & Profile Verification (including Aadhaar)
+      // Mandatory 5-Step Verification Routing
       if (!f?.photoUrl) {
         setStep('photo');
-      } else if (!f?.name?.trim() || !f?.village?.trim() || !f?.district?.trim() || !(f?.aadhaarNumber || f?.aadhaarLast4)) {
+      } else if (!f?.aadhaarNumber && !f?.aadhaarLast4) {
+        setStep('aadhaar');
+      } else if (!f?.name?.trim() || !f?.village?.trim() || !f?.district?.trim()) {
         setStep('profile');
       } else {
         setStep('done');
@@ -393,11 +396,22 @@ export default function RegisterPage() {
     const rawAadhaar = profile.aadhaarNumber.replace(/\D/g, '');
     const isMaskedExisting = profile.aadhaarNumber.includes('••••');
     if (!rawAadhaar && !isMaskedExisting) {
-      setError('Please enter your 12-digit Aadhaar Number (कृपया 12 अंकों की आधार संख्या दर्ज करें).');
+      setError('Please enter your 12-digit Aadhaar Number in Step 4 (कृपया 12 अंकों की आधार संख्या दर्ज करें).');
+      setStep('aadhaar');
       return;
     }
     if (rawAadhaar && rawAadhaar.length !== 12 && !isMaskedExisting) {
       setError('Aadhaar number must be exactly 12 digits (आधार संख्या ठीक 12 अंकों की होनी चाहिए).');
+      setStep('aadhaar');
+      return;
+    }
+
+    if (!profile.name.trim()) {
+      setError('Please enter your full name (कृपया अपना पूरा नाम दर्ज करें).');
+      return;
+    }
+    if (!profile.village.trim() || !profile.district.trim()) {
+      setError('Please provide your village and district (गाँव और जिला दर्ज करें).');
       return;
     }
 
@@ -431,6 +445,7 @@ export default function RegisterPage() {
     otp: t('reg_stepOtp'),
     phone_link: t('reg_mobileNumber'),
     photo: t('reg_stepPhoto'),
+    aadhaar: 'Aadhaar KYC (आधार सत्यापन)',
     profile: t('reg_stepProfile'),
     done: t('reg_allSet'),
   };
@@ -546,7 +561,8 @@ export default function RegisterPage() {
     { id: 'phone', label: t('reg_stepPhone'), num: 1 },
     { id: 'otp', label: t('reg_stepOtp'), num: 2 },
     { id: 'photo', label: t('reg_stepPhoto'), num: 3 },
-    { id: 'profile', label: t('reg_stepProfile'), num: 4 },
+    { id: 'aadhaar', label: 'Aadhaar (आधार)', num: 4 },
+    { id: 'profile', label: t('reg_stepProfile'), num: 5 },
   ];
 
   return (
@@ -557,22 +573,22 @@ export default function RegisterPage() {
         subtitle={t('reg_subtitle')}
       />
 
-      {/* Accessible Stepper Bar */}
+      {/* Accessible 5-Step Progress Stepper Bar */}
       <div className="mb-4 sm:mb-6 rounded-2xl bg-white dark:bg-neutral-900 p-3 sm:p-3.5 border border-neutral-200 dark:border-neutral-800 shadow-sm">
-        {/* Mobile Stepper Header: Step X of 4 */}
+        {/* Mobile Stepper Header: Step X of 5 */}
         <div className="flex sm:hidden items-center justify-between mb-2">
           <span className="text-xs font-bold text-brand-700 dark:text-brand-400">
-            Step {Math.min(currentStepNum, 4)} of 4: {stepLabels[step] || 'Done'}
+            Step {Math.min(currentStepNum, 5)} of 5: {stepLabels[step] || 'Done'}
           </span>
           <span className="text-[11px] font-medium text-neutral-400">
-            {Math.round((Math.min(currentStepNum, 4) / 4) * 100)}%
+            {Math.round((Math.min(currentStepNum, 5) / 5) * 100)}%
           </span>
         </div>
         {/* Progress bar on mobile */}
         <div className="h-1.5 w-full bg-neutral-100 dark:bg-neutral-800 rounded-full overflow-hidden sm:hidden">
           <div
             className="h-full bg-brand-600 transition-all duration-300 rounded-full"
-            style={{ width: `${Math.min(100, (Math.min(currentStepNum, 4) / 4) * 100)}%` }}
+            style={{ width: `${Math.min(100, (Math.min(currentStepNum, 5) / 5) * 100)}%` }}
           />
         </div>
 
@@ -908,99 +924,99 @@ export default function RegisterPage() {
                     setError('Please take or upload your identification photograph before continuing.');
                     return;
                   }
-                  setStep('profile');
+                  setError(null);
+                  setStep('aadhaar');
                 }}
               >
                 {uploadingPhoto
                   ? 'Uploading photograph...'
                   : profile.photoUrl
-                  ? 'Continue to Profile Details →'
+                  ? 'Continue to Step 4: Aadhaar Verification (आधार सत्यापन) →'
                   : 'Take or Upload Photo to Continue'}
               </Button>
             </div>
           </div>
         )}
 
-        {/* STEP 4: Profile Details */}
-        {step === 'profile' && (
-          <form onSubmit={saveProfile} className="space-y-4">
-            <div className="flex items-center gap-3 pb-2 border-b border-neutral-100">
-              {profile.photoUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={profile.photoUrl}
-                  alt="Farmer"
-                  className="h-12 w-12 rounded-full object-cover border border-neutral-200"
-                />
-              ) : (
-                <div className="h-12 w-12 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center font-bold">
-                  <IconUser className="h-6 w-6" />
-                </div>
-              )}
-              <div>
-                <p className="text-sm font-semibold text-neutral-900">{t('reg_profilePrompt')}</p>
-                <p className="text-xs text-neutral-500">Government Procurement Pass Dossier</p>
+        {/* STEP 4: Mandatory Aadhaar Verification */}
+        {step === 'aadhaar' && (
+          <div className="space-y-5">
+            <div>
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
+                  <IconShieldCheck className="h-5 w-5 text-brand-600 dark:text-brand-400" />
+                  <span>Step 4: Aadhaar Verification (आधार सत्यापन)</span>
+                </h3>
+                <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/80 px-2 py-0.5 rounded-full border border-emerald-300 dark:border-emerald-800">
+                  Govt. DBT Mandate
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed">
+                Enter your 12-digit Aadhaar Card number for bank account verification under Ministry of Agriculture DBT guidelines (PFMS 2-hour 20% advance guarantee).
+              </p>
+            </div>
+
+            {/* UIDAI Encrypted Callout */}
+            <div className="rounded-xl bg-neutral-50 dark:bg-neutral-800/80 p-3 text-xs border border-neutral-200 dark:border-neutral-700 flex items-start gap-2.5">
+              <span className="text-lg shrink-0">🛡️</span>
+              <div className="text-[11px] text-neutral-600 dark:text-neutral-300 leading-normal">
+                <p className="font-bold text-neutral-800 dark:text-neutral-200">UIDAI Secured Beneficiary Link</p>
+                <p className="mt-0.5 opacity-90">
+                  Your Aadhaar number is securely validated to verify produce ownership and enable 20% advance settlement directly into your Aadhaar-seeded bank account.
+                </p>
               </div>
             </div>
 
-            <TextField
-              label={t('reg_fullName')}
-              required
-              value={profile.name}
-              placeholder="e.g. Ramesh Kumar Patel"
-              onChange={(e) => setProfile((p) => ({ ...p, name: e.target.value }))}
-            />
-
-            {/* Aadhaar Number Mandatory Field */}
-            <div className="space-y-2 rounded-2xl border border-brand-200 dark:border-brand-800 bg-brand-50/60 dark:bg-brand-950/30 p-3.5 shadow-2xs">
+            {/* 12-Digit Aadhaar Input */}
+            <div className="space-y-2 rounded-2xl border-2 border-brand-500/80 dark:border-brand-600 bg-brand-50/50 dark:bg-brand-950/30 p-4 shadow-sm">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-1.5">
                   <span className="flex h-5 w-5 items-center justify-center rounded-md bg-brand-600 text-white text-[10px] font-black">
                     🆔
                   </span>
-                  <span>Aadhaar Card Number (12 अंक आधार संख्या) *</span>
+                  <span>Aadhaar Number (12 अंक आधार संख्या) *</span>
                 </label>
                 {profile.aadhaarNumber.replace(/\D/g, '').length === 12 && (
-                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950/80 px-2 py-0.5 rounded-full border border-emerald-300 dark:border-emerald-800">
-                    ✓ 12-Digit Format Valid
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950 px-2.5 py-0.5 rounded-full border border-emerald-300 dark:border-emerald-800 animate-pulse">
+                    <IconCheck className="h-3 w-3 stroke-[3]" />
+                    <span>12-Digit Format Valid</span>
                   </span>
                 )}
               </div>
 
-              <div className="relative">
-                <input
-                  type="text"
-                  required
-                  inputMode="numeric"
-                  maxLength={14}
-                  value={profile.aadhaarNumber}
-                  onChange={(e) => {
-                    const formatted = formatAadhaarInput(e.target.value);
-                    setProfile((p) => ({ ...p, aadhaarNumber: formatted }));
-                  }}
-                  placeholder="xxxx xxxx xxxx (e.g. 5432 9876 1234)"
-                  className="w-full rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-3.5 py-2.5 text-sm font-mono font-bold tracking-widest text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 placeholder:tracking-normal focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
-                />
-              </div>
+              <input
+                type="text"
+                required
+                autoFocus
+                inputMode="numeric"
+                maxLength={14}
+                value={profile.aadhaarNumber}
+                onChange={(e) => {
+                  const formatted = formatAadhaarInput(e.target.value);
+                  setProfile((p) => ({ ...p, aadhaarNumber: formatted }));
+                }}
+                placeholder="xxxx xxxx xxxx (e.g. 5432 9876 1234)"
+                className="w-full rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 px-4 py-3 text-base font-mono font-black tracking-widest text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 placeholder:tracking-normal focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100 text-center"
+              />
 
-              <div className="flex items-center justify-between text-[11px] text-neutral-500 dark:text-neutral-400">
-                <span>Direct Benefit Transfer (DBT) & Mandi Gate Pass verification</span>
-                <span className="font-mono text-[10px]">
-                  {profile.aadhaarNumber.replace(/\D/g, '').length}/12 digits
+              <div className="flex items-center justify-between text-[11px] text-neutral-500 dark:text-neutral-400 pt-1">
+                <span>Required for DBT PFMS Bank Transfer</span>
+                <span className="font-mono text-[11px] font-bold">
+                  {profile.aadhaarNumber.replace(/\D/g, '').length} / 12 digits
                 </span>
               </div>
 
-              {/* Optional Aadhaar Card Document / Scan Upload */}
-              <div className="pt-2 border-t border-brand-200/70 dark:border-brand-900/60 mt-2">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="text-[11px] text-neutral-600 dark:text-neutral-400">
-                    <span className="font-semibold text-neutral-800 dark:text-neutral-200">Aadhaar Card Copy (वैकल्पिक फोटो):</span>
-                    <p className="text-[10px] text-neutral-400">Upload Aadhaar card image for priority physical gate verification</p>
+              {/* Aadhaar Document / Scan Upload */}
+              <div className="pt-3 border-t border-brand-200/80 dark:border-brand-900/60 mt-2">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="text-xs text-neutral-600 dark:text-neutral-400">
+                    <span className="font-bold text-neutral-800 dark:text-neutral-200">Aadhaar Card Copy (आधार कार्ड फोटो/दस्तावेज़):</span>
+                    <p className="text-[10px] text-neutral-400">Upload photo for faster physical verification at Mandi gate</p>
                   </div>
 
                   {profile.aadhaarCardUrl || aadhaarPhotoPreview ? (
                     <div className="flex items-center gap-2">
-                      <div className="relative h-9 w-14 overflow-hidden rounded-lg border border-neutral-300 shadow-2xs">
+                      <div className="relative h-10 w-16 overflow-hidden rounded-lg border border-neutral-300 shadow-2xs">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={aadhaarPhotoPreview || profile.aadhaarCardUrl}
@@ -1014,7 +1030,7 @@ export default function RegisterPage() {
                           setAadhaarPhotoPreview(null);
                           setProfile((p) => ({ ...p, aadhaarCardUrl: '' }));
                         }}
-                        className="text-[10px] text-red-600 hover:underline font-semibold"
+                        className="text-[11px] text-red-600 hover:underline font-bold"
                       >
                         Remove
                       </button>
@@ -1024,9 +1040,10 @@ export default function RegisterPage() {
                       type="button"
                       onClick={() => aadhaarFileInputRef.current?.click()}
                       disabled={uploadingAadhaarPhoto}
-                      className="inline-flex items-center gap-1 text-[11px] font-bold text-brand-700 dark:text-brand-300 bg-white dark:bg-neutral-800 border border-brand-300 dark:border-brand-700 px-2.5 py-1.5 rounded-lg shadow-2xs hover:bg-brand-50 transition cursor-pointer"
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-700 dark:text-brand-300 bg-white dark:bg-neutral-800 border border-brand-300 dark:border-brand-700 px-3 py-2 rounded-xl shadow-2xs hover:bg-brand-50 transition cursor-pointer shrink-0"
                     >
-                      <span>{uploadingAadhaarPhoto ? 'Uploading...' : '📄 Upload Card'}</span>
+                      <IconUpload className="h-3.5 w-3.5" />
+                      <span>{uploadingAadhaarPhoto ? 'Uploading...' : 'Upload Card'}</span>
                     </button>
                   )}
                 </div>
@@ -1041,6 +1058,100 @@ export default function RegisterPage() {
               </div>
             </div>
 
+            {/* DBT Guarantee Consent */}
+            <div className="rounded-xl bg-emerald-50/80 dark:bg-emerald-950/40 p-3 text-xs text-emerald-900 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-800 flex items-start gap-2">
+              <span className="text-sm">✓</span>
+              <p className="text-[11px] leading-relaxed">
+                <strong>Direct Benefit Transfer (DBT) Consent:</strong> I confirm that this Aadhaar number is linked with my active bank account to receive 20% advance procurement funds within 2 hours of produce weighment.
+              </p>
+            </div>
+
+            {/* Buttons */}
+            <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setStep('photo')}
+                className="w-full sm:w-auto text-center text-xs font-bold text-neutral-500 hover:text-neutral-700 py-2.5 px-4 transition"
+              >
+                ← Back to Photo
+              </button>
+
+              <Button
+                type="button"
+                className="w-full sm:flex-1 py-3 text-base"
+                disabled={profile.aadhaarNumber.replace(/\D/g, '').length !== 12 && !profile.aadhaarNumber.includes('••••')}
+                onClick={() => {
+                  const raw = profile.aadhaarNumber.replace(/\D/g, '');
+                  const isMasked = profile.aadhaarNumber.includes('••••');
+                  if (raw.length !== 12 && !isMasked) {
+                    setError('Please enter a valid 12-digit Aadhaar Card number (कृपया ठीक 12 अंकों की आधार संख्या दर्ज करें).');
+                    return;
+                  }
+                  setError(null);
+                  setStep('profile');
+                }}
+              >
+                <span>Continue to Step 5: Farm Profile (विवरण) →</span>
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 5: Mandi & Farm Dossier Details */}
+        {step === 'profile' && (
+          <form onSubmit={saveProfile} className="space-y-4">
+            {/* Summary card showing Photo & Aadhaar from Steps 3 and 4 */}
+            <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-emerald-50/90 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800">
+              <div className="flex items-center gap-2.5">
+                {profile.photoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={profile.photoUrl}
+                    alt="Farmer"
+                    className="h-10 w-10 rounded-full object-cover border border-emerald-400 shrink-0"
+                  />
+                ) : (
+                  <div className="h-10 w-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold shrink-0">
+                    🌾
+                  </div>
+                )}
+                <div className="text-xs min-w-0">
+                  <p className="font-bold text-emerald-950 dark:text-emerald-100 flex items-center gap-1">
+                    <IconCheck className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 stroke-[3]" />
+                    <span>Identity & Aadhaar Verified</span>
+                  </p>
+                  <p className="font-mono text-[10px] text-emerald-700 dark:text-emerald-400 truncate">
+                    Aadhaar: •••• •••• {profile.aadhaarNumber.replace(/\D/g, '').slice(-4) || 'Verified'}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setStep('aadhaar')}
+                className="text-[11px] font-bold text-emerald-800 dark:text-emerald-300 underline shrink-0 cursor-pointer"
+              >
+                Edit Aadhaar
+              </button>
+            </div>
+
+            <div>
+              <h3 className="text-base font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
+                <IconUser className="h-5 w-5 text-brand-600 dark:text-brand-400" />
+                <span>Step 5: Farmer & Mandi Dossier (किसान एवं कृषि विवरण)</span>
+              </h3>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+                Enter your agricultural address and landholding for official Mandi Gate Pass issuance.
+              </p>
+            </div>
+
+            <TextField
+              label={t('reg_fullName')}
+              required
+              value={profile.name}
+              placeholder="e.g. Ramesh Kumar Patel"
+              onChange={(e) => setProfile((p) => ({ ...p, name: e.target.value }))}
+            />
+
             <TextField
               label={t('reg_village')}
               required
@@ -1048,6 +1159,7 @@ export default function RegisterPage() {
               placeholder="e.g. Rampur"
               onChange={(e) => setProfile((p) => ({ ...p, village: e.target.value }))}
             />
+
             <div className="grid grid-cols-2 gap-3">
               <TextField
                 label={t('reg_district')}
@@ -1064,9 +1176,19 @@ export default function RegisterPage() {
                 onChange={(e) => setProfile((p) => ({ ...p, state: e.target.value }))}
               />
             </div>
-            <Button type="submit" loading={loading} className="w-full py-3 text-base">
-              {loading ? t('reg_saving') : t('reg_saveProfile')}
-            </Button>
+
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setStep('aadhaar')}
+                className="text-xs font-bold text-neutral-500 hover:text-neutral-700 py-2.5 px-3 transition"
+              >
+                ← Back to Aadhaar
+              </button>
+              <Button type="submit" loading={loading} className="flex-1 py-3 text-base">
+                {loading ? t('reg_saving') : '✓ Complete Registration & Issue Gate Pass →'}
+              </Button>
+            </div>
           </form>
         )}
 
@@ -1101,13 +1223,31 @@ export default function RegisterPage() {
               <Button onClick={() => (window.location.href = '/booking')} className="w-full py-3 text-base">
                 {t('reg_bookFirstSlot')} →
               </Button>
-              <button
-                type="button"
-                onClick={() => setStep('photo')}
-                className="w-full text-center text-xs font-semibold text-brand-700 hover:text-brand-800 transition py-1"
-              >
-                Update Profile or Photo (विवरण या फोटो बदलें)
-              </button>
+              <div className="flex items-center justify-center gap-3 text-xs font-semibold text-brand-700 dark:text-brand-400 py-1">
+                <button
+                  type="button"
+                  onClick={() => setStep('photo')}
+                  className="hover:underline cursor-pointer"
+                >
+                  📷 Change Photo
+                </button>
+                <span className="text-neutral-300">·</span>
+                <button
+                  type="button"
+                  onClick={() => setStep('aadhaar')}
+                  className="hover:underline cursor-pointer"
+                >
+                  🆔 Update Aadhaar
+                </button>
+                <span className="text-neutral-300">·</span>
+                <button
+                  type="button"
+                  onClick={() => setStep('profile')}
+                  className="hover:underline cursor-pointer"
+                >
+                  ✏️ Edit Details
+                </button>
+              </div>
             </div>
           </div>
         )}
