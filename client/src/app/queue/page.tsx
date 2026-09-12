@@ -88,23 +88,26 @@ export default function QueuePage() {
             { scale: 1, opacity: 1, duration: 0.45, ease: 'back.out(1.8)' }
           );
         }
-        gsap.fromTo(
-          '.queue-row',
-          { opacity: 0.7, x: -8 },
-          {
-            opacity: 1,
-            x: 0,
-            stagger: 0.025,
-            duration: 0.25,
-            ease: 'power2.out',
-            clearProps: 'all',
-          }
-        );
+        const rows = document.querySelectorAll('.queue-row');
+        if (rows.length > 0) {
+          gsap.fromTo(
+            rows,
+            { opacity: 0.7, x: -8 },
+            {
+              opacity: 1,
+              x: 0,
+              stagger: 0.025,
+              duration: 0.25,
+              ease: 'power2.out',
+              clearProps: 'all',
+            }
+          );
+        }
       } catch (err) {
         console.warn('Queue animation skipped:', err);
       }
     }
-  }, [board?.nowServing?.token, board?.waiting.length]);
+  }, [board?.nowServing?.token, board?.waiting?.length]);
 
   useEffect(() => {
     api.get<Center[]>('/centers').then(setCenters).catch((e) => setError(e.message));
@@ -666,7 +669,7 @@ export default function QueuePage() {
         <div ref={boardRef} className="space-y-5">
           <Card className="flex flex-col items-center gap-4 bg-gradient-to-br from-brand-600 to-brand-700 p-5 sm:p-8 text-center text-white sm:flex-row sm:justify-between sm:text-left shadow-lg">
             <div className="flex items-center gap-2 text-sm text-brand-50">
-              <IconMapPin className="h-4 w-4" /> {board.center.name} · {board.date}
+              <IconMapPin className="h-4 w-4" /> {board.center?.name || activeCenter?.name || 'Procurement Centre'} · {board.date || date}
             </div>
             <div className="flex items-center gap-4">
               <div className="relative">
@@ -685,16 +688,16 @@ export default function QueuePage() {
           </Card>
 
           <div className="grid grid-cols-3 gap-2 sm:gap-3">
-            <StatTile label={t('queue_waiting')} value={String(board.counts.waiting)} />
-            <StatTile label={t('queue_completed')} value={String(board.counts.completed)} />
-            <StatTile label={t('queue_total')} value={String(board.counts.total)} />
+            <StatTile label={t('queue_waiting')} value={String(board.counts?.waiting ?? 0)} />
+            <StatTile label={t('queue_completed')} value={String(board.counts?.completed ?? 0)} />
+            <StatTile label={t('queue_total')} value={String(board.counts?.total ?? 0)} />
           </div>
 
           <Card className="overflow-hidden">
             <div className="border-b border-neutral-100 px-5 py-3 text-sm font-semibold text-neutral-700">
               {t('queue_waiting')}
             </div>
-            {board.waiting.length === 0 ? (
+            {!Array.isArray(board.waiting) || board.waiting.length === 0 ? (
               <div className="p-8">
                 <EmptyState icon={<IconQueue className="h-8 w-8" />} title={t('queue_noOneWaiting')} />
               </div>
@@ -716,20 +719,37 @@ export default function QueuePage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {board.waiting.map((entry) => (
-                      <tr key={entry.token} className="queue-row border-t border-neutral-100 hover:bg-neutral-50/50">
-                        <td className="px-5 py-3 font-semibold text-neutral-900">#{entry.token}</td>
-                        <td className="px-5 py-3">
-                          {entry.farmerName} <span className="text-neutral-400">· {entry.village || '—'}</span>
-                        </td>
-                        <td className="px-5 py-3 text-neutral-500">{entry.slot}</td>
-                        <td className="px-5 py-3">
-                          <StatusBadge status={entry.status} />
-                        </td>
-                        <td className="px-5 py-3 text-neutral-500">{entry.position}</td>
-                        <td className="px-5 py-3 font-medium text-neutral-700">{entry.estimatedWaitLabel}</td>
-                      </tr>
-                    ))}
+                    {board.waiting.map((entry) => {
+                      const slotDisplay =
+                        typeof entry.slot === 'object' && entry.slot !== null
+                          ? `${(entry.slot as any).startTime || ''}–${(entry.slot as any).endTime || ''}`
+                          : typeof entry.slot === 'string' && entry.slot.trim()
+                          ? entry.slot
+                          : '—';
+                      const farmerNameDisplay =
+                        entry.farmerName ||
+                        (typeof (entry as any).farmer === 'object' ? (entry as any).farmer?.name : '') ||
+                        'Farmer';
+                      const villageDisplay =
+                        entry.village ||
+                        (typeof (entry as any).farmer === 'object' ? (entry as any).farmer?.village : '') ||
+                        '—';
+
+                      return (
+                        <tr key={entry.token} className="queue-row border-t border-neutral-100 hover:bg-neutral-50/50">
+                          <td className="px-5 py-3 font-semibold text-neutral-900">#{entry.token}</td>
+                          <td className="px-5 py-3">
+                            {farmerNameDisplay} <span className="text-neutral-400">· {villageDisplay}</span>
+                          </td>
+                          <td className="px-5 py-3 text-neutral-500">{slotDisplay}</td>
+                          <td className="px-5 py-3">
+                            <StatusBadge status={entry.status} />
+                          </td>
+                          <td className="px-5 py-3 text-neutral-500">{entry.position}</td>
+                          <td className="px-5 py-3 font-medium text-neutral-700">{entry.estimatedWaitLabel}</td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

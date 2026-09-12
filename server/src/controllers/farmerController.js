@@ -31,7 +31,9 @@ const profileSchema = z.object({
   district: z.string().min(2).max(80).optional(),
   state: z.string().min(2).max(80).optional(),
   photoUrl: z.string().optional(),
+  aadhaarNumber: z.string().optional(),
   aadhaarLast4: z.string().regex(/^\d{4}$/).optional(),
+  aadhaarCardUrl: z.string().optional(),
   crops: z.array(z.string().min(1)).max(10).optional(),
   landAreaAcres: z.number().min(0).max(10_000).optional(),
   preferredLanguage: z.enum(['en', 'hi', 'pa', 'bn', 'ta', 'te', 'mr']).optional(),
@@ -88,7 +90,12 @@ export const verifyOtp = asyncHandler(async (req, res) => {
     isNew = true;
   }
 
-  const isProfileComplete = Boolean(farmer.name?.trim() && farmer.photoUrl?.trim());
+  const isProfileComplete = Boolean(
+    farmer.name?.trim() &&
+    farmer.photoUrl?.trim() &&
+    farmer.village?.trim() &&
+    (farmer.aadhaarNumber || farmer.aadhaarLast4)
+  );
   const hasPhoto = Boolean(farmer.photoUrl?.trim());
 
   res.json({
@@ -119,7 +126,12 @@ export const verifyFirebase = asyncHandler(async (req, res) => {
     isNew = true;
   }
 
-  const isProfileComplete = Boolean(farmer.name?.trim() && farmer.photoUrl?.trim());
+  const isProfileComplete = Boolean(
+    farmer.name?.trim() &&
+    farmer.photoUrl?.trim() &&
+    farmer.village?.trim() &&
+    (farmer.aadhaarNumber || farmer.aadhaarLast4)
+  );
   const hasPhoto = Boolean(farmer.photoUrl?.trim());
 
   res.json({
@@ -195,7 +207,13 @@ export const verifyGoogle = asyncHandler(async (req, res) => {
     isNew = true;
   }
 
-  const isProfileComplete = Boolean(farmer.name?.trim() && farmer.village?.trim() && farmer.district?.trim() && farmer.phone);
+  const isProfileComplete = Boolean(
+    farmer.name?.trim() &&
+    farmer.village?.trim() &&
+    farmer.district?.trim() &&
+    farmer.phone &&
+    (farmer.aadhaarNumber || farmer.aadhaarLast4)
+  );
   const hasPhoto = Boolean(farmer.photoUrl?.trim());
   const needsPhone = !farmer.phone;
 
@@ -228,7 +246,28 @@ export const updateProfile = asyncHandler(async (req, res) => {
     }
   }
 
-  Object.assign(req.farmer, payload);
+  if (payload.aadhaarNumber) {
+    const cleaned = payload.aadhaarNumber.replace(/\D/g, '');
+    if (cleaned.length > 0 && cleaned.length !== 12) {
+      throw ApiError.badRequest('Aadhaar number must be exactly 12 digits');
+    }
+    if (cleaned.length === 12) {
+      req.farmer.aadhaarNumber = cleaned;
+      req.farmer.aadhaarLast4 = cleaned.slice(-4);
+      req.farmer.aadhaarVerified = true;
+    }
+  } else if (payload.aadhaarLast4) {
+    req.farmer.aadhaarLast4 = payload.aadhaarLast4;
+  }
+
+  if (payload.aadhaarCardUrl) {
+    req.farmer.aadhaarCardUrl = payload.aadhaarCardUrl;
+  }
+
+  // Copy remaining fields
+  const { aadhaarNumber, aadhaarLast4, aadhaarCardUrl, ...rest } = payload;
+  Object.assign(req.farmer, rest);
+
   await req.farmer.save();
   res.json({ ok: true, data: req.farmer.toJSON() });
 });

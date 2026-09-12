@@ -4,6 +4,12 @@ import { formatWait, todayISO } from '../utils/datetime.js';
 
 const WAITING = Queue.WAITING_STATUSES;
 
+export function maskName(name) {
+  if (!name) return 'Farmer';
+  const [first, ...rest] = name.trim().split(/\s+/);
+  return rest.length ? `${first} ${rest[rest.length - 1][0]}.` : first;
+}
+
 /**
  * Builds the live view of one centre's queue for one date: who is being served,
  * who is waiting, and how long each waiting farmer should expect to wait.
@@ -30,12 +36,33 @@ export async function getQueueState(centerId, date = todayISO()) {
     // Anyone currently being served finishes before the first waiting farmer starts.
     const ahead = index + (serving ? 1 : 0);
     const waitMinutes = ahead * serviceMinutes;
+    const slotStr = entry.slot
+      ? typeof entry.slot === 'object'
+        ? `${entry.slot.startTime}–${entry.slot.endTime}`
+        : String(entry.slot)
+      : '';
+    const farmerName = maskName(entry.farmer?.name);
+    const village = entry.farmer?.village || '';
+
     return {
-      ...entry,
+      _id: String(entry._id),
+      token: entry.token,
+      status: entry.status,
       position: index + 1,
       ahead,
       estimatedWaitMinutes: waitMinutes,
       estimatedWaitLabel: formatWait(waitMinutes),
+      farmerName,
+      village,
+      slot: slotStr,
+      crop: entry.crop || '',
+      farmer: entry.farmer
+        ? {
+            _id: String(entry.farmer._id || ''),
+            name: farmerName,
+            village,
+          }
+        : null,
     };
   });
 

@@ -61,6 +61,7 @@ export default function FarmerProfilePage() {
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
+    aadhaarNumber: '',
     village: '',
     district: '',
     state: '',
@@ -91,6 +92,7 @@ export default function FarmerProfilePage() {
           setFormData({
             name: farmerData.name || '',
             phone: farmerData.phone || '',
+            aadhaarNumber: farmerData.aadhaarNumber || (farmerData.aadhaarLast4 ? `•••• •••• ${farmerData.aadhaarLast4}` : ''),
             village: farmerData.village || '',
             district: farmerData.district || '',
             state: farmerData.state || '',
@@ -195,6 +197,11 @@ export default function FarmerProfilePage() {
 
       if (formData.phone) {
         payload.phone = formData.phone;
+      }
+
+      const rawAadhaar = (formData.aadhaarNumber || '').replace(/\D/g, '');
+      if (rawAadhaar.length === 12) {
+        payload.aadhaarNumber = rawAadhaar;
       }
 
       if (formData.landAreaAcres) {
@@ -475,6 +482,27 @@ export default function FarmerProfilePage() {
                     className="w-full rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 py-2.5 pl-12 pr-4 text-sm font-medium tracking-wider text-neutral-900 dark:text-neutral-100 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-700 dark:text-neutral-300 mb-1.5">
+                  Aadhaar Number (12 अंक आधार) *
+                </label>
+                <input
+                  type="text"
+                  maxLength={14}
+                  value={formData.aadhaarNumber}
+                  onChange={(e) => {
+                    const digits = e.target.value.replace(/\D/g, '').slice(0, 12);
+                    const parts = [];
+                    for (let i = 0; i < digits.length; i += 4) {
+                      parts.push(digits.slice(i, i + 4));
+                    }
+                    setFormData((p) => ({ ...p, aadhaarNumber: parts.join(' ') }));
+                  }}
+                  placeholder="xxxx xxxx xxxx"
+                  className="w-full rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 py-2.5 px-3.5 text-sm font-mono font-bold tracking-widest text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
+                />
               </div>
             </div>
 

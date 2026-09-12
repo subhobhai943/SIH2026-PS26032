@@ -2110,10 +2110,10 @@ export default function AdminPage() {
                           </div>
                         </td>
                         <td className="py-3.5 px-4">
-                          {f.aadhaarLast4 ? (
+                          {(f.aadhaarLast4 || f.aadhaarNumber) ? (
                             <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 border border-emerald-200">
                               <IconShieldCheck className="h-3.5 w-3.5" />
-                              <span>•••• {f.aadhaarLast4}</span>
+                              <span>•••• {f.aadhaarLast4 || f.aadhaarNumber?.slice(-4)}</span>
                             </span>
                           ) : (
                             <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2.5 py-1 text-[11px] font-medium text-neutral-600">
@@ -3977,11 +3977,21 @@ export default function AdminPage() {
                         <div>
                           <div className="flex items-center gap-2">
                             <h4 className="text-base font-black text-neutral-900">{farmerDossier.farmer.name}</h4>
-                            {farmerDossier.farmer.aadhaarLast4 && (
+                            {(farmerDossier.farmer.aadhaarLast4 || farmerDossier.farmer.aadhaarNumber) && (
                               <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 border border-emerald-200">
                                 <IconShieldCheck className="h-3 w-3" />
-                                <span>Aadhaar •••• {farmerDossier.farmer.aadhaarLast4}</span>
+                                <span>Aadhaar •••• {farmerDossier.farmer.aadhaarLast4 || farmerDossier.farmer.aadhaarNumber?.slice(-4)}</span>
                               </span>
+                            )}
+                            {farmerDossier.farmer.aadhaarCardUrl && (
+                              <a
+                                href={farmerDossier.farmer.aadhaarCardUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-700 border border-blue-200 hover:bg-blue-100"
+                              >
+                                <span>📄 View Aadhaar Card</span>
+                              </a>
                             )}
                           </div>
                           <p className="text-xs text-neutral-500 font-mono mt-0.5">

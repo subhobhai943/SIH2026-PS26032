@@ -20,7 +20,36 @@ import { compressImage } from '@/lib/imageUtils';
 import { prefersReducedMotion } from '@/lib/animations';
 
 type Center = { _id: string; name: string; code: string; district: string; state: string; crops: string[] };
-type Slot = { id: string; startTime: string; endTime: string; available: number; capacity: number };
+type Slot = {
+  id: string;
+  startTime: string;
+  endTime: string;
+  available: number;
+  capacity: number;
+  isPast?: boolean;
+  date?: string;
+  crop?: string;
+};
+
+/** Checks in real time whether a slot time has passed in IST. */
+function isSlotTimePast(slotDate?: string, startTime?: string): boolean {
+  if (!startTime) return false;
+  const now = new Date();
+  // IST is UTC + 5 hours 30 minutes
+  const istOffsetMs = 330 * 60 * 1000;
+  const istNow = new Date(now.getTime() + (now.getTimezoneOffset() * 60 * 1000) + istOffsetMs);
+  const istDateStr = istNow.toISOString().slice(0, 10);
+  const targetDate = slotDate || istDateStr;
+
+  if (targetDate < istDateStr) return true;
+  if (targetDate > istDateStr) return false;
+
+  const istHours = String(istNow.getHours()).padStart(2, '0');
+  const istMinutes = String(istNow.getMinutes()).padStart(2, '0');
+  const currentIstTime = `${istHours}:${istMinutes}`;
+
+  return currentIstTime >= startTime;
+}
 
 // Official Government MSP (Minimum Support Price) benchmarks per Quintal
 const CROP_MSP_RATES: Record<string, { name: string; hindiName: string; mspPerQtl: number; note: string }> = {
@@ -145,6 +174,11 @@ export default function BookingPage() {
 
   async function book() {
     if (!selectedSlot) return;
+    if (isSlotTimePast(selectedSlot.date || date, selectedSlot.startTime)) {
+      setError('This time slot has already passed for today. Please select an upcoming time slot or choose another date.');
+      setSelectedSlot(null);
+      return;
+    }
     setError(null);
     setMessage(null);
     setLoading(true);
@@ -562,39 +596,71 @@ export default function BookingPage() {
                 </div>
               )}
 
+              {/* Real-time Past Slots Banner if all slots concluded today */}
+              {!slotsLoading &&
+                slots.length > 0 &&
+                slots.every((s) => s.isPast || isSlotTimePast(s.date || date, s.startTime)) && (
+                  <div className="mb-3 rounded-xl border border-amber-300 dark:border-amber-800 bg-amber-50/90 dark:bg-amber-950/50 p-3 sm:p-3.5 text-xs text-amber-900 dark:text-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shadow-2xs">
+                    <div className="flex items-center gap-2">
+                      <span className="text-base">⏰</span>
+                      <div>
+                        <p className="font-extrabold text-amber-950 dark:text-amber-100">
+                          All slots for today have concluded (आज के सभी समय स्लॉट समाप्त हो चुके हैं)
+                        </p>
+                        <p className="text-[11px] text-amber-800 dark:text-amber-300">
+                          Past time windows cannot be booked in real time. Please reserve a slot for tomorrow.
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setDate(tomorrowStr)}
+                      className="inline-flex items-center justify-center gap-1 rounded-xl bg-brand-700 hover:bg-brand-800 text-white px-3.5 py-2 font-bold shrink-0 text-xs shadow transition active:scale-95 cursor-pointer"
+                    >
+                      <span>Check Tomorrow ({tomorrowStr})</span>
+                      <span>→</span>
+                    </button>
+                  </div>
+                )}
+
               {/* Slot Cards Grid */}
               {!slotsLoading && slots.length > 0 && (
                 <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-2.5">
                   {slots.map((slot) => {
-                    const full = slot.available <= 0;
-                    const active = selectedSlot?.id === slot.id;
+                    const isPast = Boolean(slot.isPast || isSlotTimePast(slot.date || date, slot.startTime));
+                    const full = slot.available <= 0 || isPast;
+                    const active = selectedSlot?.id === slot.id && !isPast;
                     return (
                       <button
                         key={slot.id}
                         disabled={full}
                         onClick={() => setSelectedSlot(slot)}
-                        className={`slot-button relative flex flex-col items-center justify-center min-h-[66px] rounded-xl border p-2 text-center transition-all transform active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 ${
+                        className={`slot-button relative flex flex-col items-center justify-center min-h-[66px] rounded-xl border p-2 text-center transition-all transform active:scale-95 disabled:cursor-not-allowed ${
                           active
                             ? 'border-brand-600 bg-brand-600 text-white shadow-md ring-2 ring-brand-400'
+                            : isPast
+                            ? 'border-neutral-200 dark:border-neutral-800 bg-neutral-100/70 dark:bg-neutral-800/40 text-neutral-400 opacity-60'
                             : full
-                            ? 'border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-800/60 text-neutral-400'
+                            ? 'border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-800/60 text-neutral-400 opacity-60'
                             : 'border-emerald-200 dark:border-emerald-900/60 bg-emerald-50/50 dark:bg-emerald-950/20 text-emerald-950 dark:text-emerald-100 hover:border-emerald-500'
                         }`}
                       >
                         <div className="flex items-center gap-1 font-black text-xs sm:text-sm tracking-tight">
                           <IconClock className="h-3 w-3 sm:h-3.5 sm:w-3.5 opacity-75 shrink-0" />
-                          <span>{slot.startTime}–{slot.endTime}</span>
+                          <span className={isPast ? 'line-through opacity-75' : ''}>{slot.startTime}–{slot.endTime}</span>
                         </div>
                         <div
                           className={`mt-1 inline-flex items-center text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full ${
                             active
                               ? 'bg-white/20 text-white'
+                              : isPast
+                              ? 'bg-neutral-200 dark:bg-neutral-800 text-neutral-500'
                               : full
                               ? 'bg-neutral-200 dark:bg-neutral-800 text-neutral-500'
                               : 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300'
                           }`}
                         >
-                          {full ? 'Slot Full' : `${slot.available} ${t('book_available')}`}
+                          {isPast ? 'Past (समय समाप्त)' : full ? 'Slot Full' : `${slot.available} ${t('book_available')}`}
                         </div>
                         {active && (
                           <span className="absolute -top-1.5 -right-1.5 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-amber-400 text-neutral-950 shadow font-bold text-[10px]">

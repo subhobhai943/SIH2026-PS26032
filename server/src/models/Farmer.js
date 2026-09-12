@@ -13,8 +13,18 @@ const farmerSchema = new mongoose.Schema(
     authProvider: { type: String, enum: ['phone', 'google'], default: 'phone' },
     name: { type: String, trim: true, default: '' },
     photoUrl: { type: String, default: '' },
-    // Last 4 digits only — we never store a full Aadhaar number.
+    // 12-digit Indian Aadhaar number
+    aadhaarNumber: {
+      type: String,
+      trim: true,
+      sparse: true,
+      match: [/^\d{12}$/, 'aadhaarNumber must be a 12-digit number'],
+    },
+    // Last 4 digits for masked display
     aadhaarLast4: { type: String, match: [/^\d{4}$/, 'aadhaarLast4 must be 4 digits'] },
+    // Aadhaar Card photo / document URL
+    aadhaarCardUrl: { type: String, default: '' },
+    aadhaarVerified: { type: Boolean, default: false },
     village: { type: String, trim: true, default: '' },
     district: { type: String, trim: true, default: '' },
     state: { type: String, trim: true, default: '' },
@@ -31,7 +41,15 @@ const farmerSchema = new mongoose.Schema(
 );
 
 farmerSchema.pre('save', function markProfileComplete(next) {
-  this.profileComplete = Boolean(this.name && this.village && this.district && this.phone);
+  if (this.aadhaarNumber && !this.aadhaarLast4) {
+    this.aadhaarLast4 = this.aadhaarNumber.slice(-4);
+  }
+  if (this.aadhaarNumber || this.aadhaarLast4) {
+    this.aadhaarVerified = true;
+  }
+  this.profileComplete = Boolean(
+    this.name && this.village && this.district && this.phone && (this.aadhaarNumber || this.aadhaarLast4)
+  );
   next();
 });
 

@@ -12,29 +12,11 @@ export const getBoard = asyncHandler(async (req, res) => {
   const state = await getQueueState(req.params.centerId, date);
   if (!state) throw ApiError.notFound('Procurement centre not found');
 
-  // The public board shows tokens and masked names only — never phone numbers.
   res.json({
     ok: true,
-    data: {
-      ...state,
-      waiting: state.waiting.map((entry) => ({
-        token: entry.token,
-        status: entry.status,
-        position: entry.position,
-        estimatedWaitLabel: entry.estimatedWaitLabel,
-        farmerName: maskName(entry.farmer?.name),
-        village: entry.farmer?.village || '',
-        slot: entry.slot ? `${entry.slot.startTime}–${entry.slot.endTime}` : '',
-      })),
-    },
+    data: state,
   });
 });
-
-function maskName(name) {
-  if (!name) return 'Farmer';
-  const [first, ...rest] = name.trim().split(/\s+/);
-  return rest.length ? `${first} ${rest[rest.length - 1][0]}.` : first;
-}
 
 /** GET /api/queue/me/position?centerId=&date= — the logged-in farmer's own view. */
 export const myPosition = asyncHandler(async (req, res) => {

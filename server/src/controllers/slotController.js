@@ -5,7 +5,7 @@ import Slot from '../models/Slot.js';
 import Queue from '../models/Queue.js';
 import { ApiError, asyncHandler } from '../utils/ApiError.js';
 import { parse } from '../utils/validate.js';
-import { addDaysISO, isPastDate, todayISO } from '../utils/datetime.js';
+import { addDaysISO, currentISTTime, isPastDate, isPastSlot, todayISO } from '../utils/datetime.js';
 import { nextToken } from '../services/queueService.js';
 import { broadcastQueue } from '../services/socketService.js';
 import { sendTemplate } from '../services/smsService.js';
@@ -56,18 +56,25 @@ export const listSlots = asyncHandler(async (req, res) => {
   const { centerId, date = todayISO() } = parse(listSlotsSchema, req.query);
 
   const slots = await Slot.find({ center: centerId, date, status: 'open' }).sort({ startTime: 1 });
+  const today = todayISO();
+  const nowTime = currentISTTime();
+
   res.json({
     ok: true,
-    data: slots.map((slot) => ({
-      id: String(slot._id),
-      date: slot.date,
-      startTime: slot.startTime,
-      endTime: slot.endTime,
-      capacity: slot.capacity,
-      booked: slot.booked,
-      available: slot.available,
-      crop: slot.crop,
-    })),
+    data: slots.map((slot) => {
+      const isPast = slot.date < today || (slot.date === today && slot.startTime <= nowTime);
+      return {
+        id: String(slot._id),
+        date: slot.date,
+        startTime: slot.startTime,
+        endTime: slot.endTime,
+        capacity: slot.capacity,
+        booked: slot.booked,
+        available: isPast ? 0 : slot.available,
+        isPast,
+        crop: slot.crop,
+      };
+    }),
   });
 });
 
@@ -125,6 +132,9 @@ export const bookSlot = asyncHandler(async (req, res) => {
   if (!slot) throw ApiError.notFound('Slot not found');
   if (slot.status !== 'open') throw ApiError.conflict('This slot is no longer open for booking');
   if (isPastDate(slot.date)) throw ApiError.badRequest('Cannot book a slot in the past');
+  if (isPastSlot(slot.date, slot.startTime)) {
+    throw ApiError.badRequest('This time slot has already passed for today. Please select an upcoming slot or choose another date.');
+  }
 
   const existing = await Queue.findOne({
     farmer: farmer._id,
