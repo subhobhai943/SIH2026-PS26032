@@ -282,12 +282,39 @@ export const registerPushToken = asyncHandler(async (req, res) => {
 
 /** GET /api/farmers/public/announcements — public procurement notices & advisories */
 export const getPublicAnnouncements = asyncHandler(async (req, res) => {
+  // Ensure the official mandatory Aadhaar notification exists for all users
+  const hasAadhaarNotice = await Announcement.findOne({ type: 'aadhaar_notice' });
+  if (!hasAadhaarNotice) {
+    await Announcement.create({
+      title: '⚠️ Action Required: Mandatory Aadhaar Verification (आधार सत्यापन अनिवार्य)',
+      message: 'Attention All Registered Farmers & Users: As per Ministry of Agriculture & PFMS DBT guidelines, all existing and newly registered farmers must link their 12-digit Aadhaar number to verify bank accounts for receiving 20% instant MSP advances and mandi gate passes.',
+      type: 'aadhaar_notice',
+      priority: 'urgent',
+      isActive: true,
+      targetAudience: 'all',
+      state: 'All India',
+      crop: 'All Crops',
+      authorName: 'Ministry of Agriculture & Mandi Board',
+    });
+  }
+
   let announcements = await Announcement.find({ isActive: true })
     .sort({ priority: -1, createdAt: -1 })
     .lean();
 
   if (announcements.length === 0) {
     const defaults = [
+      {
+        title: '⚠️ Action Required: Mandatory Aadhaar Verification (आधार सत्यापन अनिवार्य)',
+        message: 'Attention All Registered Farmers & Users: As per Ministry of Agriculture & PFMS DBT guidelines, all existing and newly registered farmers must link their 12-digit Aadhaar number to verify bank accounts for receiving 20% instant MSP advances and mandi gate passes.',
+        type: 'aadhaar_notice',
+        priority: 'urgent',
+        isActive: true,
+        targetAudience: 'all',
+        state: 'All India',
+        crop: 'All Crops',
+        authorName: 'Ministry of Agriculture & Mandi Board',
+      },
       {
         title: '🌾 Rabi 2026-27 Procurement Open (रबी उपार्जन सक्रिय)',
         message: 'Official Government MSP procurement is live across all 18 Mandis. Wheat MSP: ₹2,425/Qtl, Mustard MSP: ₹5,950/Qtl. 20% instant DBT advance guaranteed within 2 hours of arrival.',

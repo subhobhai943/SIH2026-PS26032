@@ -32,7 +32,13 @@ export function SiteHeader() {
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifTab, setNotifTab] = useState<'all' | 'sms' | 'dbt' | 'advisories'>('all');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [farmer, setFarmer] = useState<{ name?: string; phone?: string; photoUrl?: string } | null>(null);
+  const [farmer, setFarmer] = useState<{
+    name?: string;
+    phone?: string;
+    photoUrl?: string;
+    aadhaarNumber?: string;
+    aadhaarLast4?: string;
+  } | null>(null);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [publicNotifs, setPublicNotifs] = useState<NotificationItem[]>([]);
   const [mounted, setMounted] = useState(false);
@@ -448,6 +454,26 @@ export function SiteHeader() {
           </div>
         </div>
       </div>
+
+      {/* Mandatory Aadhaar Verification Alert for Logged In Farmers Missing Aadhaar */}
+      {isLoggedIn && farmer && (!farmer.aadhaarNumber && !farmer.aadhaarLast4) && (
+        <div className="bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 text-white px-3 py-2 text-xs shadow-md border-b border-amber-500/50">
+          <div className="mx-auto max-w-6xl flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-sm shrink-0">⚠️</span>
+              <span className="font-bold text-amber-50 text-[11px] sm:text-xs">
+                Mandatory Verification: All existing and new farmers must submit their 12-digit Aadhaar Card number for DBT MSP transfers & Mandi passes.
+              </span>
+            </div>
+            <a
+              href="/profile"
+              className="inline-flex items-center justify-center rounded-lg bg-white hover:bg-amber-50 text-amber-900 font-extrabold px-3 py-1 text-xs shrink-0 shadow-xs transition"
+            >
+              Update Aadhaar (आधार दर्ज करें) →
+            </a>
+          </div>
+        </div>
+      )}
 
       {/* Main Navigation */}
       <header className="border-b border-neutral-200/80 bg-white/95 backdrop-blur-md dark:border-neutral-800/80 dark:bg-neutral-900/95">

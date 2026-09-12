@@ -154,6 +154,40 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Official Government Directive: Mandatory Aadhaar Verification */}
+      <div className="rounded-2xl border-2 border-amber-500/80 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 dark:from-amber-950/40 dark:via-orange-950/30 dark:to-amber-950/40 p-4 sm:p-5 text-amber-950 dark:text-amber-100 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-start gap-3 min-w-0">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500 text-white font-black text-lg shadow">
+            ⚠️
+          </span>
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="rounded bg-amber-200/90 dark:bg-amber-900/80 px-2 py-0.5 text-[10px] font-black uppercase text-amber-900 dark:text-amber-200">
+                Government Directive · आधिकारिक निर्देश
+              </span>
+              <span className="text-[11px] font-bold text-amber-800 dark:text-amber-300">
+                DBT & PFMS Compliance Mandate
+              </span>
+            </div>
+            <h4 className="mt-1 text-sm sm:text-base font-extrabold text-amber-950 dark:text-amber-50">
+              Mandatory Aadhaar Card Submission for All Existing & New Registered Farmers
+            </h4>
+            <p className="mt-0.5 text-xs text-amber-900/90 dark:text-amber-200 leading-relaxed max-w-3xl">
+              Under Ministry of Agriculture guidelines, all existing account holders and new farmers must submit their 12-digit Aadhaar number. This enables bank account verification for 20% instant MSP advances and issuance of digital Mandi yard entry tokens.
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+          <a
+            href={isLoggedIn ? '/profile' : '/register'}
+            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-extrabold px-4 py-2.5 text-xs sm:text-sm shadow transition active:scale-95 whitespace-nowrap"
+          >
+            <span>{isLoggedIn ? 'Update Aadhaar in Profile' : 'Register & Verify Aadhaar'}</span>
+            <IconArrowRight className="h-4 w-4" />
+          </a>
+        </div>
+      </div>
+
       {/* Official Government Procurement Framework Banner */}
       <Card className="procurement-banner p-4 sm:p-8 bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 shadow-sm">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6">

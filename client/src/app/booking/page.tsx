@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import gsap from 'gsap';
-import { api } from '@/lib/api';
+import { api, getToken } from '@/lib/api';
 import { Alert, Button, Card, EmptyState, PageHeader, Spinner, TextField } from '@/components/ui';
 import {
   IconCalendar,
@@ -31,23 +31,35 @@ type Slot = {
   crop?: string;
 };
 
+/** Formats an offset date in YYYY-MM-DD aligned to Indian Standard Time (IST) */
+function getISTDateStr(offsetDays = 0): string {
+  const d = new Date(Date.now() + offsetDays * 86400000);
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(d);
+}
+
+/** Formats current time in HH:MM in IST */
+function getISTTimeStr(): string {
+  return new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Asia/Kolkata',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(new Date());
+}
+
 /** Checks in real time whether a slot time has passed in IST. */
 function isSlotTimePast(slotDate?: string, startTime?: string): boolean {
   if (!startTime) return false;
-  const now = new Date();
-  // IST is UTC + 5 hours 30 minutes
-  const istOffsetMs = 330 * 60 * 1000;
-  const istNow = new Date(now.getTime() + (now.getTimezoneOffset() * 60 * 1000) + istOffsetMs);
-  const istDateStr = istNow.toISOString().slice(0, 10);
+  const istDateStr = getISTDateStr(0);
   const targetDate = slotDate || istDateStr;
 
-  if (targetDate < istDateStr) return true;
+  // Future dates are NEVER past
   if (targetDate > istDateStr) return false;
+  // Past dates are ALWAYS past
+  if (targetDate < istDateStr) return true;
 
-  const istHours = String(istNow.getHours()).padStart(2, '0');
-  const istMinutes = String(istNow.getMinutes()).padStart(2, '0');
-  const currentIstTime = `${istHours}:${istMinutes}`;
-
+  // Same day: compare IST time
+  const currentIstTime = getISTTimeStr();
   return currentIstTime >= startTime;
 }
 
@@ -64,12 +76,13 @@ export default function BookingPage() {
   const [centerId, setCenterId] = useState('');
   const [isCenterExpanded, setIsCenterExpanded] = useState(true);
 
-  // Quick date calculations
-  const todayStr = new Date().toISOString().slice(0, 10);
-  const tomorrowStr = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
-  const dayAfterStr = new Date(Date.now() + 172800000).toISOString().slice(0, 10);
+  // Quick date calculations in IST
+  const todayStr = getISTDateStr(0);
+  const tomorrowStr = getISTDateStr(1);
+  const dayAfterStr = getISTDateStr(2);
 
   const [date, setDate] = useState(() => todayStr);
+  const [farmerAadhaarVerified, setFarmerAadhaarVerified] = useState<boolean | null>(null);
   const [slots, setSlots] = useState<Slot[]>([]);
   const [slotsLoading, setSlotsLoading] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
@@ -126,6 +139,16 @@ export default function BookingPage() {
 
   useEffect(() => {
     api.get<Center[]>('/centers').then(setCenters).catch((e) => setError(e.message));
+
+    const token = getToken();
+    if (token) {
+      api
+        .get<any>('/farmers/me')
+        .then((f) => {
+          setFarmerAadhaarVerified(Boolean(f?.aadhaarNumber || f?.aadhaarLast4));
+        })
+        .catch(() => setFarmerAadhaarVerified(null));
+    }
   }, []);
 
   useEffect(() => {
@@ -211,6 +234,28 @@ export default function BookingPage() {
 
       {error && <Alert>{error}</Alert>}
       {message && <Alert tone="success">{message}</Alert>}
+
+      {farmerAadhaarVerified === false && (
+        <div className="rounded-2xl border border-amber-300 dark:border-amber-700 bg-amber-50/95 dark:bg-amber-950/70 p-3.5 sm:p-4 text-xs text-amber-950 dark:text-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+          <div className="flex items-start sm:items-center gap-2.5">
+            <span className="text-xl shrink-0">⚠️</span>
+            <div>
+              <p className="font-extrabold text-xs sm:text-sm text-amber-950 dark:text-amber-100">
+                Action Required: Aadhaar Verification Pending (आधार सत्यापन अनिवार्य)
+              </p>
+              <p className="text-[11px] sm:text-xs text-amber-800 dark:text-amber-300 mt-0.5">
+                Under Government Direct Benefit Transfer (DBT) guidelines, all existing and newly registered farmers must link their 12-digit Aadhaar number to ensure instant 20% advance transfer and mandi entry pass.
+              </p>
+            </div>
+          </div>
+          <a
+            href="/profile"
+            className="inline-flex items-center justify-center rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold px-3.5 py-2 text-xs shrink-0 transition active:scale-95 shadow-xs"
+          >
+            Update Aadhaar in Profile →
+          </a>
+        </div>
+      )}
 
       <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
         {/* Left / Main Column */}
@@ -584,20 +629,39 @@ export default function BookingPage() {
                   <EmptyState
                     icon={<IconCalendar className="h-8 w-8 text-neutral-400" />}
                     title={t('book_noSlots')}
-                    description="All slots are currently booked for this date. Please choose another date."
+                    description="No procurement slots are available for this date. Please select another date."
                   />
-                  <button
-                    type="button"
-                    onClick={() => setDate(tomorrowStr)}
-                    className="inline-flex items-center gap-1 text-xs font-bold text-brand-700 dark:text-brand-300 underline mt-2"
-                  >
-                    Check tomorrow ({tomorrowStr}) →
-                  </button>
+                  {date === todayStr ? (
+                    <button
+                      type="button"
+                      onClick={() => setDate(tomorrowStr)}
+                      className="inline-flex items-center gap-1 text-xs font-bold text-brand-700 dark:text-brand-300 underline mt-2 cursor-pointer"
+                    >
+                      Check tomorrow ({tomorrowStr}) →
+                    </button>
+                  ) : date === tomorrowStr ? (
+                    <button
+                      type="button"
+                      onClick={() => setDate(dayAfterStr)}
+                      className="inline-flex items-center gap-1 text-xs font-bold text-brand-700 dark:text-brand-300 underline mt-2 cursor-pointer"
+                    >
+                      Check day after ({dayAfterStr}) →
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setDate(todayStr)}
+                      className="inline-flex items-center gap-1 text-xs font-bold text-brand-700 dark:text-brand-300 underline mt-2 cursor-pointer"
+                    >
+                      Return to today ({todayStr}) →
+                    </button>
+                  )}
                 </div>
               )}
 
-              {/* Real-time Past Slots Banner if all slots concluded today */}
+              {/* Real-time Past Slots Banner ONLY when today's slots have concluded */}
               {!slotsLoading &&
+                date === todayStr &&
                 slots.length > 0 &&
                 slots.every((s) => s.isPast || isSlotTimePast(s.date || date, s.startTime)) && (
                   <div className="mb-3 rounded-xl border border-amber-300 dark:border-amber-800 bg-amber-50/90 dark:bg-amber-950/50 p-3 sm:p-3.5 text-xs text-amber-900 dark:text-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shadow-2xs">

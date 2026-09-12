@@ -2116,8 +2116,8 @@ export default function AdminPage() {
                               <span>•••• {f.aadhaarLast4 || f.aadhaarNumber?.slice(-4)}</span>
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2.5 py-1 text-[11px] font-medium text-neutral-600">
-                              KYC Pending
+                            <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-bold text-amber-800 border border-amber-300 animate-pulse">
+                              ⚠️ Aadhaar Pending
                             </span>
                           )}
                         </td>

@@ -298,6 +298,37 @@ export default function FarmerProfilePage() {
         </div>
       )}
 
+      {/* Mandatory Aadhaar Alert for Existing Farmer */}
+      {farmer && !farmer.aadhaarNumber && !farmer.aadhaarLast4 && (
+        <div className="rounded-2xl border-2 border-amber-500 bg-amber-50/95 dark:bg-amber-950/70 p-4 text-xs text-amber-950 dark:text-amber-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
+          <div className="flex items-start sm:items-center gap-3">
+            <span className="text-2xl shrink-0">⚠️</span>
+            <div>
+              <p className="font-extrabold text-sm text-amber-950 dark:text-amber-50">
+                Action Required: Aadhaar Card Verification Pending (आधार कार्ड सत्यापन लंबित)
+              </p>
+              <p className="text-xs text-amber-800 dark:text-amber-300 mt-0.5">
+                Under Ministry of Agriculture and PFMS DBT regulations, all existing farmers must submit their 12-digit Aadhaar Card number to enable 20% advance transfer and mandi entry pass.
+              </p>
+            </div>
+          </div>
+          <Button
+            size="sm"
+            variant="primary"
+            className="shrink-0 font-bold"
+            onClick={() => {
+              setIsEditing(true);
+              setTimeout(() => {
+                const el = document.getElementById('profile-aadhaar-input');
+                el?.focus();
+              }, 100);
+            }}
+          >
+            Submit Aadhaar Now →
+          </Button>
+        </div>
+      )}
+
       {/* Hero Farmer Identification Card */}
       <Card className="overflow-hidden border-2 border-emerald-600/40 shadow-lg">
         {/* Tricolor Government Ribbon */}
@@ -485,10 +516,18 @@ export default function FarmerProfilePage() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-700 dark:text-neutral-300 mb-1.5">
-                  Aadhaar Number (12 अंक आधार) *
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-700 dark:text-neutral-300">
+                    Aadhaar Number (12 अंक आधार) *
+                  </label>
+                  {!formData.aadhaarNumber && (
+                    <span className="text-[10px] font-bold text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-950 px-2 py-0.5 rounded-full border border-amber-300 dark:border-amber-800">
+                      Mandatory for DBT
+                    </span>
+                  )}
+                </div>
                 <input
+                  id="profile-aadhaar-input"
                   type="text"
                   maxLength={14}
                   value={formData.aadhaarNumber}
@@ -501,7 +540,11 @@ export default function FarmerProfilePage() {
                     setFormData((p) => ({ ...p, aadhaarNumber: parts.join(' ') }));
                   }}
                   placeholder="xxxx xxxx xxxx"
-                  className="w-full rounded-xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 py-2.5 px-3.5 text-sm font-mono font-bold tracking-widest text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
+                  className={`w-full rounded-xl border bg-white dark:bg-neutral-800 py-2.5 px-3.5 text-sm font-mono font-bold tracking-widest text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100 ${
+                    !formData.aadhaarNumber
+                      ? 'border-amber-400 dark:border-amber-600 ring-1 ring-amber-400/50'
+                      : 'border-neutral-300 dark:border-neutral-700'
+                  }`}
                 />
               </div>
             </div>
@@ -613,24 +656,49 @@ export default function FarmerProfilePage() {
                   Government Verification Status
                 </h3>
               </div>
-              <span className="rounded-full bg-emerald-100 dark:bg-emerald-950 px-2 py-0.5 text-[10px] font-extrabold text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                ACTIVE · SEEDED
-              </span>
+              {farmer.aadhaarNumber || farmer.aadhaarLast4 ? (
+                <span className="rounded-full bg-emerald-100 dark:bg-emerald-950 px-2.5 py-0.5 text-[10px] font-extrabold text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                  ✓ ACTIVE · SEEDED
+                </span>
+              ) : (
+                <span className="rounded-full bg-amber-100 dark:bg-amber-950 px-2.5 py-0.5 text-[10px] font-extrabold text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700 animate-pulse">
+                  ⚠️ PENDING VERIFICATION
+                </span>
+              )}
             </div>
 
             <div className="space-y-3 text-xs">
               <div className="flex items-center justify-between p-2.5 rounded-xl bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700">
                 <span className="text-neutral-600 dark:text-neutral-400 font-medium">Aadhaar Identification:</span>
-                <span className="font-mono font-bold text-neutral-900 dark:text-neutral-100">
-                  •••• •••• {farmer.aadhaarLast4 || '8942'} (UIDAI Verified)
-                </span>
+                {farmer.aadhaarNumber || farmer.aadhaarLast4 ? (
+                  <span className="font-mono font-bold text-emerald-700 dark:text-emerald-400">
+                    •••• •••• {farmer.aadhaarLast4 || farmer.aadhaarNumber?.slice(-4)} (UIDAI Verified)
+                  </span>
+                ) : (
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-bold text-amber-700 dark:text-amber-400">Not Linked</span>
+                    <button
+                      type="button"
+                      onClick={() => setIsEditing(true)}
+                      className="text-[11px] font-extrabold text-brand-700 dark:text-brand-300 underline cursor-pointer"
+                    >
+                      Enter Aadhaar →
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center justify-between p-2.5 rounded-xl bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700">
                 <span className="text-neutral-600 dark:text-neutral-400 font-medium">DBT Guarantee Status:</span>
-                <span className="font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
-                  <span>✓</span> 20% Instant Advance Enabled
-                </span>
+                {farmer.aadhaarNumber || farmer.aadhaarLast4 ? (
+                  <span className="font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
+                    <span>✓</span> 20% Instant Advance Enabled
+                  </span>
+                ) : (
+                  <span className="font-bold text-amber-700 dark:text-amber-400 flex items-center gap-1">
+                    <span>⚠️</span> Pending Aadhaar Submission
+                  </span>
+                )}
               </div>
 
               <div className="flex items-center justify-between p-2.5 rounded-xl bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700">

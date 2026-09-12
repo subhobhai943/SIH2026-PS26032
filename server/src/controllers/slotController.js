@@ -5,7 +5,7 @@ import Slot from '../models/Slot.js';
 import Queue from '../models/Queue.js';
 import { ApiError, asyncHandler } from '../utils/ApiError.js';
 import { parse } from '../utils/validate.js';
-import { addDaysISO, currentISTTime, isPastDate, isPastSlot, todayISO } from '../utils/datetime.js';
+import { addDaysISO, currentISTTime, isPastDate, isPastSlot, minutesOfDay, toHHMM, todayISO } from '../utils/datetime.js';
 import { nextToken } from '../services/queueService.js';
 import { broadcastQueue } from '../services/socketService.js';
 import { sendTemplate } from '../services/smsService.js';
@@ -24,6 +24,51 @@ const bookSchema = z.object({
   estimatedQuantityQtl: z.number().min(0.1).max(1000),
   cropPhotoUrl: z.string().optional(),
 });
+
+/** Auto-provisions standard slots for a centre on a given date if none exist yet */
+async function autoProvisionSlots(centerId, date) {
+  const center = await Center.findById(centerId).lean();
+  if (!center) return [];
+
+  const start = minutesOfDay(center.openTime || '08:00');
+  const end = minutesOfDay(center.closeTime || '17:30');
+  const slotLength = 30;
+  const avgMinutes = center.avgServiceMinutes || 10;
+  const perSlotCapacity = Math.max(1, Math.round(slotLength / avgMinutes));
+
+  const operations = [];
+  for (let t = start; t + slotLength <= end; t += slotLength) {
+    operations.push({
+      updateOne: {
+        filter: {
+          center: center._id,
+          date,
+          startTime: toHHMM(t),
+        },
+        update: {
+          $setOnInsert: {
+            center: center._id,
+            date,
+            startTime: toHHMM(t),
+            endTime: toHHMM(t + slotLength),
+            capacity: perSlotCapacity,
+            booked: 0,
+            available: perSlotCapacity,
+            status: 'open',
+            crop: 'any',
+          },
+        },
+        upsert: true,
+      },
+    });
+  }
+
+  if (operations.length > 0) {
+    await Slot.bulkWrite(operations, { ordered: false });
+  }
+
+  return Slot.find({ center: centerId, date, status: 'open' }).sort({ startTime: 1 });
+}
 
 /** GET /api/centers — optionally filtered by district or crop. */
 export const listCenters = asyncHandler(async (req, res) => {
@@ -55,8 +100,14 @@ export const getCenter = asyncHandler(async (req, res) => {
 export const listSlots = asyncHandler(async (req, res) => {
   const { centerId, date = todayISO() } = parse(listSlotsSchema, req.query);
 
-  const slots = await Slot.find({ center: centerId, date, status: 'open' }).sort({ startTime: 1 });
+  let slots = await Slot.find({ center: centerId, date, status: 'open' }).sort({ startTime: 1 });
   const today = todayISO();
+
+  // If no slots exist yet for today or upcoming dates, dynamically generate them for the centre
+  if (slots.length === 0 && date >= today) {
+    slots = await autoProvisionSlots(centerId, date);
+  }
+
   const nowTime = currentISTTime();
 
   res.json({
