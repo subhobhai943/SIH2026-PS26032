@@ -86,6 +86,7 @@ export type TranslationKey =
   | 'reg_stepPhone'
   | 'reg_stepOtp'
   | 'reg_stepPhoto'
+  | 'reg_stepAadhaar'
   | 'reg_stepProfile'
   | 'book_uploadCropPhoto'
   | 'book_uploadCropPhotoDesc'
@@ -289,6 +290,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     reg_stepPhone: 'Mobile',
     reg_stepOtp: 'OTP',
     reg_stepPhoto: 'Photo',
+    reg_stepAadhaar: 'Aadhaar',
     reg_stepProfile: 'Profile',
     book_uploadCropPhoto: 'Upload Crop Sample Photograph',
     book_uploadCropPhotoDesc: 'Capture a clear photo of your harvest lot for preliminary grade inspection.',
@@ -487,6 +489,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     reg_stepPhone: 'मोबाइल',
     reg_stepOtp: 'ओटीपी',
     reg_stepPhoto: 'फोटो',
+    reg_stepAadhaar: 'आधार सत्यापन',
     reg_stepProfile: 'विवरण',
     book_uploadCropPhoto: 'फसल नमूना फोटो अपलोड करें',
     book_uploadCropPhotoDesc: 'मंडी ग्रेड निरीक्षण हेतु अपनी फसल की स्पष्ट फोटो अपलोड करें।',
@@ -685,6 +688,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     reg_stepPhone: 'ਮੋਬਾਈਲ',
     reg_stepOtp: 'ਓ.ਟੀ.ਪੀ.',
     reg_stepPhoto: 'ਫੋਟੋ',
+    reg_stepAadhaar: 'ਆਧਾਰ',
     reg_stepProfile: 'ਵੇਰਵਾ',
     book_uploadCropPhoto: 'ਫ਼ਸਲ ਨਮੂਨਾ ਫੋਟੋ ਅਪਲੋਡ ਕਰੋ',
     book_uploadCropPhotoDesc: 'ਗ੍ਰੇਡ ਜਾਂਚ ਲਈ ਆਪਣੀ ਫ਼ਸਲ ਦੀ ਸਾਫ਼ ਤਸਵੀਰ ਅਪਲੋਡ ਕਰੋ।',
@@ -883,6 +887,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     reg_stepPhone: 'মোবাইল',
     reg_stepOtp: 'ওটিপি',
     reg_stepPhoto: 'ছবি',
+    reg_stepAadhaar: 'আধার',
     reg_stepProfile: 'প্রোফাইল',
     book_uploadCropPhoto: 'ফসলের নমুনা ছবি আপলোড করুন',
     book_uploadCropPhotoDesc: 'গুণমান পরিদর্শনের জন্য আপনার ফসলের একটি স্পষ্ট ছবি তুলুন।',
@@ -1081,6 +1086,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     reg_stepPhone: 'मोबाईल',
     reg_stepOtp: 'ओटीपी',
     reg_stepPhoto: 'फोटो',
+    reg_stepAadhaar: 'आधार',
     reg_stepProfile: 'माहिती',
     book_uploadCropPhoto: 'पिकाचा नमुना फोटो अपलोड करा',
     book_uploadCropPhotoDesc: 'ग्रेड तपासणीसाठी आपल्या पिकाचा स्पष्ट फोटो अपलोड करा.',
@@ -1279,6 +1285,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     reg_stepPhone: 'మొబైల్',
     reg_stepOtp: 'ఓటీపీ',
     reg_stepPhoto: 'ఫోటో',
+    reg_stepAadhaar: 'ఆధార్',
     reg_stepProfile: 'ప్రొఫైల్',
     book_uploadCropPhoto: 'పంట నమూనా ఫోటో అప్‌లోడ్ చేయండి',
     book_uploadCropPhotoDesc: 'గ్రేడ్ తనిఖీ కోసం మీ పంట యొక్క స్పష్టమైన ఫోటోను అప్‌లోడ్ చేయండి.',
@@ -1477,6 +1484,7 @@ export const translations: Record<LanguageCode, Record<TranslationKey, string>> 
     reg_stepPhone: 'மொபைல்',
     reg_stepOtp: 'ஓடிபி',
     reg_stepPhoto: 'புகைப்படம்',
+    reg_stepAadhaar: 'ஆதார்',
     reg_stepProfile: 'விவரம்',
     book_uploadCropPhoto: 'பயிர் மாதிரி புகைப்படத்தை பதிவேற்றவும்',
     book_uploadCropPhotoDesc: 'தர ஆய்விற்காக உங்கள் விளைச்சலின் தெளிவான புகைப்படத்தை எடுக்கவும்.',

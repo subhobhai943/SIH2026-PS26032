@@ -533,7 +533,7 @@ export default function FarmerProfilePage() {
                   value={formData.aadhaarNumber}
                   onChange={(e) => {
                     const digits = e.target.value.replace(/\D/g, '').slice(0, 12);
-                    const parts = [];
+                    const parts: string[] = [];
                     for (let i = 0; i < digits.length; i += 4) {
                       parts.push(digits.slice(i, i + 4));
                     }

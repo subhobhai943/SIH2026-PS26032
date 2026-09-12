@@ -107,7 +107,9 @@ type FarmerItem = {
   village: string;
   district?: string;
   state?: string;
+  aadhaarNumber?: string;
   aadhaarLast4?: string;
+  aadhaarCardUrl?: string;
   landAreaAcres?: number;
   crops?: string[];
   badge?: string;

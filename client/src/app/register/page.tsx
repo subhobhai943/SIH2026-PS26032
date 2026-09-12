@@ -112,7 +112,7 @@ export default function RegisterPage() {
 
   function formatAadhaarInput(val: string) {
     const digits = val.replace(/\D/g, '').slice(0, 12);
-    const parts = [];
+    const parts: string[] = [];
     for (let i = 0; i < digits.length; i += 4) {
       parts.push(digits.slice(i, i + 4));
     }
@@ -206,7 +206,9 @@ export default function RegisterPage() {
         setStep('phone_link');
       } else if (!gPhoto) {
         setStep('photo');
-      } else if (!f?.village?.trim() || !f?.district?.trim() || !(f?.aadhaarNumber || f?.aadhaarLast4)) {
+      } else if (!f?.aadhaarNumber && !f?.aadhaarLast4) {
+        setStep('aadhaar');
+      } else if (!f?.village?.trim() || !f?.district?.trim()) {
         setStep('profile');
       } else {
         setStep('done');
@@ -257,7 +259,9 @@ export default function RegisterPage() {
 
       if (!profile.photoUrl && !updatedFarmer?.photoUrl) {
         setStep('photo');
-      } else if (!profile.village?.trim() || !profile.district?.trim() || !updatedFarmer?.village?.trim() || !(updatedFarmer?.aadhaarNumber || updatedFarmer?.aadhaarLast4 || profile.aadhaarNumber)) {
+      } else if (!updatedFarmer?.aadhaarNumber && !updatedFarmer?.aadhaarLast4 && !profile.aadhaarNumber) {
+        setStep('aadhaar');
+      } else if (!profile.village?.trim() || !profile.district?.trim() || !updatedFarmer?.village?.trim()) {
         setStep('profile');
       } else {
         setStep('done');
@@ -445,7 +449,7 @@ export default function RegisterPage() {
     otp: t('reg_stepOtp'),
     phone_link: t('reg_mobileNumber'),
     photo: t('reg_stepPhoto'),
-    aadhaar: 'Aadhaar KYC (आधार सत्यापन)',
+    aadhaar: t('reg_stepAadhaar'),
     profile: t('reg_stepProfile'),
     done: t('reg_allSet'),
   };
@@ -561,38 +565,67 @@ export default function RegisterPage() {
     { id: 'phone', label: t('reg_stepPhone'), num: 1 },
     { id: 'otp', label: t('reg_stepOtp'), num: 2 },
     { id: 'photo', label: t('reg_stepPhoto'), num: 3 },
-    { id: 'aadhaar', label: 'Aadhaar (आधार)', num: 4 },
+    { id: 'aadhaar', label: t('reg_stepAadhaar'), num: 4 },
     { id: 'profile', label: t('reg_stepProfile'), num: 5 },
   ];
 
   return (
     <div className="mx-auto max-w-lg">
       <PageHeader
-        eyebrow={t('reg_eyebrow')}
+        eyebrow="5-Step Verified Farmer Registration · 5-चरणीय किसान पंजीकरण"
         title={t('reg_title')}
-        subtitle={t('reg_subtitle')}
+        subtitle="Complete all 5 verification steps to receive your Mandi Gate Pass and unlock 2-hour DBT safety advance."
       />
 
       {/* Accessible 5-Step Progress Stepper Bar */}
-      <div className="mb-4 sm:mb-6 rounded-2xl bg-white dark:bg-neutral-900 p-3 sm:p-3.5 border border-neutral-200 dark:border-neutral-800 shadow-sm">
-        {/* Mobile Stepper Header: Step X of 5 */}
-        <div className="flex sm:hidden items-center justify-between mb-2">
-          <span className="text-xs font-bold text-brand-700 dark:text-brand-400">
-            Step {Math.min(currentStepNum, 5)} of 5: {stepLabels[step] || 'Done'}
+      <div className="mb-4 sm:mb-6 rounded-2xl bg-white dark:bg-neutral-900 p-3 sm:p-4 border border-neutral-200 dark:border-neutral-800 shadow-sm">
+        {/* Top Stepper Header */}
+        <div className="flex items-center justify-between mb-2 sm:mb-3">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex h-2 w-2 rounded-full bg-brand-600 animate-pulse" />
+            <span className="text-xs font-extrabold text-brand-700 dark:text-brand-400">
+              Step {Math.min(currentStepNum, 5)} of 5: {stepLabels[step] || 'Done'}
+            </span>
+          </div>
+          <span className="text-[11px] font-mono font-bold text-neutral-500 dark:text-neutral-400">
+            {Math.round((Math.min(currentStepNum, 5) / 5) * 100)}% Complete
           </span>
-          <span className="text-[11px] font-medium text-neutral-400">
-            {Math.round((Math.min(currentStepNum, 5) / 5) * 100)}%
-          </span>
-        </div>
-        {/* Progress bar on mobile */}
-        <div className="h-1.5 w-full bg-neutral-100 dark:bg-neutral-800 rounded-full overflow-hidden sm:hidden">
-          <div
-            className="h-full bg-brand-600 transition-all duration-300 rounded-full"
-            style={{ width: `${Math.min(100, (Math.min(currentStepNum, 5) / 5) * 100)}%` }}
-          />
         </div>
 
-        {/* Desktop Stepper */}
+        {/* Mobile 5-Step Grid (Visible on all small screens) */}
+        <div className="grid grid-cols-5 gap-1 pt-1 pb-2 sm:hidden border-b border-neutral-100 dark:border-neutral-800">
+          {DISPLAY_STEPS.map((s) => {
+            const isPassed = s.num < currentStepNum;
+            const isCurrent = s.num === currentStepNum;
+            return (
+              <div
+                key={s.id}
+                className={`flex flex-col items-center py-1.5 px-0.5 rounded-xl text-center transition ${
+                  isCurrent
+                    ? 'bg-brand-50 dark:bg-brand-950/60 text-brand-700 dark:text-brand-300 font-extrabold ring-1 ring-brand-400 dark:ring-brand-700'
+                    : isPassed
+                    ? 'bg-emerald-50/70 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 font-semibold'
+                    : 'text-neutral-400 font-medium'
+                }`}
+              >
+                <span
+                  className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-black mb-1 ${
+                    isPassed
+                      ? 'bg-emerald-600 text-white'
+                      : isCurrent
+                      ? 'bg-brand-600 text-white shadow-xs'
+                      : 'bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400'
+                  }`}
+                >
+                  {isPassed ? '✓' : s.num}
+                </span>
+                <span className="text-[9px] font-bold truncate max-w-full leading-tight">{s.label}</span>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Desktop Stepper (Visible on >= sm screens) */}
         <div className="hidden sm:flex items-center justify-between gap-1">
           {DISPLAY_STEPS.map((s, idx) => {
             const isPassed = s.num < currentStepNum;
@@ -638,6 +671,14 @@ export default function RegisterPage() {
         {/* STEP 1: Phone or Google Sign-In */}
         {step === 'phone' && (
           <div className="space-y-5">
+            <div className="flex items-center justify-between pb-2 border-b border-neutral-100 dark:border-neutral-800">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 dark:bg-blue-950/80 px-3 py-1 text-xs font-bold text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                <span>Step 1 of 5</span>
+                <span>·</span>
+                <span>Mobile Login (चरण 1: मोबाइल सत्यापन)</span>
+              </span>
+              <span className="text-[11px] font-semibold text-neutral-400">1 of 5</span>
+            </div>
             {/* Option A: Continue with Google */}
             <div className="space-y-2">
               <button
@@ -701,6 +742,14 @@ export default function RegisterPage() {
         {/* STEP 2: OTP */}
         {step === 'otp' && (
           <form onSubmit={verifyOtp} className="space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-neutral-100 dark:border-neutral-800">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 dark:bg-brand-950/80 px-3 py-1 text-xs font-bold text-brand-700 dark:text-brand-300 border border-brand-200 dark:border-brand-800">
+                <span>Step 2 of 5</span>
+                <span>·</span>
+                <span>OTP Verification (चरण 2: ओटीपी सत्यापन)</span>
+              </span>
+              <span className="text-[11px] font-semibold text-neutral-400">2 of 5</span>
+            </div>
             <p className="text-sm text-neutral-600 dark:text-neutral-300">
               {t('reg_otpDesc')} <span className="font-semibold text-neutral-900 dark:text-neutral-100">+91 {phone}</span>.
             </p>
@@ -730,6 +779,14 @@ export default function RegisterPage() {
         {/* STEP 2-ALT: Link Mobile Number for Google accounts */}
         {step === 'phone_link' && (
           <div className="space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-neutral-100 dark:border-neutral-800">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 dark:bg-brand-950/80 px-3 py-1 text-xs font-bold text-brand-700 dark:text-brand-300 border border-brand-200 dark:border-brand-800">
+                <span>Step 2 of 5</span>
+                <span>·</span>
+                <span>Link Mobile (चरण 2: मोबाइल लिंक करें)</span>
+              </span>
+              <span className="text-[11px] font-semibold text-neutral-400">2 of 5</span>
+            </div>
             {googleUser && (
               <div className="flex items-center gap-3 rounded-xl bg-neutral-50 dark:bg-neutral-800 p-3.5 border border-neutral-200 dark:border-neutral-700">
                 {googleUser.photoUrl ? (
@@ -811,6 +868,14 @@ export default function RegisterPage() {
         {/* STEP 3: Farmer Photo Upload */}
         {step === 'photo' && (
           <div className="space-y-5">
+            <div className="flex items-center justify-between pb-2 border-b border-neutral-100 dark:border-neutral-800">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/80 px-3 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                <span>Step 3 of 5</span>
+                <span>·</span>
+                <span>Farmer Photo (चरण 3: किसान फोटो)</span>
+              </span>
+              <span className="text-[11px] font-semibold text-neutral-400">3 of 5</span>
+            </div>
             <div>
               <h3 className="text-base font-bold text-neutral-900 flex items-center gap-2">
                 <IconCamera className="h-5 w-5 text-brand-600" />
@@ -941,6 +1006,14 @@ export default function RegisterPage() {
         {/* STEP 4: Mandatory Aadhaar Verification */}
         {step === 'aadhaar' && (
           <div className="space-y-5">
+            <div className="flex items-center justify-between pb-2 border-b border-neutral-100 dark:border-neutral-800">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-50 dark:bg-purple-950/80 px-3 py-1 text-xs font-bold text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                <span>Step 4 of 5</span>
+                <span>·</span>
+                <span>Aadhaar Verification (चरण 4: आधार सत्यापन)</span>
+              </span>
+              <span className="text-[11px] font-semibold text-neutral-400">4 of 5</span>
+            </div>
             <div>
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
@@ -1100,6 +1173,14 @@ export default function RegisterPage() {
         {/* STEP 5: Mandi & Farm Dossier Details */}
         {step === 'profile' && (
           <form onSubmit={saveProfile} className="space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-neutral-100 dark:border-neutral-800">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 dark:bg-amber-950/80 px-3 py-1 text-xs font-bold text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                <span>Step 5 of 5</span>
+                <span>·</span>
+                <span>Farmer & Mandi Dossier (चरण 5: कृषि विवरण)</span>
+              </span>
+              <span className="text-[11px] font-semibold text-neutral-400">5 of 5</span>
+            </div>
             {/* Summary card showing Photo & Aadhaar from Steps 3 and 4 */}
             <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-emerald-50/90 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800">
               <div className="flex items-center gap-2.5">
