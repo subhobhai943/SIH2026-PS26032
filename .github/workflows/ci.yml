@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NEXT_TELEMETRY_DISABLED: 1
-      BACKEND_URL: http://51.20.193.239:5000
+      BACKEND_URL: ${{ secrets.BACKEND_URL || 'http://localhost:5000' }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4

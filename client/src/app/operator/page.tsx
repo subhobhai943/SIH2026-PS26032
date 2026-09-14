@@ -96,8 +96,8 @@ export default function OperatorPage() {
   const [authLoading, setAuthLoading] = useState(true);
 
   // Login form state
-  const [loginIdentifier, setLoginIdentifier] = useState('operator');
-  const [loginPassword, setLoginPassword] = useState('ChangeMe123!');
+  const [loginIdentifier, setLoginIdentifier] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
   const [loginError, setLoginError] = useState<string | null>(null);
   const [isSubmittingLogin, setIsSubmittingLogin] = useState(false);
 
@@ -468,7 +468,7 @@ Operator Shell: Interactive CLI Ready. Type 'help' for command cheatsheet.`,
                   value={loginIdentifier}
                   onChange={(e) => setLoginIdentifier(e.target.value)}
                   className="w-full rounded-xl bg-neutral-800 border border-neutral-700 px-3.5 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none font-mono"
-                  placeholder="operator or SUB"
+                  placeholder="Enter operator username or email"
                 />
               </div>
 
@@ -484,35 +484,6 @@ Operator Shell: Interactive CLI Ready. Type 'help' for command cheatsheet.`,
                   className="w-full rounded-xl bg-neutral-800 border border-neutral-700 px-3.5 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none font-mono"
                   placeholder="••••••••"
                 />
-              </div>
-
-              {/* Quick Fill Credentials */}
-              <div className="pt-2 border-t border-neutral-800">
-                <p className="text-[11px] font-semibold text-neutral-400 mb-2">1-Click Quick Select:</p>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setLoginIdentifier('operator');
-                      setLoginPassword('ChangeMe123!');
-                    }}
-                    className="p-2 rounded-xl bg-neutral-800 hover:bg-neutral-750 border border-neutral-700 text-left text-[11px] transition cursor-pointer"
-                  >
-                    <span className="block font-bold text-emerald-400">👤 Operator</span>
-                    <span className="text-neutral-400 font-mono text-[10px]">operator / ChangeMe123!</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setLoginIdentifier('SUB');
-                      setLoginPassword('SUB');
-                    }}
-                    className="p-2 rounded-xl bg-neutral-800 hover:bg-neutral-750 border border-neutral-700 text-left text-[11px] transition cursor-pointer"
-                  >
-                    <span className="block font-bold text-amber-400">👑 Admin (SUB)</span>
-                    <span className="text-neutral-400 font-mono text-[10px]">SUB / SUB</span>
-                  </button>
-                </div>
               </div>
 
               <button
