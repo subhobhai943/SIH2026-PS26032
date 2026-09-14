@@ -30,10 +30,10 @@ const STEP_NUM_MAP: Record<Step, number> = {
   phone: 1,
   otp: 2,
   phone_link: 2,
+  aadhaar: 3,
   photo: 3,
-  aadhaar: 4,
-  profile: 5,
-  done: 6,
+  profile: 4,
+  done: 5,
 };
 
 export default function RegisterPage() {
@@ -204,8 +204,6 @@ export default function RegisterPage() {
 
       if (data.needsPhone) {
         setStep('phone_link');
-      } else if (!gPhoto) {
-        setStep('photo');
       } else if (!f?.aadhaarNumber && !f?.aadhaarLast4) {
         setStep('aadhaar');
       } else if (!f?.village?.trim() || !f?.district?.trim()) {
@@ -257,9 +255,7 @@ export default function RegisterPage() {
         }
       }
 
-      if (!profile.photoUrl && !updatedFarmer?.photoUrl) {
-        setStep('photo');
-      } else if (!updatedFarmer?.aadhaarNumber && !updatedFarmer?.aadhaarLast4 && !profile.aadhaarNumber) {
+      if (!updatedFarmer?.aadhaarNumber && !updatedFarmer?.aadhaarLast4 && !profile.aadhaarNumber) {
         setStep('aadhaar');
       } else if (!profile.village?.trim() || !profile.district?.trim() || !updatedFarmer?.village?.trim()) {
         setStep('profile');
@@ -349,10 +345,8 @@ export default function RegisterPage() {
         }
       }
 
-      // Mandatory 5-Step Verification Routing
-      if (!f?.photoUrl) {
-        setStep('photo');
-      } else if (!f?.aadhaarNumber && !f?.aadhaarLast4) {
+      // Direct 4-Step Verification Routing (Photo is optional)
+      if (!f?.aadhaarNumber && !f?.aadhaarLast4) {
         setStep('aadhaar');
       } else if (!f?.name?.trim() || !f?.village?.trim() || !f?.district?.trim()) {
         setStep('profile');
@@ -400,7 +394,7 @@ export default function RegisterPage() {
     const rawAadhaar = profile.aadhaarNumber.replace(/\D/g, '');
     const isMaskedExisting = profile.aadhaarNumber.includes('••••');
     if (!rawAadhaar && !isMaskedExisting) {
-      setError('Please enter your 12-digit Aadhaar Number in Step 4 (कृपया 12 अंकों की आधार संख्या दर्ज करें).');
+      setError('Please enter your 12-digit Aadhaar Number in Step 3 (कृपया 12 अंकों की आधार संख्या दर्ज करें).');
       setStep('aadhaar');
       return;
     }
@@ -564,36 +558,35 @@ export default function RegisterPage() {
   const DISPLAY_STEPS = [
     { id: 'phone', label: t('reg_stepPhone'), num: 1 },
     { id: 'otp', label: t('reg_stepOtp'), num: 2 },
-    { id: 'photo', label: t('reg_stepPhoto'), num: 3 },
-    { id: 'aadhaar', label: t('reg_stepAadhaar'), num: 4 },
-    { id: 'profile', label: t('reg_stepProfile'), num: 5 },
+    { id: 'aadhaar', label: t('reg_stepAadhaar'), num: 3 },
+    { id: 'profile', label: t('reg_stepProfile'), num: 4 },
   ];
 
   return (
     <div className="mx-auto max-w-lg">
       <PageHeader
-        eyebrow="5-Step Verified Farmer Registration · 5-चरणीय किसान पंजीकरण"
+        eyebrow="Verified Farmer Registration · किसान पंजीकरण"
         title={t('reg_title')}
-        subtitle="Complete all 5 verification steps to receive your Mandi Gate Pass and unlock 2-hour DBT safety advance."
+        subtitle="Quick registration with mobile OTP and Aadhaar verification — no password to remember."
       />
 
-      {/* Accessible 5-Step Progress Stepper Bar */}
+      {/* Accessible 4-Step Progress Stepper Bar */}
       <div className="mb-4 sm:mb-6 rounded-2xl bg-white dark:bg-neutral-900 p-3 sm:p-4 border border-neutral-200 dark:border-neutral-800 shadow-sm">
         {/* Top Stepper Header */}
         <div className="flex items-center justify-between mb-2 sm:mb-3">
           <div className="flex items-center gap-2">
             <span className="inline-flex h-2 w-2 rounded-full bg-brand-600 animate-pulse" />
             <span className="text-xs font-extrabold text-brand-700 dark:text-brand-400">
-              Step {Math.min(currentStepNum, 5)} of 5: {stepLabels[step] || 'Done'}
+              Step {Math.min(currentStepNum, 4)} of 4: {stepLabels[step] || 'Done'}
             </span>
           </div>
           <span className="text-[11px] font-mono font-bold text-neutral-500 dark:text-neutral-400">
-            {Math.round((Math.min(currentStepNum, 5) / 5) * 100)}% Complete
+            {Math.round((Math.min(currentStepNum, 4) / 4) * 100)}% Complete
           </span>
         </div>
 
-        {/* Mobile 5-Step Grid (Visible on all small screens) */}
-        <div className="grid grid-cols-5 gap-1 pt-1 pb-2 sm:hidden border-b border-neutral-100 dark:border-neutral-800">
+        {/* Mobile 4-Step Grid (Visible on all small screens) */}
+        <div className="grid grid-cols-4 gap-1.5 pt-1 pb-2 sm:hidden border-b border-neutral-100 dark:border-neutral-800">
           {DISPLAY_STEPS.map((s) => {
             const isPassed = s.num < currentStepNum;
             const isCurrent = s.num === currentStepNum;
@@ -619,7 +612,7 @@ export default function RegisterPage() {
                 >
                   {isPassed ? '✓' : s.num}
                 </span>
-                <span className="text-[9px] font-bold truncate max-w-full leading-tight">{s.label}</span>
+                <span className="text-[10px] font-bold truncate max-w-full leading-tight">{s.label}</span>
               </div>
             );
           })}
@@ -673,11 +666,11 @@ export default function RegisterPage() {
           <div className="space-y-5">
             <div className="flex items-center justify-between pb-2 border-b border-neutral-100 dark:border-neutral-800">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 dark:bg-blue-950/80 px-3 py-1 text-xs font-bold text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                <span>Step 1 of 5</span>
+                <span>Step 1 of 4</span>
                 <span>·</span>
                 <span>Mobile Login (चरण 1: मोबाइल सत्यापन)</span>
               </span>
-              <span className="text-[11px] font-semibold text-neutral-400">1 of 5</span>
+              <span className="text-[11px] font-semibold text-neutral-400">1 of 4</span>
             </div>
             {/* Option A: Continue with Google */}
             <div className="space-y-2">
@@ -744,11 +737,11 @@ export default function RegisterPage() {
           <form onSubmit={verifyOtp} className="space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-neutral-100 dark:border-neutral-800">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 dark:bg-brand-950/80 px-3 py-1 text-xs font-bold text-brand-700 dark:text-brand-300 border border-brand-200 dark:border-brand-800">
-                <span>Step 2 of 5</span>
+                <span>Step 2 of 4</span>
                 <span>·</span>
                 <span>OTP Verification (चरण 2: ओटीपी सत्यापन)</span>
               </span>
-              <span className="text-[11px] font-semibold text-neutral-400">2 of 5</span>
+              <span className="text-[11px] font-semibold text-neutral-400">2 of 4</span>
             </div>
             <p className="text-sm text-neutral-600 dark:text-neutral-300">
               {t('reg_otpDesc')} <span className="font-semibold text-neutral-900 dark:text-neutral-100">+91 {phone}</span>.
@@ -781,11 +774,11 @@ export default function RegisterPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-neutral-100 dark:border-neutral-800">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 dark:bg-brand-950/80 px-3 py-1 text-xs font-bold text-brand-700 dark:text-brand-300 border border-brand-200 dark:border-brand-800">
-                <span>Step 2 of 5</span>
+                <span>Step 2 of 4</span>
                 <span>·</span>
                 <span>Link Mobile (चरण 2: मोबाइल लिंक करें)</span>
               </span>
-              <span className="text-[11px] font-semibold text-neutral-400">2 of 5</span>
+              <span className="text-[11px] font-semibold text-neutral-400">2 of 4</span>
             </div>
             {googleUser && (
               <div className="flex items-center gap-3 rounded-xl bg-neutral-50 dark:bg-neutral-800 p-3.5 border border-neutral-200 dark:border-neutral-700">
@@ -865,24 +858,30 @@ export default function RegisterPage() {
           </div>
         )}
 
-        {/* STEP 3: Farmer Photo Upload */}
+        {/* OPTIONAL STEP: Farmer Photo Upload */}
         {step === 'photo' && (
           <div className="space-y-5">
             <div className="flex items-center justify-between pb-2 border-b border-neutral-100 dark:border-neutral-800">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/80 px-3 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                <span>Step 3 of 5</span>
+                <span>Profile Photo (वैकल्पिक फोटो)</span>
                 <span>·</span>
-                <span>Farmer Photo (चरण 3: किसान फोटो)</span>
+                <span>Optional</span>
               </span>
-              <span className="text-[11px] font-semibold text-neutral-400">3 of 5</span>
+              <button
+                type="button"
+                onClick={() => setStep('aadhaar')}
+                className="text-xs text-brand-600 dark:text-brand-400 font-bold hover:underline"
+              >
+                Skip Photo →
+              </button>
             </div>
             <div>
               <h3 className="text-base font-bold text-neutral-900 flex items-center gap-2">
                 <IconCamera className="h-5 w-5 text-brand-600" />
-                {t('reg_uploadPhotoTitle')}
+                <span>{t('reg_uploadPhotoTitle')} (Optional · ऐच्छिक)</span>
               </h3>
               <p className="mt-1 text-xs text-neutral-500 leading-relaxed">
-                {t('reg_uploadPhotoSubtitle')} (Mandatory for biometric identity on Mandi Gate Pass)
+                Capture or upload your profile picture. You can add it now or skip to complete registration without a photo.
               </p>
             </div>
 
@@ -924,6 +923,16 @@ export default function RegisterPage() {
                       <IconUpload className="h-4 w-4" />
                       {t('reg_changePhoto')}
                     </Button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPhotoPreview(null);
+                        setProfile((p) => ({ ...p, photoUrl: '' }));
+                      }}
+                      className="text-xs text-red-600 hover:underline font-semibold block w-full pt-1 cursor-pointer"
+                    >
+                      Remove Photo
+                    </button>
                   </div>
                 </div>
               ) : (
@@ -954,41 +963,27 @@ export default function RegisterPage() {
                       </Button>
                     </div>
                     <p className="mt-3 text-[11px] text-neutral-400">
-                      Capture live photo with camera or choose an existing portrait photo
+                      Optional: Capture live photo with camera or choose from gallery
                     </p>
                   </div>
                 </div>
               )}
-
-              {/* Hidden file input with direct camera trigger */}
-              <input
-                ref={cameraInputRef}
-                type="file"
-                accept="image/*"
-                capture="user"
-                className="hidden"
-                onChange={handlePhotoSelected}
-              />
-              {/* Hidden file input for file picker/gallery */}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handlePhotoSelected}
-              />
             </div>
 
-            <div className="pt-2">
+            <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setStep('aadhaar')}
+                className="w-full sm:w-auto text-center text-xs font-bold text-neutral-500 hover:text-neutral-700 py-2.5 px-4 transition"
+              >
+                Skip for Now (बाद में जोड़ें) →
+              </button>
+
               <Button
                 type="button"
-                className="w-full py-3 text-base"
-                disabled={!profile.photoUrl || uploadingPhoto}
+                className="w-full sm:flex-1 py-3 text-base"
+                disabled={uploadingPhoto}
                 onClick={() => {
-                  if (!profile.photoUrl) {
-                    setError('Please take or upload your identification photograph before continuing.');
-                    return;
-                  }
                   setError(null);
                   setStep('aadhaar');
                 }}
@@ -996,29 +991,29 @@ export default function RegisterPage() {
                 {uploadingPhoto
                   ? 'Uploading photograph...'
                   : profile.photoUrl
-                  ? 'Continue to Step 4: Aadhaar Verification (आधार सत्यापन) →'
-                  : 'Take or Upload Photo to Continue'}
+                  ? 'Continue to Aadhaar (आगे बढ़ें) →'
+                  : 'Continue without Photo (फोटो छोड़ें / आगे बढ़ें) →'}
               </Button>
             </div>
           </div>
         )}
 
-        {/* STEP 4: Mandatory Aadhaar Verification */}
+        {/* STEP 3: Mandatory Aadhaar Verification */}
         {step === 'aadhaar' && (
           <div className="space-y-5">
             <div className="flex items-center justify-between pb-2 border-b border-neutral-100 dark:border-neutral-800">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-50 dark:bg-purple-950/80 px-3 py-1 text-xs font-bold text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
-                <span>Step 4 of 5</span>
+                <span>Step 3 of 4</span>
                 <span>·</span>
-                <span>Aadhaar Verification (चरण 4: आधार सत्यापन)</span>
+                <span>Aadhaar Verification (चरण 3: आधार सत्यापन)</span>
               </span>
-              <span className="text-[11px] font-semibold text-neutral-400">4 of 5</span>
+              <span className="text-[11px] font-semibold text-neutral-400">3 of 4</span>
             </div>
             <div>
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
                   <IconShieldCheck className="h-5 w-5 text-brand-600 dark:text-brand-400" />
-                  <span>Step 4: Aadhaar Verification (आधार सत्यापन)</span>
+                  <span>Step 3: Aadhaar Verification (आधार सत्यापन)</span>
                 </h3>
                 <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/80 px-2 py-0.5 rounded-full border border-emerald-300 dark:border-emerald-800">
                   Govt. DBT Mandate
@@ -1143,10 +1138,18 @@ export default function RegisterPage() {
             <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
               <button
                 type="button"
-                onClick={() => setStep('photo')}
-                className="w-full sm:w-auto text-center text-xs font-bold text-neutral-500 hover:text-neutral-700 py-2.5 px-4 transition"
+                onClick={() => {
+                  if (googleUser && !googleUser.email) {
+                    setStep('phone_link');
+                  } else if (confirmationResult || phone) {
+                    setStep('otp');
+                  } else {
+                    setStep('phone');
+                  }
+                }}
+                className="w-full sm:w-auto text-center text-xs font-bold text-neutral-500 hover:text-neutral-700 py-2.5 px-4 transition cursor-pointer"
               >
-                ← Back to Photo
+                ← Back to Phone / OTP
               </button>
 
               <Button
@@ -1164,45 +1167,37 @@ export default function RegisterPage() {
                   setStep('profile');
                 }}
               >
-                <span>Continue to Step 5: Farm Profile (विवरण) →</span>
+                <span>Continue to Step 4: Farm Profile (विवरण) →</span>
               </Button>
             </div>
           </div>
         )}
 
-        {/* STEP 5: Mandi & Farm Dossier Details */}
+        {/* STEP 4: Mandi & Farm Dossier Details */}
         {step === 'profile' && (
           <form onSubmit={saveProfile} className="space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-neutral-100 dark:border-neutral-800">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 dark:bg-amber-950/80 px-3 py-1 text-xs font-bold text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
-                <span>Step 5 of 5</span>
+                <span>Step 4 of 4</span>
                 <span>·</span>
-                <span>Farmer & Mandi Dossier (चरण 5: कृषि विवरण)</span>
+                <span>Farmer Profile & Land Details (चरण 4: किसान विवरण)</span>
               </span>
-              <span className="text-[11px] font-semibold text-neutral-400">5 of 5</span>
+              <span className="text-[11px] font-semibold text-neutral-400">4 of 4</span>
             </div>
-            {/* Summary card showing Photo & Aadhaar from Steps 3 and 4 */}
+
+            {/* Summary card showing Aadhaar from Step 3 */}
             <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-emerald-50/90 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800">
               <div className="flex items-center gap-2.5">
-                {profile.photoUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={profile.photoUrl}
-                    alt="Farmer"
-                    className="h-10 w-10 rounded-full object-cover border border-emerald-400 shrink-0"
-                  />
-                ) : (
-                  <div className="h-10 w-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold shrink-0">
-                    🌾
-                  </div>
-                )}
+                <div className="h-8 w-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                  🆔
+                </div>
                 <div className="text-xs min-w-0">
                   <p className="font-bold text-emerald-950 dark:text-emerald-100 flex items-center gap-1">
                     <IconCheck className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 stroke-[3]" />
-                    <span>Identity & Aadhaar Verified</span>
+                    <span>Aadhaar Verified (DBT Eligible)</span>
                   </p>
                   <p className="font-mono text-[10px] text-emerald-700 dark:text-emerald-400 truncate">
-                    Aadhaar: •••• •••• {profile.aadhaarNumber.replace(/\D/g, '').slice(-4) || 'Verified'}
+                    •••• •••• {profile.aadhaarNumber.replace(/\D/g, '').slice(-4) || 'Verified'}
                   </p>
                 </div>
               </div>
@@ -1218,11 +1213,90 @@ export default function RegisterPage() {
             <div>
               <h3 className="text-base font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
                 <IconUser className="h-5 w-5 text-brand-600 dark:text-brand-400" />
-                <span>Step 5: Farmer & Mandi Dossier (किसान एवं कृषि विवरण)</span>
+                <span>Step 4: Farmer Profile & Mandi Dossier (किसान एवं कृषि विवरण)</span>
               </h3>
               <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
                 Enter your agricultural address and landholding for official Mandi Gate Pass issuance.
               </p>
+            </div>
+
+            {/* Optional Profile Photo Section */}
+            <div className="rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-neutral-50/70 dark:bg-neutral-800/50 p-3.5 sm:p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <IconCamera className="h-4 w-4 text-brand-600 dark:text-brand-400" />
+                  <span className="text-xs font-bold text-neutral-900 dark:text-neutral-100">
+                    Profile Photo (किसान की फोटो)
+                  </span>
+                </div>
+                <span className="text-[10px] font-semibold text-neutral-500 dark:text-neutral-400 bg-neutral-200/70 dark:bg-neutral-700 px-2 py-0.5 rounded-full">
+                  Optional · ऐच्छिक
+                </span>
+              </div>
+
+              <div className="flex items-center gap-3 sm:gap-4">
+                {/* Photo Preview Thumbnail */}
+                <div className="relative shrink-0">
+                  {photoPreview || profile.photoUrl ? (
+                    <div className="relative h-14 w-14 sm:h-16 sm:w-16 overflow-hidden rounded-full border-2 border-brand-500 shadow-sm">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={photoPreview || profile.photoUrl}
+                        alt="Farmer profile preview"
+                        className="h-full w-full object-cover"
+                      />
+                      <div className="absolute bottom-0 right-0 rounded-full bg-emerald-600 p-0.5 text-white">
+                        <IconCheck className="h-2.5 w-2.5" />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-neutral-200 dark:bg-neutral-700 text-neutral-500 dark:text-neutral-400 font-bold border border-neutral-300 dark:border-neutral-600">
+                      <IconUser className="h-6 w-6 sm:h-7 sm:w-7" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Upload / Camera Action Buttons */}
+                <div className="flex-1 min-w-0 space-y-1.5">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      disabled={uploadingPhoto}
+                      onClick={() => cameraInputRef.current?.click()}
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 px-2.5 py-1.5 text-xs font-semibold text-neutral-800 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition shadow-2xs cursor-pointer disabled:opacity-50"
+                    >
+                      <IconCamera className="h-3.5 w-3.5 text-brand-600" />
+                      <span>{uploadingPhoto ? 'Processing...' : 'Take Photo'}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      disabled={uploadingPhoto}
+                      onClick={() => fileInputRef.current?.click()}
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 px-2.5 py-1.5 text-xs font-semibold text-neutral-800 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition shadow-2xs cursor-pointer disabled:opacity-50"
+                    >
+                      <IconUpload className="h-3.5 w-3.5 text-brand-600" />
+                      <span>Choose File</span>
+                    </button>
+
+                    {(photoPreview || profile.photoUrl) && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPhotoPreview(null);
+                          setProfile((p) => ({ ...p, photoUrl: '' }));
+                        }}
+                        className="text-xs text-red-600 dark:text-red-400 hover:underline font-medium px-1 cursor-pointer"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-neutral-500 dark:text-neutral-400 leading-tight">
+                    Optional: Take a selfie or upload from gallery. You can register without a photo.
+                  </p>
+                </div>
+              </div>
             </div>
 
             <TextField
@@ -1310,7 +1384,7 @@ export default function RegisterPage() {
                   onClick={() => setStep('photo')}
                   className="hover:underline cursor-pointer"
                 >
-                  📷 Change Photo
+                  📷 {profile.photoUrl ? 'Change Photo' : 'Add Photo (Optional)'}
                 </button>
                 <span className="text-neutral-300">·</span>
                 <button
@@ -1332,6 +1406,23 @@ export default function RegisterPage() {
             </div>
           </div>
         )}
+
+        {/* Hidden Camera & File Inputs for Profile Photo (shared across all steps) */}
+        <input
+          ref={cameraInputRef}
+          type="file"
+          accept="image/*"
+          capture="user"
+          className="hidden"
+          onChange={handlePhotoSelected}
+        />
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handlePhotoSelected}
+        />
         </Card>
       </div>
     </div>

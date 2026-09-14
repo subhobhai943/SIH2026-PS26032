@@ -92,7 +92,6 @@ export const verifyOtp = asyncHandler(async (req, res) => {
 
   const isProfileComplete = Boolean(
     farmer.name?.trim() &&
-    farmer.photoUrl?.trim() &&
     farmer.village?.trim() &&
     (farmer.aadhaarNumber || farmer.aadhaarLast4)
   );
@@ -128,7 +127,6 @@ export const verifyFirebase = asyncHandler(async (req, res) => {
 
   const isProfileComplete = Boolean(
     farmer.name?.trim() &&
-    farmer.photoUrl?.trim() &&
     farmer.village?.trim() &&
     (farmer.aadhaarNumber || farmer.aadhaarLast4)
   );
