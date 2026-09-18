@@ -381,18 +381,9 @@ export function SiteHeader() {
       <div className="bg-neutral-900 text-neutral-300 text-[10px] sm:text-[11px] font-medium border-b border-neutral-800 dark:bg-neutral-950 dark:border-neutral-800">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-3 py-1 sm:px-6">
           <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
-            <span className="inline-block h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-emerald-500 shrink-0"></span>
-            <span className="font-semibold text-neutral-100 truncate">भारत सरकार | Gov. of India</span>
-            <span className="hidden md:inline text-neutral-500">·</span>
-            <span className="hidden md:inline text-neutral-300 truncate">
-              Ministry of Consumer Affairs, Food & Public Distribution
-            </span>
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3 text-[10px] shrink-0">
-            <span className="hidden lg:inline rounded bg-neutral-800 px-2 py-0.5 font-medium text-emerald-400 border border-neutral-700">
-              राष्ट्रीय ई-उपार्जन पोर्टल · National e-Procurement Portal
-            </span>
 
             {/* Accessibility Font Size Scaling Toolbar */}
             <div
